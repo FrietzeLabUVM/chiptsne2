@@ -33,7 +33,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
     if(is.null(names(query_gr))){
         stop("names must be set on query_gr")
     }
-    if(!unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr)){
+    if(!all(unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr))){
         stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
     }
     if(!is.null(sample_meta_dt)){
@@ -85,7 +85,12 @@ ChIPtsne2.from_tidy = function(prof_dt,
     }
 
     #create wide profile matrix
-    tmp_wide = tidyr::pivot_wider(prof_dt, names_from = all_of(c(name_VAR, position_VAR)), values_from = value_VAR, id_cols = region_VAR)
+    tmp_wide = tidyr::pivot_wider(
+        prof_dt,
+        names_from = all_of(c(name_VAR, position_VAR)),
+        values_from = all_of(c(value_VAR)),
+        id_cols = all_of(c(region_VAR))
+    )
     prof_mat = as.matrix(tmp_wide[, -1])
     rownames(prof_mat) = tmp_wide[[region_VAR]]
     prof_mat = prof_mat[names(query_gr),]
@@ -94,7 +99,11 @@ ChIPtsne2.from_tidy = function(prof_dt,
     prof_max = prof_dt %>%
         dplyr::group_by(id, sample) %>%
         dplyr::summarise(y = max(y)) %>%
-        tidyr::pivot_wider(names_from = name_VAR, id_cols = region_VAR, values_from = value_VAR)
+        tidyr::pivot_wider(
+            names_from = all_of(c(name_VAR)),
+            id_cols = all_of(c(region_VAR)),
+            values_from = all_of(c(value_VAR))
+        )
     prof_max_mat = as.matrix(prof_max[, -1])
     rownames(prof_max_mat) = prof_max[[region_VAR]]
     prof_max_mat = prof_max_mat[names(query_gr),]
@@ -102,7 +111,21 @@ ChIPtsne2.from_tidy = function(prof_dt,
     xy_dt = tsne_from_profile_mat(prof_mat)
 
     if(is.null(sample_meta_dt)){
-        sample_meta_dt = unique(prof_dt[, c(name_VAR), with = FALSE])
+        sample_meta_dt = prof_dt %>%
+            dplyr::select(all_of(c(name_VAR))) %>%
+            unique
+    }
+
+    if(!is.null(region_meta_dt)){
+        #merge region_meta_dt into query_gr
+        #region_meta_dt is not used after
+        region_meta_dt
+        new_mcols = cbind(
+            mcols(query_gr[region_meta_dt[[region_VAR]]]),
+            as.data.frame(region_meta_dt %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
+        )
+        mcols(query_gr) = NULL
+        mcols(query_gr) = new_mcols
     }
 
 
@@ -113,6 +136,12 @@ ChIPtsne2.from_tidy = function(prof_dt,
     stopifnot(map_dt$cn == colnames(prof_mat))
     map_dt = dplyr::mutate(map_dt, nr = seq(nrow(map_dt)))
     map_list = split(map_dt$n, map_dt[[name_VAR]])
+
+    #impose cn and rn
+    prof_max_mat = prof_max_mat[rn, cn]
+    query_gr = query_gr[rn]
+    prof_mat = prof_mat[rn, ]
+    map_list = map_list[cn]
 
     ChIPtsne2(assay = list(max = prof_max_mat),
               rowRanges = query_gr,
