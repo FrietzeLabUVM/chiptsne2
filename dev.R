@@ -26,13 +26,6 @@ prof_max = prof_dt[, .(y = max(y)), .(id, sample)] %>%
 prof_max_mat = as.matrix(prof_max[, -1])
 rownames(prof_max_mat) = prof_max$id
 
-tsne_from_profile_mat = function(prof_mat){
-    tsne_res = Rtsne::Rtsne(prof_mat)
-    xy_dt = as.data.frame(tsne_res$Y)
-    colnames(xy_dt) =  c("tx", "ty")
-    rownames(xy_dt) = rownames(prof_mat)
-    xy_dt
-}
 
 
 

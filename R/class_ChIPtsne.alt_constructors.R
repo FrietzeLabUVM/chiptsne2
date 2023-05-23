@@ -17,37 +17,100 @@
 #' ChIPtsne2.from_tidy(prof_dt, query_gr)
 ChIPtsne2.from_tidy = function(prof_dt,
                                query_gr,
-                               meta_dt = NULL,
+                               sample_meta_dt = NULL,
+                               region_meta_dt = NULL,
                                name_VAR = "sample",
                                position_VAR = "x",
                                value_VAR = "y",
                                region_VAR = "id"){
+    #basic VAR checks
+    if(!all(c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt))){
+        missed = !c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt)
+        missed_msg = paste(c("name_VAR", "position_VAR", "value_VAR", "region_VAR")[missed],
+                           c(name_VAR, position_VAR, value_VAR, region_VAR)[missed], sep = ": ")
+        stop(paste(c("Missing required VAR in prof_dt:", missed_msg, collapse = "\n")))
+    }
+    if(is.null(names(query_gr))){
+        stop("names must be set on query_gr")
+    }
+    if(!unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr)){
+        stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
+    }
+    if(!is.null(sample_meta_dt)){
+        if(!name_VAR %in% colnames(sample_meta_dt)){
+            stop("name_VAR: ", name_VAR, " not found in sample_meta_dt.")
+        }
+    }
+    if(!is.null(region_meta_dt)){
+        if(!region_VAR %in% colnames(region_meta_dt)){
+            stop("region_VAR: ", region_VAR, " not found in region_meta_dt")
+        }
+    }
 
-    prof_dt[, setdiff(colnames(prof_dt), c("seqnames", "start", "end", "width", "strand")), with = FALSE]
+    #determine colname order
+    cn = NULL
+    # use sample_meta_dt over prof_dt if provided and levels of factor if set, otherwise current order of character
+    if(!is.null(sample_meta_dt)){
+        if(is.factor(sample_meta_dt[[name_VAR]])){
+            cn = levels(sample_meta_dt[[name_VAR]])
+        }else if(is.character(sample_meta_dt[[name_VAR]])){
+            cn = unique(sample_meta_dt[[name_VAR]])
+        }
+    }else{
+        if(is.factor(prof_dt[[name_VAR]])){
+            cn = levels(prof_dt[[name_VAR]])
+        }else if(is.character(prof_dt[[name_VAR]])){
+            cn = unique(prof_dt[[name_VAR]])
+        }
+    }
+    if(is.null(cn)){
+        stop("Could not determine column order from prof_dt (or sample_meta_dt if provided) from name_VAR: ", name_VAR, "\nIs ", name_VAR, " present and a character or factor?")
+    }
+
+    #determine rownames order
+    rn = NULL
+    # use prof_dt levels of factor if set, otherwise current order of character
+    if(!is.null(prof_dt)){
+        if(is.factor(prof_dt[[region_VAR]])){
+            rn = levels(prof_dt[[region_VAR]])
+        }else if(is.character(prof_dt[[region_VAR]])){
+            rn = unique(prof_dt[[region_VAR]])
+        }
+    }
+    if(is.null(rn)){
+        stop("Could not determine row order from prof_dt from region_VAR: ", region_VAR, "\nIs ", region_VAR, " present and a character or factor?")
+    }
+    if(!setequal(names(query_gr), rn)){
+        stop("names(query_gr) is not consistent with region_VAR: ", region_VAR, " in prof_dt")
+    }
 
     #create wide profile matrix
     tmp_wide = tidyr::pivot_wider(prof_dt, names_from = all_of(c(name_VAR, position_VAR)), values_from = value_VAR, id_cols = region_VAR)
     prof_mat = as.matrix(tmp_wide[, -1])
-    rownames(prof_mat) = tmp_wide$id
+    rownames(prof_mat) = tmp_wide[[region_VAR]]
+    prof_mat = prof_mat[names(query_gr),]
 
     #create max assay
-    prof_max = prof_dt[, .(y = max(y)), .(id, sample)] %>%
+    prof_max = prof_dt %>%
+        dplyr::group_by(id, sample) %>%
+        dplyr::summarise(y = max(y)) %>%
         tidyr::pivot_wider(names_from = name_VAR, id_cols = region_VAR, values_from = value_VAR)
     prof_max_mat = as.matrix(prof_max[, -1])
-    rownames(prof_max_mat) = prof_max$id
+    rownames(prof_max_mat) = prof_max[[region_VAR]]
+    prof_max_mat = prof_max_mat[names(query_gr),]
 
     xy_dt = tsne_from_profile_mat(prof_mat)
 
-    if(is.null(meta_dt)){
-        meta_dt = unique(prof_dt[, c(name_VAR), with = FALSE])
+    if(is.null(sample_meta_dt)){
+        sample_meta_dt = unique(prof_dt[, c(name_VAR), with = FALSE])
     }
 
 
-    map_dt = unique(prof_dt[, c(position_VAR, name_VAR), with = FALSE])
-    map_dt[, cn := paste(name_VAR, position_VAR, sep = "_")]
+    map_dt = prof_dt %>%
+        dplyr::select(all_of(c(name_VAR, position_VAR))) %>%
+        unique
     map_dt = dplyr::mutate(map_dt, cn = paste(get(name_VAR), get(position_VAR), sep = "_"))
-    cn = map_dt$cn
-    stopifnot(cn == colnames(prof_mat))
+    stopifnot(map_dt$cn == colnames(prof_mat))
     map_dt = dplyr::mutate(map_dt, nr = seq(nrow(map_dt)))
     map_list = split(map_dt$n, map_dt[[name_VAR]])
 
@@ -55,6 +118,14 @@ ChIPtsne2.from_tidy = function(prof_dt,
               rowRanges = query_gr,
               rowToRowMat = prof_mat,
               colToRowMatCols = map_list,
-              colData = meta_dt,
+              colData = sample_meta_dt,
               metadata = list(time = date()))
+}
+
+tsne_from_profile_mat = function(prof_mat){
+    tsne_res = Rtsne::Rtsne(prof_mat)
+    xy_dt = as.data.frame(tsne_res$Y)
+    colnames(xy_dt) =  c("tx", "ty")
+    rownames(xy_dt) = rownames(prof_mat)
+    xy_dt
 }
