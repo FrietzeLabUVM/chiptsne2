@@ -8,8 +8,8 @@ library(data.table)
 query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
 
-meta_dt = prof_dt %>% dplyr::select(sample) %>% unique
-meta_dt = meta_dt %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+metadata = prof_dt %>% dplyr::select(sample) %>% unique
+metadata = metadata %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
 
 map_dt = prof_dt %>% dplyr::select(sample, x) %>% unique %>%
     dplyr::mutate(cn = paste(sample, x, sep = "_")) %>%
@@ -32,15 +32,15 @@ ct = ChIPtsne2(assay = list(max = prof_max_mat[names(query_gr),]),
                rowRanges = query_gr,
                rowToRowMat = prof_mat,
                colToRowMatCols = map_list,
-               colData = meta_dt,
+               colData = metadata,
                metadata = list(time = date()))
 
 
 prof_dt = seqsetvis::ssvSignalClustering(prof_dt, nclust = 4)
-region_meta_dt = prof_dt %>% dplyr::select(id, cluster_id) %>% unique
+region_metadata = prof_dt %>% dplyr::select(id, cluster_id) %>% unique
 
 # debug(ChIPtsne2.from_tidy)
-ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, region_meta_dt = region_meta_dt)
+ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, region_metadata = region_metadata)
 
 test_that("Constructors - valid", {
     expect_true(validObject(ct2))

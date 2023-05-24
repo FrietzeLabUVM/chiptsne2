@@ -7,19 +7,19 @@
 ChIPtsne2.from_tidy(
   prof_dt,
   query_gr,
-  meta_dt = NULL,
+  sample_metadata = NULL,
+  region_metadata = NULL,
   name_VAR = "sample",
   position_VAR = "x",
   value_VAR = "y",
-  region_VAR = "id"
+  region_VAR = "id",
+  auto_sample_metadata = TRUE
 )
 }
 \arguments{
 \item{prof_dt}{Profile data.table, as returned from seqsetvis::ssvFetch* functions}
 
 \item{query_gr}{The query GRanges object used to fetch prof_dt.}
-
-\item{meta_dt}{Additional information for each name_VAR entry in prof_dt.}
 
 \item{name_VAR}{Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "sample".}
 
@@ -28,6 +28,8 @@ ChIPtsne2.from_tidy(
 \item{value_VAR}{Variable name that contains signal value information in prof_dt. Default is "y".}
 
 \item{region_VAR}{Variable name that contains region ID information in prof_dt. Default is "id".}
+
+\item{meta_dt}{Additional information for each name_VAR entry in prof_dt.}
 }
 \value{
 ChIPtsne2 object with tsne results
@@ -38,5 +40,6 @@ ChIPtsne2.from_tidy
 \examples{
 query_gr = CTCF_in_10a_overlaps_gr
 prof_dt = CTCF_in_10a_profiles_dt
-ChIPtsne2.from_tidy(prof_dt, query_gr)
+ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr)
+ct2
 }

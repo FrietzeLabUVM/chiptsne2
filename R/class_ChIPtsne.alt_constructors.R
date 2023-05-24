@@ -1,3 +1,7 @@
+ChIPtsne2.from_config = function(){
+
+}
+
 #' ChIPtsne2.from_tidy
 #'
 #' @param prof_dt Profile data.table, as returned from seqsetvis::ssvFetch* functions
@@ -14,15 +18,17 @@
 #' @examples
 #' query_gr = CTCF_in_10a_overlaps_gr
 #' prof_dt = CTCF_in_10a_profiles_dt
-#' ChIPtsne2.from_tidy(prof_dt, query_gr)
+#' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr)
+#' ct2
 ChIPtsne2.from_tidy = function(prof_dt,
                                query_gr,
-                               sample_meta_dt = NULL,
-                               region_meta_dt = NULL,
+                               sample_metadata = NULL,
+                               region_metadata = NULL,
                                name_VAR = "sample",
                                position_VAR = "x",
                                value_VAR = "y",
-                               region_VAR = "id"){
+                               region_VAR = "id",
+                               auto_sample_metadata = TRUE){
     #basic VAR checks
     if(!all(c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt))){
         missed = !c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt)
@@ -31,30 +37,30 @@ ChIPtsne2.from_tidy = function(prof_dt,
         stop(paste(c("Missing required VAR in prof_dt:", missed_msg, collapse = "\n")))
     }
     if(is.null(names(query_gr))){
-        stop("names must be set on query_gr")
+        stop("names() must be set on query_gr. Maybe call seqsetvis::prepare_fetch_GRanges_names on query_gr before fetching prof_dt?")
     }
     if(!all(unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr))){
         stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
     }
-    if(!is.null(sample_meta_dt)){
-        if(!name_VAR %in% colnames(sample_meta_dt)){
-            stop("name_VAR: ", name_VAR, " not found in sample_meta_dt.")
+    if(!is.null(sample_metadata)){
+        if(!name_VAR %in% colnames(sample_metadata)){
+            stop("name_VAR: ", name_VAR, " not found in sample_metadata.")
         }
     }
-    if(!is.null(region_meta_dt)){
-        if(!region_VAR %in% colnames(region_meta_dt)){
-            stop("region_VAR: ", region_VAR, " not found in region_meta_dt")
+    if(!is.null(region_metadata)){
+        if(!region_VAR %in% colnames(region_metadata)){
+            stop("region_VAR: ", region_VAR, " not found in region_metadata")
         }
     }
 
     #determine colname order
     cn = NULL
-    # use sample_meta_dt over prof_dt if provided and levels of factor if set, otherwise current order of character
-    if(!is.null(sample_meta_dt)){
-        if(is.factor(sample_meta_dt[[name_VAR]])){
-            cn = levels(sample_meta_dt[[name_VAR]])
-        }else if(is.character(sample_meta_dt[[name_VAR]])){
-            cn = unique(sample_meta_dt[[name_VAR]])
+    # use sample_metadata over prof_dt if provided and levels of factor if set, otherwise current order of character
+    if(!is.null(sample_metadata)){
+        if(is.factor(sample_metadata[[name_VAR]])){
+            cn = levels(sample_metadata[[name_VAR]])
+        }else if(is.character(sample_metadata[[name_VAR]])){
+            cn = unique(sample_metadata[[name_VAR]])
         }
     }else{
         if(is.factor(prof_dt[[name_VAR]])){
@@ -64,7 +70,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
         }
     }
     if(is.null(cn)){
-        stop("Could not determine column order from prof_dt (or sample_meta_dt if provided) from name_VAR: ", name_VAR, "\nIs ", name_VAR, " present and a character or factor?")
+        stop("Could not determine column order from prof_dt (or sample_metadata if provided) from name_VAR: ", name_VAR, "\nIs ", name_VAR, " present and a character or factor?")
     }
 
     #determine rownames order
@@ -110,19 +116,40 @@ ChIPtsne2.from_tidy = function(prof_dt,
 
     xy_dt = tsne_from_profile_mat(prof_mat)
 
-    if(is.null(sample_meta_dt)){
-        sample_meta_dt = prof_dt %>%
-            dplyr::select(all_of(c(name_VAR))) %>%
-            unique
+    if(is.null(sample_metadata)){
+        if(auto_sample_metadata){
+            drop_vars = c("seqnames",
+                          "start",
+                          "end",
+                          "width",
+                          "strand",
+                          "id",
+                          "y",
+                          "x",
+                          "cluster_id")
+            sample_metadata = prof_dt %>%
+                # dplyr::select(all_of(c(name_VAR))) %>%
+                dplyr::select(!any_of(c(drop_vars))) %>%
+                unique
+            if(nrow(sample_metadata) != length(cn)){
+                stop("Something has gone wrong attempting to automatically derive sample_metadata. Either supply explicitly or disable with auto_sample_metadata = FALSE")
+            }
+        }else{
+            sample_metadata = data.frame(V1 = cn)
+            colnames(sample_metadata) = name_VAR
+        }
     }
+    sample_metadata = as.data.frame(sample_metadata)
+    rownames(sample_metadata) = sample_metadata[[name_VAR]]
+    sample_metadata[[name_VAR]] = NULL
 
-    if(!is.null(region_meta_dt)){
-        #merge region_meta_dt into query_gr
-        #region_meta_dt is not used after
-        region_meta_dt
+    if(!is.null(region_metadata)){
+        #merge region_metadata into query_gr
+        #region_metadata is not used after
+        region_metadata
         new_mcols = cbind(
-            mcols(query_gr[region_meta_dt[[region_VAR]]]),
-            as.data.frame(region_meta_dt %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
+            mcols(query_gr[region_metadata[[region_VAR]]]),
+            as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
         )
         mcols(query_gr) = NULL
         mcols(query_gr) = new_mcols
@@ -147,7 +174,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
               rowRanges = query_gr,
               rowToRowMat = prof_mat,
               colToRowMatCols = map_list,
-              colData = sample_meta_dt,
+              colData = sample_metadata,
               metadata = list(time = date()))
 }
 
