@@ -15,14 +15,19 @@ meta_dt = meta_dt %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remo
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 colData(ct2)
 
-ChIPtsne2.from_tidy(prof_dt, query_gr) %>% colData
+ct2.no_meta = ChIPtsne2.from_tidy(prof_dt, query_gr)
 
 prof_dt2 = copy(prof_dt)
 prof_dt2 = prof_dt2 %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+prof_dt2$extra = 1
 
-ChIPtsne2.from_tidy(prof_dt2, query_gr) %>% colData
-ChIPtsne2.from_tidy(prof_dt2, query_gr, auto_sample_metadata = FALSE) %>% colData
+ct2.auto = ChIPtsne2.from_tidy(prof_dt2, query_gr)
+ct2.no_auto = ChIPtsne2.from_tidy(prof_dt2, query_gr, auto_sample_metadata = FALSE)
 
-test_that("Constructors - valid", {
+test_that("Meta", {
+    expect_setequal(colnames(colData(ct2)), c("cell", "mark"))
+    expect_setequal(colnames(colData(ct2.no_meta)), character())
+    expect_setequal(colnames(colData(ct2.auto)), c("cell", "mark", "extra"))
+    expect_setequal(colnames(colData(ct2.no_auto)), character())
 })
 
