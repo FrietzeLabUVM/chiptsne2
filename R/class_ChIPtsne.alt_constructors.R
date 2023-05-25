@@ -28,7 +28,8 @@ ChIPtsne2.from_tidy = function(prof_dt,
                                position_VAR = "x",
                                value_VAR = "y",
                                region_VAR = "id",
-                               auto_sample_metadata = TRUE){
+                               auto_sample_metadata = TRUE,
+                               obj_history = list(birthday = date())){
     #basic VAR checks
     if(!all(c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt))){
         missed = !c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt)
@@ -108,10 +109,14 @@ ChIPtsne2.from_tidy = function(prof_dt,
     rownames(prof_mat) = tmp_wide[[region_VAR]]
     prof_mat = prof_mat[names(query_gr),]
 
+    tmp = c("value_VAR")
+    names(tmp) = value_VAR
     #create max assay
+    #unsure how to programmatically use summarize the way I want
     prof_max = prof_dt %>%
-        dplyr::group_by(id, sample) %>%
-        dplyr::summarise(y = max(y)) %>%
+        dplyr::group_by(.data[[region_VAR]], .data[[name_VAR]]) %>%
+        dplyr::summarise(value_VAR = max(.data[[value_VAR]])) %>%
+        dplyr::rename(all_of(tmp)) %>%
         tidyr::pivot_wider(
             names_from = all_of(c(name_VAR)),
             id_cols = all_of(c(region_VAR)),
@@ -182,7 +187,23 @@ ChIPtsne2.from_tidy = function(prof_dt,
               rowToRowMat = prof_mat,
               colToRowMatCols = map_list,
               colData = sample_metadata,
-              metadata = list(time = date()))
+              name_VAR = name_VAR,
+              position_VAR = position_VAR,
+              value_VAR = value_VAR,
+              region_VAR = region_VAR,
+              metadata = obj_history)
+}
+
+#' ChIPtsne2.history
+#'
+#' @param ct2
+#'
+#' @return
+#' @export
+#'
+#' @examples
+ChIPtsne2.history = function(ct2){
+    ct2@metadata
 }
 
 tsne_from_profile_mat = function(prof_mat){

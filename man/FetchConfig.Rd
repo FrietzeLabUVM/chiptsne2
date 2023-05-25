@@ -57,7 +57,7 @@ FetchConfig.files(
   n_clusters = 6
 )
 
-fetch_signal_at_features(qc_signal, query_gr, bfc = new_cache())
+fetch_signal_at_features(fetch_config, query_gr, bfc = new_cache())
 
 FetchConfig.save_config(object, file)
 }
@@ -131,7 +131,7 @@ features.}
 
 \item{group_colors}{vector of colors to use per group}
 
-\item{qc_signal}{A FetchConfig object}
+\item{fetch_config}{A FetchConfig object}
 
 \item{query_gr}{A GRanges to fetch data for}
 
@@ -235,10 +235,10 @@ object2 = FetchConfig.files(bam_files,
 )
 plot(object2)
 bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
-qc_signal = FetchConfig.parse(bam_config_file)
+fetch_config = FetchConfig.parse(bam_config_file)
 
 query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-fetch_signal_at_features(qc_signal, query_gr)
+fetch_signal_at_features(fetch_config, query_gr)
 bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
 bam_config = FetchConfig.parse(bam_config_file)
 #FetchConfig.save_config(bam_config, "bam_config.csv")

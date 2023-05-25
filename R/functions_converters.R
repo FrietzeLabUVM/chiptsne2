@@ -1,31 +1,29 @@
 #'
 #' @importFrom dplyr select
 #' @importFrom data.table as.data.table
-.prof_dt_from_chiptsne2 = function(ct, sample_meta_VARS = NULL){
+.prof_dt_from_chiptsne2 = function(ct2, sample_meta_VARS = NULL){
     df = do.call(rbind,
-                 lapply(names(ct@colToRowMatCols), function(nam){
-                     i = ct@colToRowMatCols[[nam]]
-                     df = reshape2::melt(ct@rowToRowMat[, i])
-                     # df$Var1 = NULL
+                 lapply(names(ct2@colToRowMatCols), function(nam){
+                     i = ct2@colToRowMatCols[[nam]]
+                     df = reshape2::melt(ct2@rowToRowMat[, i])
                      df$Var2 = factor(df$Var2)
-                     # df$Var2 = as.numeric(sapply(strsplit(levels(df$Var2), "_"), function(x)x[length(x)]))
                      levels(df$Var2) = as.numeric(sub(paste0(nam, "_"), "", levels(df$Var2)))
-                     df$name = nam
+                     df[[ct2@name_VAR]] = nam
                      df
                  })
     )
-    colnames(df) = c("id", "x", "y", "name")
-    df$id = factor(df$id, levels = names(rowRanges(ct)))
-    df$x = as.numeric(as.character(df$x))
-    df$name = factor(df$name, levels = colnames(ct))
+    colnames(df) = c(ct2@region_VAR, ct2@position_VAR, ct2@value_VAR, ct2@name_VAR)
+    df[[ct2@region_VAR]] = factor(df[[ct2@region_VAR]], levels = names(rowRanges(ct2)))
+    df[[ct2@position_VAR]] = as.numeric(as.character(df[[ct2@position_VAR]]))
+    df[[ct2@name_VAR]] = factor(df[[ct2@name_VAR]], levels = colnames(ct2))
     if(!is.null(sample_meta_VARS)){
         if(length(sample_meta_VARS) == 1 && sample_meta_VARS == TRUE){
-            sample_meta_VARS = colnames(colData(ct))
+            sample_meta_VARS = colnames(colData(ct2))
         }
-        meta_df = colData(ct) %>%
+        meta_df = colData(ct2) %>%
             as.data.frame %>%
             dplyr::select(all_of(sample_meta_VARS))
-        meta_df$name = rownames(meta_df)
+        meta_df[[ct2@name_VAR]] = rownames(meta_df)
         df = merge(meta_df, df, by = "name")
     }
     data.table::as.data.table(df)

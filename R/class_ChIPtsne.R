@@ -5,7 +5,11 @@
 .ChIPtsne2 <- setClass("ChIPtsne2",
                        slots= representation(
                            rowToRowMat="matrix",
-                           colToRowMatCols="list"
+                           colToRowMatCols="list",
+                           name_VAR = "character",
+                           position_VAR = "character",
+                           value_VAR = "character",
+                           region_VAR = "character"
                        ),
                        contains="RangedSummarizedExperiment"
 )
@@ -17,12 +21,20 @@
 ChIPtsne2 <- function(
         rowToRowMat=matrix(0,0,0),
         colToRowMatCols=list(),
+        name_VAR = "sample",
+        position_VAR = "x",
+        value_VAR = "y",
+        region_VAR = "id",
         ...)
 {
     se <- SummarizedExperiment(...)
     .ChIPtsne2(se,
                rowToRowMat = rowToRowMat,
-               colToRowMatCols = colToRowMatCols
+               colToRowMatCols = colToRowMatCols,
+               name_VAR = name_VAR,
+               position_VAR = position_VAR,
+               value_VAR = value_VAR,
+               region_VAR = region_VAR
                )
 }
 
