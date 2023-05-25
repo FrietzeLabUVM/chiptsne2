@@ -39,7 +39,6 @@ ct = ChIPtsne2(assay = list(max = prof_max_mat[names(query_gr),]),
 prof_dt = seqsetvis::ssvSignalClustering(prof_dt, nclust = 4)
 region_metadata = prof_dt %>% dplyr::select(id, cluster_id) %>% unique
 
-# debug(ChIPtsne2.from_tidy)
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, region_metadata = region_metadata)
 
 test_that("Constructors - valid", {

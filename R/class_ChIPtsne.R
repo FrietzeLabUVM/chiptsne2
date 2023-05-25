@@ -48,7 +48,7 @@ setMethod("colToRowMatCols", "ChIPtsne2", function(x, withDimnames=TRUE) {
 })
 
 #### Validity ####
-
+#' @importFrom S4Vectors setValidity2
 #' @importFrom BiocGenerics NCOL NROW
 S4Vectors::setValidity2("ChIPtsne2", function(object) {
     NR <- NROW(object)
@@ -111,6 +111,13 @@ setReplaceMethod("colToRowMatCols", "ChIPtsne2", function(x, value) {
     validObject(x)
     x
 })
+
+#' @export
+rowData = SummarizedExperiment::rowData
+#' @export
+rowRanges = SummarizedExperiment::rowRanges
+#' @export
+colData = SummarizedExperiment::colData
 
 # For SummarizedExperiment slots
 # Again, we can use the setter methods defined in SummarizedExperiment to modify slots in the base class. These should generally not require any re-defining. However, if it is necessary, the methods should use callNextMethod internally:

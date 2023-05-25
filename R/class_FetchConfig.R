@@ -444,8 +444,12 @@ FetchConfig = function(config_df,
 #' @examples
 #' FetchConfig.null()
 FetchConfig.null = function(){
-    qc = suppressWarnings({FetchConfig(data.frame(file = "null", stringsAsFactors = FALSE), is_null = TRUE)})
+    qc = suppressWarnings({FetchConfig(data.frame(file = "null", name = "null", name_split = "null", stringsAsFactors = FALSE), is_null = TRUE)})
     qc
+}
+
+isConfigNull = function(cfg){
+    obj@is_null
 }
 
 #' @param signal_config_file Configuration file for signal data.
@@ -634,7 +638,7 @@ get_fetch_fun = function(read_mode){
            })
 }
 
-#' @param qc_signal A FetchConfig object
+#' @param fetch_config A FetchConfig object
 #' @param query_gr A GRanges to fetch data for
 #'
 #' @return A list of 2 items prof_dt and query_gr.  prof_dt is a tidy data.table
@@ -644,24 +648,24 @@ get_fetch_fun = function(read_mode){
 #' @rdname FetchConfig
 #' @examples
 #' bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
-#' qc_signal = FetchConfig.parse(bam_config_file)
+#' fetch_config = FetchConfig.parse(bam_config_file)
 #'
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' fetch_signal_at_features(qc_signal, query_gr)
-fetch_signal_at_features = function(qc_signal, query_gr, bfc = new_cache()){
-    extra_args = qc_signal@fetch_options
+#' fetch_signal_at_features(fetch_config, query_gr)
+fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
+    extra_args = fetch_config@fetch_options
     ### JRB commenting out for now. user provided fragLens should be used.
-    # if(!is.null(qc_signal@meta_data$fragLens)){ # fragLens is in meta data
+    # if(!is.null(fetch_config@meta_data$fragLens)){ # fragLens is in meta data
     #   if(!is.null(extra_args$fragLens)){ # fragLens is in extra_args
     #     if(extra_args$fragLens != "auto"){
     #       warning("Overwriting configured fragLens with detected fragLens for fetch call.")
     #     }
     #   }
-    #   extra_args$fragLens = qc_signal@meta_data$fragLens
+    #   extra_args$fragLens = fetch_config@meta_data$fragLens
     # }
     if(is.null(extra_args$fragLens)){ # no fragLens in extra_args
-        if(!is.null(qc_signal@meta_data$fragLens)){ # fragLens is in meta_data
-            extra_args$fragLens = qc_signal@meta_data$fragLens # apply fragLens to extra_args from meta_data
+        if(!is.null(fetch_config@meta_data$fragLens)){ # fragLens is in meta_data
+            extra_args$fragLens = fetch_config@meta_data$fragLens # apply fragLens to extra_args from meta_data
         }
     }
     if("win_size" %in% names(extra_args)){
@@ -669,18 +673,18 @@ fetch_signal_at_features = function(qc_signal, query_gr, bfc = new_cache()){
         extra_args[["win_size"]] = NULL
     }
     call_args = c(list(
-        file_paths = qc_signal@meta_data,
-        win_size = qc_signal@win_size,
+        file_paths = fetch_config@meta_data,
+        win_size = fetch_config@win_size,
         qgr = query_gr,
         return_data.table = TRUE,
         names_variable = "name"),
         extra_args)
-    fetch_FUN = get_fetch_fun(qc_signal@read_mode)
+    fetch_FUN = get_fetch_fun(fetch_config@read_mode)
     prof_dt = bfcif(bfc, digest(list(fetch_FUN, call_args)), function(){
         do.call(fetch_FUN, call_args)
     })
     #### apply center_signal_at_max ####
-    if(qc_signal@center_signal_at_max == TRUE){
+    if(fetch_config@center_signal_at_max == TRUE){
         query_gr.center = centerGRangesAtMax(prof_dt = prof_dt, qgr = query_gr, width = width(query_gr))
         message("Centering signal profiles...")
         call_args.center = call_args
@@ -691,12 +695,12 @@ fetch_signal_at_features = function(qc_signal, query_gr, bfc = new_cache()){
         query_gr = query_gr.center
     }
     #### apply flip_signal_mode ####
-    if(qc_signal@flip_signal_mode != flip_signal_modes$none){
+    if(fetch_config@flip_signal_mode != flip_signal_modes$none){
         #need to bring query_gr with flip info out
         balance_dt = prof_dt[, list(right_sum = sum(y[x > 0]),
                                     left_sum = sum(y[x < 0])),
                              by = list(name, id)]
-        if(qc_signal@flip_signal_mode == flip_signal_modes$high_on_right){
+        if(fetch_config@flip_signal_mode == flip_signal_modes$high_on_right){
             balance_dt = balance_dt[, list(needs_flip = left_sum > right_sum,
                                            name,
                                            id)]

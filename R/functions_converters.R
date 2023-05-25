@@ -1,3 +1,6 @@
+#'
+#' @importFrom dplyr select
+#' @importFrom data.table as.data.table
 .prof_dt_from_chiptsne2 = function(ct, sample_meta_VARS = NULL){
     df = do.call(rbind,
                  lapply(names(ct@colToRowMatCols), function(nam){
@@ -12,15 +15,18 @@
                  })
     )
     colnames(df) = c("id", "x", "y", "name")
+    df$id = factor(df$id, levels = names(rowRanges(ct)))
+    df$x = as.numeric(as.character(df$x))
+    df$name = factor(df$name, levels = colnames(ct))
     if(!is.null(sample_meta_VARS)){
         if(length(sample_meta_VARS) == 1 && sample_meta_VARS == TRUE){
             sample_meta_VARS = colnames(colData(ct))
         }
         meta_df = colData(ct) %>%
             as.data.frame %>%
-            select(all_of(sample_meta_VARS))
+            dplyr::select(all_of(sample_meta_VARS))
         meta_df$name = rownames(meta_df)
         df = merge(meta_df, df, by = "name")
     }
-    df
+    data.table::as.data.table(df)
 }

@@ -43,8 +43,15 @@ ChIPtsne2.from_tidy = function(prof_dt,
         stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
     }
     if(!is.null(sample_metadata)){
-        if(!name_VAR %in% colnames(sample_metadata)){
-            stop("name_VAR: ", name_VAR, " not found in sample_metadata.")
+
+        if(is.null(rownames(sample_metadata))){
+            if(!name_VAR %in% colnames(sample_metadata)){
+                stop("name_VAR: ", name_VAR, " not found in sample_metadata.")
+            }
+        }else{
+            if(!name_VAR %in% colnames(sample_metadata)){
+                sample_metadata[[name_VAR]] = rownames(sample_metadata)
+            }
         }
     }
     if(!is.null(region_metadata)){
