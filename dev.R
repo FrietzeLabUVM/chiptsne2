@@ -29,12 +29,9 @@ rownames(prof_max_mat) = prof_max$id
 
 
 
-# undebug(ChIPtsne2.from_tidy)
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr)
 ct2[1:5,]
 
-# debug(ChIPtsne2)
-# debug(SummarizedExperiment)
 ct = ChIPtsne2(assay = list(max = prof_max_mat),
                rowRanges = query_gr,
                rowToRowMat = prof_mat,

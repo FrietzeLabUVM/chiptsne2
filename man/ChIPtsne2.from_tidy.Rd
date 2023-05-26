@@ -14,7 +14,8 @@ ChIPtsne2.from_tidy(
   value_VAR = "y",
   region_VAR = "id",
   auto_sample_metadata = TRUE,
-  obj_history = list(birthday = date())
+  obj_history = list(),
+  init = TRUE
 )
 }
 \arguments{

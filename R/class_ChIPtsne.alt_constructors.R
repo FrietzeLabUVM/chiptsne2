@@ -29,7 +29,14 @@ ChIPtsne2.from_tidy = function(prof_dt,
                                value_VAR = "y",
                                region_VAR = "id",
                                auto_sample_metadata = TRUE,
-                               obj_history = list(birthday = date())){
+                               obj_history = list(),
+                               init = TRUE
+                               ){
+    if(init){
+        init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne_version = utils::packageDescription("chiptsne2")$Version)
+        obj_history = c(init_history, obj_history)
+    }
+
     #basic VAR checks
     if(!all(c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt))){
         missed = !c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt)
@@ -198,10 +205,8 @@ ChIPtsne2.from_tidy = function(prof_dt,
 #'
 #' @param ct2
 #'
-#' @return
+#' @return list of history items
 #' @export
-#'
-#' @examples
 ChIPtsne2.history = function(ct2){
     ct2@metadata
 }

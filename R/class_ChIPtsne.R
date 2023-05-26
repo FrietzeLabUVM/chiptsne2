@@ -131,6 +131,56 @@ rowRanges = SummarizedExperiment::rowRanges
 #' @export
 colData = SummarizedExperiment::colData
 
+#' getSampleMetaData
+#'
+#' @param ct2 A ChIPtsne object
+#'
+#' @return data.frame with sample meta data, similar to colData but suitable for tidyverse operations.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' getSampleMetaData(ct2)
+getSampleMetaData = function(ct2){
+    cd = colData(ct2)
+    df = as.data.frame(cd)
+    df[[ct2@name_VAR]] = rownames(cd)
+    rownames(df) = NULL
+    df
+}
+
+#' query_gr
+#'
+#' @return ChIPtsne object for testing
+#' @export
+#'
+#' @examples
+#' exampleChIPtsne2()
+exampleChIPtsne2 = function(){
+    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+    prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+
+    ChIPtsne2.from_tidy(prof_dt, query_gr)
+}
+
+#' exampleChIPtsne2.with_meta
+#'
+#' @return ChIPtsne object for testing, includes meta data
+#' @export
+#'
+#' @examples
+#' exampleChIPtsne2.with_meta()
+exampleChIPtsne2.with_meta = function(){
+    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+    prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+    meta_dt = prof_dt %>%
+        dplyr::select(sample) %>%
+        unique %>%
+        tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+
+    ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
+}
+
 # For SummarizedExperiment slots
 # Again, we can use the setter methods defined in SummarizedExperiment to modify slots in the base class. These should generally not require any re-defining. However, if it is necessary, the methods should use callNextMethod internally:
 #

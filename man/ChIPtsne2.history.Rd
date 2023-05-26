@@ -9,6 +9,9 @@ ChIPtsne2.history(ct2)
 \arguments{
 \item{ct2}{}
 }
+\value{
+list of history items
+}
 \description{
 ChIPtsne2.history
 }

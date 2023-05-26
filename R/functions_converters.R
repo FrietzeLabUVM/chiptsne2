@@ -24,7 +24,16 @@
             as.data.frame %>%
             dplyr::select(all_of(sample_meta_VARS))
         meta_df[[ct2@name_VAR]] = rownames(meta_df)
-        df = merge(meta_df, df, by = "name")
+        df = merge(meta_df, df, by = ct2@name_VAR)
     }
     data.table::as.data.table(df)
 }
+
+
+
+#' @export
+setGeneric("getTidyProfile", function(ct2, sample_meta_VARS = NULL) standardGeneric("getTidyProfile"), signature = "ct2")
+
+#' @export
+setMethod("getTidyProfile", c("ChIPtsne2"), .prof_dt_from_chiptsne2)
+
