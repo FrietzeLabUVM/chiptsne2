@@ -212,7 +212,7 @@ ChIPtsne2.history = function(ct2){
 }
 
 tsne_from_profile_mat = function(prof_mat){
-    tsne_res = Rtsne::Rtsne(prof_mat)
+    tsne_res = Rtsne::Rtsne(prof_mat, check_duplicates = FALSE)
     xy_dt = as.data.frame(tsne_res$Y)
     colnames(xy_dt) =  c("tx", "ty")
     rownames(xy_dt) = rownames(prof_mat)

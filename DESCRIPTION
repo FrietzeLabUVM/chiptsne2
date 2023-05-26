@@ -15,5 +15,5 @@ Imports:
     dplyr,
     magrittr,
     S4Vectors,
-    seqsetvis,
+    seqsetvis (>= 1.21.3),
     SummarizedExperiment
