@@ -51,7 +51,6 @@ ChIPtsne2.from_tidy = function(prof_dt,
         stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
     }
     if(!is.null(sample_metadata)){
-
         if(is.null(rownames(sample_metadata))){
             if(!name_VAR %in% colnames(sample_metadata)){
                 stop("name_VAR: ", name_VAR, " not found in sample_metadata.")
@@ -133,8 +132,6 @@ ChIPtsne2.from_tidy = function(prof_dt,
     rownames(prof_max_mat) = prof_max[[region_VAR]]
     prof_max_mat = prof_max_mat[names(query_gr),]
 
-    xy_dt = tsne_from_profile_mat(prof_mat)
-
     if(is.null(sample_metadata)){
         if(auto_sample_metadata){
             drop_vars = c("seqnames",
@@ -167,11 +164,11 @@ ChIPtsne2.from_tidy = function(prof_dt,
         #region_metadata is not used after
         region_metadata
         new_mcols = cbind(
-            mcols(query_gr[region_metadata[[region_VAR]]]),
+            GenomicRanges::mcols(query_gr[region_metadata[[region_VAR]]]),
             as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
         )
-        mcols(query_gr) = NULL
-        mcols(query_gr) = new_mcols
+        GenomicRanges::mcols(query_gr) = NULL
+        GenomicRanges::mcols(query_gr) = new_mcols
     }
 
 
@@ -211,10 +208,4 @@ ChIPtsne2.history = function(ct2){
     ct2@metadata
 }
 
-tsne_from_profile_mat = function(prof_mat){
-    tsne_res = Rtsne::Rtsne(prof_mat, check_duplicates = FALSE)
-    xy_dt = as.data.frame(tsne_res$Y)
-    colnames(xy_dt) =  c("tx", "ty")
-    rownames(xy_dt) = rownames(prof_mat)
-    xy_dt
-}
+
