@@ -17,6 +17,6 @@ data.frame of reduced dimensions by PCA
 }
 \examples{
 ct2 = exampleChIPtsne2()
-prof_mat = rowToRowMat(ct2)
-.pca_from_profile_mat(prof_mat)
+ct2.pca = dimReducePCA(ct2)
+rowRanges(ct2.pca)
 }

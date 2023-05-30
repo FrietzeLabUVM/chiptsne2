@@ -22,5 +22,6 @@ data.frame of reduced dimensions by tSNE
 \examples{
 ct2 = exampleChIPtsne2()
 prof_mat = rowToRowMat(ct2)
-.tsne_from_profile_mat(prof_mat)
+ct2.tsne = dimReduceTSNE(ct2, perplexity = 10)
+rowRanges(ct2.tsne)
 }

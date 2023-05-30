@@ -1,10 +1,5 @@
 #### tSNE ####
 
-#' @export
-setGeneric("dimReduceTSNE", function(ct2, perplexity = 50, ...) standardGeneric("dimReduceTSNE"), signature = "ct2")
-
-#' @export
-setMethod("dimReduceTSNE", c("ChIPtsne2"), .tsne_from_ct2)
 
 #' .tsne_from_profile_mat
 #'
@@ -50,12 +45,13 @@ setMethod("dimReduceTSNE", c("ChIPtsne2"), .tsne_from_ct2)
     )
 }
 
-#### UMAP ####
 #' @export
-setGeneric("dimReduceUMAP", function(ct2, config = umap::umap.defaults, ...) standardGeneric("dimReduceUMAP"), signature = "ct2")
+setGeneric("dimReduceTSNE", function(ct2, perplexity = 50, ...) standardGeneric("dimReduceTSNE"), signature = "ct2")
 
 #' @export
-setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
+setMethod("dimReduceTSNE", c("ChIPtsne2"), .tsne_from_ct2)
+
+#### UMAP ####
 
 #' .umap_from_profile_mat
 #'
@@ -69,6 +65,7 @@ setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
 #' ct2 = exampleChIPtsne2()
 #' prof_mat = rowToRowMat(ct2)
 #' ct2.umap = dimReduceUMAP(ct2)
+#' rowRanges(ct2.umap)
 .umap_from_profile_mat = function(prof_mat, config = umap::umap.defaults, ...){
     tsne_res = umap::umap(prof_mat, config = config, ...)
     xy_df = as.data.frame(tsne_res$layout)
@@ -96,12 +93,13 @@ setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
     )
 }
 
-#### PCA ####
 #' @export
-setGeneric("dimReducePCA", function(ct2) standardGeneric("dimReducePCA"), signature = "ct2")
+setGeneric("dimReduceUMAP", function(ct2, config = umap::umap.defaults, ...) standardGeneric("dimReduceUMAP"), signature = "ct2")
 
 #' @export
-setMethod("dimReducePCA", c("ChIPtsne2"), .pca_from_ct2)
+setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
+
+#### PCA ####
 
 #' .pca_from_profile_mat
 #'
@@ -111,7 +109,8 @@ setMethod("dimReducePCA", c("ChIPtsne2"), .pca_from_ct2)
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2()
-#' dimReducePCA(ct2)
+#' ct2.pca = dimReducePCA(ct2)
+#' rowRanges(ct2.pca)
 .pca_from_profile_mat = function(prof_mat){
     pca_res = prcomp(prof_mat)
     xy_df = as.data.frame(pca_res$x[, c(1, 2)])
@@ -139,6 +138,11 @@ setMethod("dimReducePCA", c("ChIPtsne2"), .pca_from_ct2)
     )
 }
 
+#' @export
+setGeneric("dimReducePCA", function(ct2) standardGeneric("dimReducePCA"), signature = "ct2")
+
+#' @export
+setMethod("dimReducePCA", c("ChIPtsne2"), .pca_from_ct2)
 #### helpers ####
 
 .rescale_capped = function(x, to = c(0,1), from = range(x, na.rm = TRUE, finite = TRUE)){

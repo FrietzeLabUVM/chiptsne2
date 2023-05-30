@@ -9,27 +9,16 @@
 \alias{FetchConfig.files}
 \alias{fetch_signal_at_features}
 \alias{FetchConfig.save_config}
+\alias{show,FetchConfig-method}
 \title{FetchConfig}
 \usage{
 FetchConfig(
   config_df,
-  color_by = "file",
-  color_mapping = NULL,
   read_mode = NULL,
   view_size = getOption("CT_VIEW_SIZE", 3000),
   window_size = 200,
   fetch_options = list(),
-  cluster_value = NULL,
-  linearQuantile_cutoff = 0.98,
-  sort_value = NULL,
-  sort_method = c("hclust", "sort")[2],
-  plot_value = NULL,
-  heatmap_limit_values = c(0, 10),
-  lineplot_free_limits = TRUE,
-  center_signal_at_max = FALSE,
-  flip_signal_mode = flip_signal_modes$none,
-  is_null = FALSE,
-  n_clusters = 6
+  is_null = FALSE
 )
 
 FetchConfig.null()
@@ -38,39 +27,22 @@ FetchConfig.parse(signal_config_file)
 
 FetchConfig.files(
   file_paths,
-  file_paths.input = character(),
-  sample_names = NULL,
-  sample_names.split = NULL,
   group_names = NULL,
-  group_name.input = "input",
-  group_colors = NULL,
   view_size = getOption("CT_VIEW_SIZE", 3000),
   window_size = getOption("CT_WINDOW_SIZE", 200),
-  read_mode = NULL,
-  cluster_value = NULL,
-  linearQuantile_cutoff = 0.98,
-  sort_value = NULL,
-  plot_value = NULL,
-  sort_method = c("hclust", "sort")[2],
-  center_signal_at_max = FALSE,
-  flip_signal_mode = flip_signal_modes$none,
-  n_clusters = 6
+  read_mode = NULL
 )
 
 fetch_signal_at_features(fetch_config, query_gr, bfc = new_cache())
 
 FetchConfig.save_config(object, file)
+
+\S4method{show}{FetchConfig}(object)
 }
 \arguments{
 \item{config_df}{A data.frame containing configuration information for signal
 (bam or bigwig) files. Should contain a "file" attribute and entries for
 and color_by.}
-
-\item{color_by}{Name of the attribute specify how signal data should be
-colored in relevant plots}
-
-\item{color_mapping}{Name character vector where names are values of color_by
-and values are valid R colors (color names or hex values).}
 
 \item{read_mode}{Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
 Use CT_READ_MODES$.}
@@ -83,40 +55,7 @@ increase resolution but also RAM usage. Default is 200 bp.}
 \item{fetch_options}{Named list of additional arguments to pass to signal
 fetch function.}
 
-\item{cluster_value}{Value in CT_SIGNAL_VALUES$ to use for clustering. RPM
-values are not valid if read_mode is "bigwig".}
-
-\item{linearQuantile_cutoff}{Quantile to use for linearQuantile normalization
-procedure. Values above this cutoff are treated as outliers.}
-
-\item{sort_value}{Value in CT_SIGNAL_VALUES$ to use for sorting. RPM values
-are not valid if read_mode is "bigwig".}
-
-\item{sort_method}{One of two available method to use when sorting within
-clusters. If "hclust", hierarchical clustering is applied. If the default
-of "sort", regions are sorting by decreasing signal.}
-
-\item{plot_value}{Value in CT_SIGNAL_VALUES$ to represent in plots. RPM
-values are not valid if read_mode is "bigwig".}
-
-\item{heatmap_limit_values}{Color scale limits for heatmaps. Default is 0 to
-10.}
-
-\item{lineplot_free_limits}{If TRUE (default), lineplot facets per cluster
-will have free axis. If FALSE a consistnet y-axis is used for all clusters.}
-
-\item{center_signal_at_max}{If TRUE, signal is centered at local maxima prior
-to any clustering. The default is FALSE. See details for explanation or
-interaction with assessment features.}
-
-\item{flip_signal_mode}{Value is CT_FLIP_SIGNAL_MODES$.  If not "none"
-(Default) signal profiles are flipped so that highest signal is on one side
-or the other.  See details for explanation or interaction with assessment
-features.}
-
-\item{is_null}{If TRUE, this FetchConfig is considered null/empty.}
-
-\item{n_clusters}{The number of k-means clusters for the heatmap.
+\item{is_null}{If TRUE, this FetchConfig is considered null/empty.
 
   Since center_signal_at_max and flip_signal_mode have the potential to
   modify the assessment regions based on signal run groups, the modified
@@ -129,13 +68,13 @@ features.}
 
 \item{group_names}{vector of group names to assign from according to groups}
 
-\item{group_colors}{vector of colors to use per group}
-
 \item{fetch_config}{A FetchConfig object}
 
 \item{query_gr}{A GRanges to fetch data for}
 
-\item{groups}{numeric vector of group assignments. 1 is first item in group_names, 2 is second, etc. Default is seq_along(file_path)}
+\item{group_colors}{vector of colors to use per group}
+
+\item{FetchConfig}{}
 }
 \value{
 A FetchConfig object
@@ -175,39 +114,6 @@ Use CT_READ_MODES$.}
 
 \item{\code{fetch_options}}{Named list of additional arguments to pass to signal
 fetch function.}
-
-\item{\code{cluster_value}}{Value in CT_SIGNAL_VALUES$ to use for clustering. RPM
-values are not valid if read_mode is "bigwig".}
-
-\item{\code{linearQuantile_cutoff}}{Quantile to use for linearQuantile normalization
-procedure. Values above this cutoff are treated as outliers.}
-
-\item{\code{sort_value}}{Value in CT_SIGNAL_VALUES$ to use for sorting. RPM values
-are not valid if read_mode is "bigwig".}
-
-\item{\code{sort_method}}{One of two available method to use when sorting within
-clusters. If "hclust", hierarchical clustering is applied. If the default
-of "sort", regions are sorting by decreasing signal.}
-
-\item{\code{plot_value}}{Value in CT_SIGNAL_VALUES$ to represent in plots. RPM
-values are not valid if read_mode is "bigwig".}
-
-\item{\code{heatmap_limit_values}}{Color scale limits for heatmaps. Default is 0 to
-10.}
-
-\item{\code{lineplot_free_limits}}{If TRUE (default), lineplot facets per cluster
-will have free axis. If FALSE a consistnet y-axis is used for all clusters.}
-
-\item{\code{center_signal_at_max}}{If TRUE, signal is centered at local maxima prior
-to any clustering. The default is FALSE. See details for explanation or
-interaction with assessment features.}
-
-\item{\code{flip_signal_mode}}{Value is CT_FLIP_SIGNAL_MODES$.  If not "none"
-(Default) signal profiles are flipped so that highest signal is on one side
-or the other.  See details for explanation or interaction with assessment
-features.}
-
-\item{\code{n_clusters}}{The number of k-means clusters for the heatmap.}
 }}
 
 \examples{
@@ -230,8 +136,7 @@ plot(object)
 
 object2 = FetchConfig.files(bam_files,
   sample_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF"),
-  group_names = c("10A", "AT1", "CA1"),
-  group_colors = c("firebrick", "slategray2", "forestgreen")
+  group_names = c("10A", "AT1", "CA1")
 )
 plot(object2)
 bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
