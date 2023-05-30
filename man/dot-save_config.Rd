@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions_misc.R
 \name{.save_config}
 \alias{.save_config}
-\title{internal function used by QcConfig.save_config QcConfigSignal.save_config and QcConfigFeatures.save_config}
+\title{internal function used by FetchConfig.save_config FetchConfigSignal.save_config and FetchConfigFeatures.save_config}
 \usage{
 .save_config(
   object,
@@ -13,5 +13,5 @@
 )
 }
 \description{
-internal function used by QcConfig.save_config QcConfigSignal.save_config and QcConfigFeatures.save_config
+internal function used by FetchConfig.save_config FetchConfigSignal.save_config and FetchConfigFeatures.save_config
 }

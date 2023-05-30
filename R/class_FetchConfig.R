@@ -213,6 +213,9 @@ FetchConfig.parse = function(signal_config_file){
             stop("only one of following allowed: ", paste(path_VAR, collapse = ", "))
         }
         path_val = cfg_vals[[path_VAR]]
+        if(path_val == "$SSV_DATA"){ #special value indicating included package data
+            path_val = system.file("extdata", package = "seqsetvis", mustWork = TRUE)
+        }
         if(path_val == "$PACKAGE_DATA"){ #special value indicating included package data
             path_val = system.file("extdata", package = "chiptsne2", mustWork = TRUE)
         }

@@ -136,7 +136,7 @@ get_mapped_reads = function(bam_file){
         stop("problem parsing fetch_options, verify fetch_options=key1:val1,key2:val2,... syntax")
     }
     if("summary_FUN" %in% fop_names){
-        message("summary_FUN is not yet fully supported.  Definitions of summary_FUN should work but its value will not be saved via QcConfigSignal.save_config.")
+        message("summary_FUN is not yet fully supported.  Definitions of summary_FUN should work but its value will not be saved via FetchConfig.save_config.")
     }
     names(fop_opts) = fop_names
     lapply(fop_opts, function(x){
@@ -242,7 +242,7 @@ is_signal_file = function(files, suff = getOption("SQC_SIGNAL_FILE_SUFF", c("bam
     .test_suff(files, suff)
 }
 
-#' internal function used by QcConfig.save_config QcConfigSignal.save_config and QcConfigFeatures.save_config
+#' internal function used by FetchConfig.save_config FetchConfigSignal.save_config and FetchConfigFeatures.save_config
 .save_config = function(object, file, slots_to_save, kvp_slots, toss_names = "summary_FUN"){
     hdr1 = sapply(slots_to_save, function(x){
         val = slot(object, x)
