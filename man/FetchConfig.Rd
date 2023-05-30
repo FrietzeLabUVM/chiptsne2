@@ -18,7 +18,8 @@ FetchConfig(
   view_size = getOption("CT_VIEW_SIZE", 3000),
   window_size = 200,
   fetch_options = list(),
-  is_null = FALSE
+  is_null = FALSE,
+  name_VAR = "name"
 )
 
 FetchConfig.null()
@@ -118,17 +119,17 @@ fetch function.}
 
 \examples{
 bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
-bam_config_df = .parse_config_body(bam_config_file)
+bam_config_df = chiptsne2:::.parse_config_body(bam_config_file)
 sig_conf = FetchConfig(bam_config_df)
 
 bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config.csv")
-bigwig_config_df = .parse_config_body(bigwig_config_file)
+bigwig_config_df = chiptsne2:::.parse_config_body(bigwig_config_file)
 sig_conf.bw = FetchConfig(bigwig_config_df)
 FetchConfig.null()
-bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
+bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
 FetchConfig.parse(bam_config_file)
 
-bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config.csv")
+bigwig_config_file = system.file(package = "chiptsne2", "extdata/bigwig_config.csv", mustWork = TRUE)
 FetchConfig.parse(bigwig_config_file)
 bam_files = dir(system.file(package = "ssvQC", "extdata"), pattern = "CTCF.+bam$", full.names = TRUE)
 object = FetchConfig.files(bam_files)

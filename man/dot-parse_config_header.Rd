@@ -4,12 +4,17 @@
 \alias{.parse_config_header}
 \title{.parse_config_header}
 \usage{
-.parse_config_header(f, valid_feature_var)
+.parse_config_header(
+  f,
+  valid_config_VARS,
+  allowed_deprecated_VARS = c("color_by", "color_mapping", "run_by", "to_run",
+    "to_run_reference")
+)
 }
 \arguments{
 \item{f}{a config file}
 
-\item{valid_feature_var}{supported variables to attempt to extract}
+\item{valid_config_VARS}{supported variables to attempt to extract}
 }
 \value{
 A named list containing configuration options mapped to values.
@@ -18,10 +23,14 @@ A named list containing configuration options mapped to values.
 .parse_config_header
 }
 \examples{
-valid_feature_var = c("main_dir", "overlap_extension", "n_peaks",
-  "balance_groups", "consensus_n",
-  "consensus_fraction", "color_by", "color_mapping",
-  "run_by", "to_run", "to_run_reference", "is_null")
-cfg_file = system.file("extdata/ssvQC_peak_config.csv", package = "ssvQC")
-.parse_config_header(cfg_file, valid_feature_var)
+
+valid_signal_var = c(
+ "view_size",
+ "window_size",
+ "read_mode",
+ "fetch_options",
+ "is_null"
+ )
+ bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
+chiptsne2:::.parse_config_header(bam_config_file, valid_signal_var)
 }

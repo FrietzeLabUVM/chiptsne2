@@ -16,8 +16,8 @@ A character describing format of signal_file.
 guess_read_mode
 }
 \examples{
-bam_file = dir(system.file("extdata", package = "ssvQC"), pattern = "bam$", full.names = TRUE)[1]
-bw_file = dir(system.file("extdata", package = "ssvQC"), pattern = "bw$", full.names = TRUE)[1]
+bam_file = dir(system.file("extdata", package = "seqsetvis"), pattern = "bam$", full.names = TRUE)[1]
+bw_file = dir(system.file("extdata", package = "seqsetvis"), pattern = "bw$", full.names = TRUE)[1]
 guess_read_mode(bam_file)
 guess_read_mode(bw_file)
 }

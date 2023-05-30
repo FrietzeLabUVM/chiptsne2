@@ -101,12 +101,6 @@ setReplaceMethod("$", "FetchConfig",
                              fetch_options = {
                                  x@fetch_options = value
                              },
-                             meta_data = {
-                                 value = .enforce_file_var(value)
-                                 value = .enforce_name_var(value)
-                                 value = .enforce_found_order(value)
-                                 x@meta_data = value
-                             },
                              warning(warn_msg)
                      )
                      validObject(x)
@@ -149,9 +143,10 @@ FetchConfig = function(config_df,
                        view_size = getOption("CT_VIEW_SIZE", 3e3),
                        window_size = 200,
                        fetch_options = list(),
-                       is_null = FALSE){
+                       is_null = FALSE,
+                       name_VAR = "name"){
     config_df = .enforce_file_var(config_df)
-    config_df = .enforce_name_var(config_df)
+    config_df = .enforce_name_var(config_df, name_VAR = name_VAR)
 
     #Guess read mode
     if(is.null(read_mode)){
@@ -191,14 +186,17 @@ isConfigNull = function(cfg){
 #' @export
 #' @rdname FetchConfig
 #' @examples
-#' bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
+#' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
 #' FetchConfig.parse(bam_config_file)
 #'
-#' bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config.csv")
+#' bigwig_config_file = system.file(package = "chiptsne2", "extdata/bigwig_config.csv", mustWork = TRUE)
 #' FetchConfig.parse(bigwig_config_file)
 FetchConfig.parse = function(signal_config_file){
     signal_config_dt = .parse_config_body(signal_config_file)
     valid_signal_var = c(
+        "main_dir",
+        "data_dir",
+        "file_prefix",
         "view_size",
         "window_size",
         "read_mode",
@@ -206,7 +204,21 @@ FetchConfig.parse = function(signal_config_file){
         "is_null"
 
     )
+
     cfg_vals = .parse_config_header(signal_config_file, valid_signal_var)
+    if(any(c("main_dir", "data_dir", "file_prefix") %in% names(cfg_vals))){
+        #ADD PREFIX TO FILE AND REMOVE VAR
+        path_VAR = intersect(c("main_dir", "data_dir", "file_prefix"), names(cfg_vals))
+        if(length(path_VAR) > 1){
+            stop("only one of following allowed: ", paste(path_VAR, collapse = ", "))
+        }
+        path_val = cfg_vals[[path_VAR]]
+        if(path_val == "$PACKAGE_DATA"){ #special value indicating included package data
+            path_val = system.file("extdata", package = "chiptsne2", mustWork = TRUE)
+        }
+        signal_config_dt$file = file.path(path_val, signal_config_dt$file)
+        cfg_vals[[path_VAR]] = NULL
+    }
 
     if(!all(file.exists(signal_config_dt$file))){
         stop(paste(c("Files specified in config do not exist:",
@@ -270,7 +282,6 @@ FetchConfig.files = function(file_paths,
 
 
     FetchConfig(config_df,
-                color_by = "group",
                 view_size = view_size,
                 window_size = window_size
     )
@@ -385,7 +396,6 @@ FetchConfig.save_config = function(object, file){
         "view_size",
         "win_size",
         "read_mode",
-        "color_by",
         "is_null"
     )
     # key value pair slots are saved/loaded differently
@@ -412,35 +422,11 @@ FetchConfig.save_config = function(object, file){
         msg = "This FetchConfig is a NULL placeholder."
     }else{
         msg = paste(sep = "\n",
-                    paste("Configuration for", nrow(qc@meta_data), "items."),
-                    paste0("Use plot() to view color mapping for '", qc@color_by , "'.")
+                    paste("Configuration for", nrow(qc@meta_data), "items.")
         )
     }
     message(msg)
 }
-
-.plot_Config = function(qc){
-    if(qc@is_null){
-        msg = "This FetchConfig is a NULL placeholder."
-        ggplot() + labs(title = "This FetchConfig is a NULL placeholder.")
-    }else{
-        plot_dt = as.data.table(qc@meta_data)
-        browser()
-        ggplot(plot_dt, aes_string(x = qc@run_by, y = "y", fill = qc@color_by, label = "name_split")) +
-            geom_label() +
-            scale_fill_manual(values = qc@color_mapping) +
-            theme(panel.background = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-            labs(y = "") +
-            guides(
-                fill = guide_legend(
-                    override.aes = aes(label = "")
-                ))
-    }
-
-}
-
-#' @export
-setMethod("plot", "FetchConfig", definition = function(x).plot_Config(x))
 
 #' @param FetchConfig
 #'
