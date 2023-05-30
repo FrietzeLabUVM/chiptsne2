@@ -54,9 +54,6 @@ setMethod("initialize","FetchConfig", function(.Object,...){
     .Object
 })
 
-#' @export
-setMethod("plot", "FetchConfig", definition = function(x).plot_Config(x))
-
 setMethod("names", "FetchConfig",
           function(x)
           {
@@ -65,7 +62,7 @@ setMethod("names", "FetchConfig",
                   "window_size",
                   "read_mode",
                   "fetch_options",
-                  "meta_data",
+                  "meta_data"
               )
 
           })
@@ -79,7 +76,7 @@ setMethod("$", "FetchConfig",
                       window_size = x@win_size,
                       read_mode = x@read_mode,
                       fetch_options = x@fetch_options,
-                      meta_data = x@meta_data,
+                      meta_data = x@meta_data
               )
           })
 
@@ -193,19 +190,8 @@ isConfigNull = function(cfg){
 #' FetchConfig.parse(bigwig_config_file)
 FetchConfig.parse = function(signal_config_file){
     signal_config_dt = .parse_config_body(signal_config_file)
-    valid_signal_var = c(
-        "main_dir",
-        "data_dir",
-        "file_prefix",
-        "view_size",
-        "window_size",
-        "read_mode",
-        "fetch_options",
-        "is_null"
 
-    )
-
-    cfg_vals = .parse_config_header(signal_config_file, valid_signal_var)
+    cfg_vals = .parse_config_header(signal_config_file)
     if(any(c("main_dir", "data_dir", "file_prefix") %in% names(cfg_vals))){
         #ADD PREFIX TO FILE AND REMOVE VAR
         path_VAR = intersect(c("main_dir", "data_dir", "file_prefix"), names(cfg_vals))
@@ -259,13 +245,10 @@ FetchConfig.parse = function(signal_config_file){
 #' @examples
 #' bam_files = dir(system.file(package = "ssvQC", "extdata"), pattern = "CTCF.+bam$", full.names = TRUE)
 #' object = FetchConfig.files(bam_files)
-#' plot(object)
 #'
 #' object2 = FetchConfig.files(bam_files,
-#'   sample_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF"),
-#'   group_names = c("10A", "AT1", "CA1")
+#'   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
 #' )
-#' plot(object2)
 FetchConfig.files = function(file_paths,
                              group_names = NULL,
                              view_size = getOption("CT_VIEW_SIZE", 3e3),
@@ -312,12 +295,13 @@ get_fetch_fun = function(read_mode){
 #'   input query_gr if signal profiles are flipped or centered according to
 #'   center_signal_at_max or flip_signal_mode in the signal config.
 #' @rdname FetchConfig
+#' @export
 #' @examples
-#' bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
+#' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv")
 #' fetch_config = FetchConfig.parse(bam_config_file)
 #'
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' fetch_signal_at_features(fetch_config, query_gr)
+#' chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
 fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
     extra_args = fetch_config@fetch_options
     ### JRB commenting out for now. user provided fragLens should be used.
@@ -346,7 +330,7 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
         names_variable = "name"),
         extra_args)
     fetch_FUN = get_fetch_fun(fetch_config@read_mode)
-    prof_dt = bfcif(bfc, digest(list(fetch_FUN, call_args)), function(){
+    prof_dt = bfcif(bfc, digest::digest(list(fetch_FUN, call_args)), function(){
         do.call(fetch_FUN, call_args)
     })
     list(prof_dt = prof_dt, query_gr = query_gr)

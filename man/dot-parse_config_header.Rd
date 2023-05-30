@@ -6,7 +6,8 @@
 \usage{
 .parse_config_header(
   f,
-  valid_config_VARS,
+  valid_config_VARS = c("main_dir", "data_dir", "file_prefix", "view_size",
+    "window_size", "read_mode", "fetch_options", "is_null"),
   allowed_deprecated_VARS = c("color_by", "color_mapping", "run_by", "to_run",
     "to_run_reference")
 )

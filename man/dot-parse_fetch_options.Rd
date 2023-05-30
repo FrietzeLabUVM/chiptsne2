@@ -17,5 +17,6 @@ named list of options
 }
 \examples{
 fop = "win_size:10,win_method:\"summary\",summary_FUN:mean"
-.parse_fetch_options(fop)
+fop = strsplit(fop, ",")[[1]]
+chiptsne2:::.parse_fetch_options(fop)
 }

@@ -133,18 +133,15 @@ bigwig_config_file = system.file(package = "chiptsne2", "extdata/bigwig_config.c
 FetchConfig.parse(bigwig_config_file)
 bam_files = dir(system.file(package = "ssvQC", "extdata"), pattern = "CTCF.+bam$", full.names = TRUE)
 object = FetchConfig.files(bam_files)
-plot(object)
 
 object2 = FetchConfig.files(bam_files,
-  sample_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF"),
-  group_names = c("10A", "AT1", "CA1")
+  group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
 )
-plot(object2)
-bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
+bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv")
 fetch_config = FetchConfig.parse(bam_config_file)
 
 query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-fetch_signal_at_features(fetch_config, query_gr)
+chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
 bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
 bam_config = FetchConfig.parse(bam_config_file)
 #FetchConfig.save_config(bam_config, "bam_config.csv")

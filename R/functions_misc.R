@@ -121,7 +121,8 @@ get_mapped_reads = function(bam_file){
 #'
 #' @examples
 #' fop = "win_size:10,win_method:\"summary\",summary_FUN:mean"
-#' .parse_fetch_options(fop)
+#' fop = strsplit(fop, ",")[[1]]
+#' chiptsne2:::.parse_fetch_options(fop)
 .parse_fetch_options = function(fop){
     if(is.null(fop)) return(list())
     if(any(is.na(fop))) return(list())
@@ -161,17 +162,28 @@ get_mapped_reads = function(bam_file){
 #' @importFrom dplyr filter
 #' @examples
 #'
-#' valid_signal_var = c(
-#'  "view_size",
-#'  "window_size",
-#'  "read_mode",
-#'  "fetch_options",
-#'  "is_null"
-#'  )
-#'  bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
-#' chiptsne2:::.parse_config_header(bam_config_file, valid_signal_var)
-.parse_config_header = function(f, valid_config_VARS, allowed_deprecated_VARS = c("color_by", "color_mapping", "run_by", "to_run", "to_run_reference")){
-    cfg_txt = read.table(f, sep = "\n", header = FALSE, stringsAsFactors = FALSE, comment.char = "") %>%
+#' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
+#' chiptsne2:::.parse_config_header(bam_config_file)
+.parse_config_header = function(f,
+                                valid_config_VARS = c(
+                                    "main_dir",
+                                    "data_dir",
+                                    "file_prefix",
+                                    "view_size",
+                                    "window_size",
+                                    "read_mode",
+                                    "fetch_options",
+                                    "is_null"
+
+                                ), allowed_deprecated_VARS = c(
+                                    "color_by",
+                                    "color_mapping",
+                                    "run_by",
+                                    "to_run",
+                                    "to_run_reference"
+                                )
+){
+    cfg_txt = read.table(f, sep = "\n", header = FALSE, stringsAsFactors = FALSE, comment.char = "", quote = "") %>%
         dplyr::filter(grepl("^#CFG", V1))
     if(nrow(cfg_txt) == 0){
         return(list())
@@ -192,6 +204,7 @@ get_mapped_reads = function(bam_file){
     bad_var = setdiff(cfg_names, valid_config_VARS)
     bad_var = setdiff(bad_var, allowed_deprecated_VARS)
     if(length(bad_var) > 0){
+        browser()
         stop("Unrecogized variables in config file: ", paste(bad_var, collapse = ", "))
     }
 
