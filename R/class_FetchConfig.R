@@ -1,5 +1,7 @@
 
-check_FetchConfig = function(object){
+#### Validity ####
+
+.check_FetchConfig = function(object){
     errors <- character()
     #is_null can't be invalid
     if(object@is_null){
@@ -27,27 +29,9 @@ check_FetchConfig = function(object){
     if (length(errors) == 0) TRUE else errors
 }
 
-#' FetchConfig
-#'
-#' @slot view_size Consistent size to use when viewing assessment regions. Uses
-#'   CT_VIEW_SIZE option or 3kb as default.
-#' @slot read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
-#'   Use CT_READ_MODES$.
-#' @slot fetch_options Named list of additional arguments to pass to signal
-#'   fetch function.
-#'
-#' @rdname FetchConfig
-#' @export
-#'
-setClass("FetchConfig",
-         representation = list(
-             meta_data = "data.frame",
-             is_null = "logical",
-             view_size = "numeric",
-             win_size = "numeric",
-             read_mode = "character",
-             fetch_options = "list"
-         ), validity = check_FetchConfig)
+#' @importFrom S4Vectors setValidity2
+#' @importFrom BiocGenerics NCOL NROW
+S4Vectors::setValidity2("FetchConfig", .check_FetchConfig)
 
 setMethod("initialize","FetchConfig", function(.Object,...){
     .Object <- callNextMethod()
@@ -152,7 +136,7 @@ FetchConfig = function(config_df,
 
     stopifnot(read_mode %in% sqc_read_modes)
 
-    new("FetchConfig",
+    .FetchConfig(
         meta_data =  config_df,
         read_mode = read_mode,
         view_size = view_size,
@@ -335,35 +319,6 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
     })
     list(prof_dt = prof_dt, query_gr = query_gr)
 }
-
-setMethod("split", signature = c("FetchConfig", "factor"), definition = function(x, f){
-    split(x, f, FALSE)
-})
-setMethod("split", signature = c("FetchConfig", "factor", "logical"), definition = function(x, f, drop = FALSE){
-    config_df = x@meta_data
-    meta_split = split(config_df, f)
-    refs = config_df[config_df[[x@run_by]] %in% x@to_run_reference,]
-
-    meta_split = meta_split[x@to_run]
-    meta_split = lapply(meta_split, function(sel_meta_df)rbind(sel_meta_df, refs))
-
-    lapply(meta_split, function(sel_meta_df){
-        new("FetchConfig",
-            meta_data =  sel_meta_df,
-            read_mode = x@read_mode,
-            view_size = x@view_size,
-            win_size = x@win_size,
-            fetch_options = x@fetch_options,
-            is_null = FALSE
-        )
-    })
-})
-setMethod("split", signature = c("FetchConfig", "character"), definition = function(x, f){
-    split(x, f, FALSE)
-})
-setMethod("split", signature = c("FetchConfig", "character", "logical"), definition = function(x, f, drop = FALSE){
-    split(x, factor(f, levels = unique(f)), FALSE)
-})
 
 #' FetchConfig.save_config
 #'

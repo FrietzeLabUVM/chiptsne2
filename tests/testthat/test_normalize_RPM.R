@@ -1,4 +1,4 @@
-testthat::context("converters")
+testthat::context("norm RPM")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)

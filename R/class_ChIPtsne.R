@@ -1,18 +1,5 @@
 
-#' @export
-#' @import methods
-#' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
-.ChIPtsne2 <- setClass("ChIPtsne2",
-                       slots= representation(
-                           rowToRowMat="matrix",
-                           colToRowMatCols="list",
-                           name_VAR = "character",
-                           position_VAR = "character",
-                           value_VAR = "character",
-                           region_VAR = "character"
-                       ),
-                       contains="RangedSummarizedExperiment"
-)
+
 
 #### Constructor ####
 
@@ -25,6 +12,7 @@ ChIPtsne2 <- function(
         position_VAR = "x",
         value_VAR = "y",
         region_VAR = "id",
+        fetch_config = FetchConfig.null(),
         ...)
 {
     se <- SummarizedExperiment(...)
@@ -34,7 +22,8 @@ ChIPtsne2 <- function(
                name_VAR = name_VAR,
                position_VAR = position_VAR,
                value_VAR = value_VAR,
-               region_VAR = region_VAR
+               region_VAR = region_VAR,
+               fetch_config = fetch_config
                )
 }
 

@@ -25,13 +25,6 @@ A named list containing configuration options mapped to values.
 }
 \examples{
 
-valid_signal_var = c(
- "view_size",
- "window_size",
- "read_mode",
- "fetch_options",
- "is_null"
- )
- bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
-chiptsne2:::.parse_config_header(bam_config_file, valid_signal_var)
+bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
+chiptsne2:::.parse_config_header(bam_config_file)
 }
