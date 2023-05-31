@@ -85,7 +85,7 @@ test_that("FetchConfig.load_config", {
 test_that("FetchConfig.save_config", {
     cfg.bam = FetchConfig.load_config(bam_cfg_f)
     t_file = tempfile()
-    FetchConfig.save_config(cfg.bam, file = t_file)
+    suppressWarnings({FetchConfig.save_config(cfg.bam, file = t_file)})
     cfg.loaded = FetchConfig.load_config(t_file)
 
     expect_equal(cfg.bam$meta_data,
@@ -116,7 +116,7 @@ test_that("fragLens", {
     cfg.bam_no_fragLens = FetchConfig.load_config(bam_cfg_f.no_fragLens)
     cfg.bam_no_fragLens@meta_data = cfg.bam_no_fragLens$meta_data[1,]
 
-    res.bam = fetch_signal_at_features(cfg.bam, query_gr)
+    res.bam = suppressWarnings({fetch_signal_at_features(cfg.bam, query_gr)})
     res.bam_fragLens = fetch_signal_at_features(cfg.bam_fragLens, query_gr)
     res.bam_no_fragLens = fetch_signal_at_features(cfg.bam_no_fragLens, query_gr)
 
