@@ -10,7 +10,7 @@
 \item{ct2}{A ChIPtsne2 object}
 }
 \value{
-A chiptsne2 object updated to reflect centering procedure.
+A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.
 }
 \description{
 .centerSignal

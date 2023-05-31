@@ -23,6 +23,10 @@ ChIPtsne2.from_tidy(
 
 \item{query_gr}{The query GRanges object used to fetch prof_dt.}
 
+\item{sample_metadata}{Metadata for entries in prof_dt's name_VAR, must include name_VAR}
+
+\item{region_metadata}{Metadata to append to rowRanges, mcols of query_gr will also be used.}
+
 \item{name_VAR}{Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "sample".}
 
 \item{position_VAR}{Variable name that contains positional information in prof_dt. Default is "x".}
@@ -31,7 +35,11 @@ ChIPtsne2.from_tidy(
 
 \item{region_VAR}{Variable name that contains region ID information in prof_dt. Default is "id".}
 
-\item{meta_dt}{Additional information for each name_VAR entry in prof_dt.}
+\item{auto_sample_metadata}{If true, additional attributes in prof_dt will used for metadata (minus certain region related attributes such as seqnames, start, end, etc.)}
+
+\item{obj_history}{Existing history for object, may be used to describe origin on prof_dt or query_gr.}
+
+\item{init}{If TRUE, initialize history with birthday, session_info, and chiptsne2_version}
 }
 \value{
 ChIPtsne2 object with tsne results

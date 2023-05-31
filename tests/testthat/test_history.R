@@ -32,9 +32,9 @@ hist.c = ChIPtsne2.history(ct2.c)
 hist.rerun = ChIPtsne2.history(ct2.rerun)
 
 test_that("History names", {
-    expect_setequal(names(hist.1), c("birthday", "session_info", "chiptsne_version"))
-    expect_setequal(names(hist.c), c("birthday", "session_info", "chiptsne_version", "centerSignalProfile", "centerSignalProfile", "centerSignalProfile"))
-    expect_setequal(names(hist.rerun), c("birthday", "session_info", "chiptsne_version", "centerSignalProfile", "centerSignalProfile", "centerSignalProfile"))
+    expect_setequal(names(hist.1), c("birthday", "session_info", "chiptsne2_version"))
+    expect_setequal(names(hist.c), c("birthday", "session_info", "chiptsne2_version", "centerSignalProfile", "centerSignalProfile", "centerSignalProfile"))
+    expect_setequal(names(hist.rerun), c("birthday", "session_info", "chiptsne2_version", "centerSignalProfile", "centerSignalProfile", "centerSignalProfile"))
 })
 
 test_that("ct2 rowRanges widths", {

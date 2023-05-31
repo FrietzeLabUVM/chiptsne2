@@ -6,11 +6,15 @@ ChIPtsne2.from_config = function(){
 #'
 #' @param prof_dt Profile data.table, as returned from seqsetvis::ssvFetch* functions
 #' @param query_gr The query GRanges object used to fetch prof_dt.
-#' @param meta_dt Additional information for each name_VAR entry in prof_dt.
 #' @param name_VAR Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "sample".
 #' @param position_VAR Variable name that contains positional information in prof_dt. Default is "x".
 #' @param value_VAR Variable name that contains signal value information in prof_dt. Default is "y".
 #' @param region_VAR Variable name that contains region ID information in prof_dt. Default is "id".
+#' @param sample_metadata Metadata for entries in prof_dt's name_VAR, must include name_VAR
+#' @param region_metadata Metadata to append to rowRanges, mcols of query_gr will also be used.
+#' @param auto_sample_metadata If true, additional attributes in prof_dt will used for metadata (minus certain region related attributes such as seqnames, start, end, etc.)
+#' @param obj_history Existing history for object, may be used to describe origin on prof_dt or query_gr.
+#' @param init If TRUE, initialize history with birthday, session_info, and chiptsne2_version
 #'
 #' @return ChIPtsne2 object with tsne results
 #' @export
@@ -33,7 +37,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
                                init = TRUE
                                ){
     if(init){
-        init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne_version = utils::packageDescription("chiptsne2")$Version)
+        init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne2_version = utils::packageDescription("chiptsne2")$Version)
         obj_history = c(init_history, obj_history)
     }
 
@@ -178,7 +182,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
     map_dt = dplyr::mutate(map_dt, cn = paste(get(name_VAR), get(position_VAR), sep = "_"))
     stopifnot(map_dt$cn == colnames(prof_mat))
     map_dt = dplyr::mutate(map_dt, nr = seq(nrow(map_dt)))
-    map_list = split(map_dt$n, map_dt[[name_VAR]])
+    map_list = split(map_dt$cn, map_dt[[name_VAR]])
 
     #impose cn and rn
     prof_max_mat = prof_max_mat[rn, cn]
@@ -196,6 +200,47 @@ ChIPtsne2.from_tidy = function(prof_dt,
               value_VAR = value_VAR,
               region_VAR = region_VAR,
               metadata = obj_history)
+}
+
+#' ChIPtsne2.from_FetchConfig
+#'
+#'
+#' @param fetch_config An object of class FetchConfig
+#' @param query_gr The query GRanges object used to fetch prof_dt.
+#' @param region_metadata Metadata to append to rowRanges, mcols of query_gr will also be used.
+#' @param obj_history Existing history for object, may be used to describe origin on prof_dt or query_gr.
+#' @param init If TRUE, initialize history with birthday, session_info, and chiptsne2_version
+#'
+#' @return A ChIPtsne2 created using profiles fetched used provided FetchConfig
+#' @export
+#'
+#' @examples
+#' bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
+#' fetch_config = FetchConfig.load_config(bam_cfg_f)
+#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
+#' ct2
+ChIPtsne2.from_FetchConfig = function(fetch_config,
+                               query_gr,
+                               region_metadata = NULL,
+                               obj_history = list(),
+                               init = TRUE
+){
+    name_VAR = fetch_config@name_VAR
+    sample_metadata = fetch_config@meta_data
+    query_gr = seqsetvis::prepare_fetch_GRanges_names(query_gr)
+    query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = fetch_config$window_size)
+
+    fetch_res = fetch_signal_at_features(fetch_config, query_gr)
+    prof_dt = fetch_res$prof_dt
+
+    ChIPtsne2.from_tidy(prof_dt = prof_dt,
+                        name_VAR = name_VAR,
+                        query_gr = query_gr,
+                        sample_metadata = sample_metadata,
+                        region_metadata = region_metadata,
+                        obj_history = obj_history,
+                        init = init)
 }
 
 #' ChIPtsne2.history

@@ -1,8 +1,10 @@
+#### centerSignalGRanges ####
+
 #' .centerSignal
 #'
 #' @param ct2 A ChIPtsne2 object
 #'
-#' @return A chiptsne2 object updated to reflect centering procedure.
+#' @return A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.
 #'
 #' @importFrom seqsetvis centerGRangesAtMax
 #'
@@ -18,7 +20,10 @@
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 #' chiptsne2:::.centerSignalGRanges(ct2)
 .centerSignalGRanges = function(ct2){
-    w = rowRanges(ct2) %>% GenomicRanges::width() %>% unique
+    if(isFetchConfigNull(ct2@fetch_config)){
+        stop("FetchConfig must valid and not NULL. Use centerSignalProfile or create ChIPtsne2 with ChIPtsne2.from_FetchConfig.")
+    }
+    w = ct2@fetch_config$view_size
     prof_dt = getTidyProfile(ct2)
     win_size = prof_dt[[ct2@position_VAR]] %>% unique %>% diff %>% unique
     center_gr = rowRanges(ct2) %>% GenomicRanges::resize(1, fix = "center")
@@ -26,15 +31,25 @@
     prof_dt$seqnames = as.character(GenomicRanges::seqnames(center_gr[prof_dt[[ct2@region_VAR]]]))
     prof_dt$start = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] - win_size/2
     prof_dt$end = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] + win_size/2
-    seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w)
+    new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w)
+    ChIPtsne2.from_FetchConfig(ct2@fetch_config, new_query_gr, obj_history = ct2@metadata, init = FALSE)
 }
+
+#' @export
+setGeneric("centerSignalGRanges", function(ct2) standardGeneric("centerSignalGRanges"))
+
+#' @export
+setMethod("centerSignalGRanges", c("ChIPtsne2"), .centerSignalGRanges)
+
+#### centerSignalProfile ####
 
 #' .centerSignalProfile
 #'
 #' @param ct2 A ChIPtsne2 object
 #' @param view_size bp range to search for max
 #'
-#' @return A chiptsne2 object updated to reflect centering procedure.
+#' @return A chiptsne2 object updated to reflect centering procedure. Some x
+#'   values will have been lost.
 #'
 #' @examples
 #' library(tidyverse)

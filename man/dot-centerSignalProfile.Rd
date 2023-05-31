@@ -12,7 +12,8 @@
 \item{view_size}{bp range to search for max}
 }
 \value{
-A chiptsne2 object updated to reflect centering procedure.
+A chiptsne2 object updated to reflect centering procedure. Some x
+  values will have been lost.
 }
 \description{
 .centerSignalProfile
