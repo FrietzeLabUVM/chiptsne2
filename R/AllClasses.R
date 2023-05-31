@@ -15,9 +15,10 @@
                             meta_data = "data.frame",
                             is_null = "logical",
                             view_size = "numeric",
-                            win_size = "numeric",
+                            window_size = "numeric",
                             read_mode = "character",
-                            fetch_options = "list"
+                            fetch_options = "list",
+                            name_VAR = "character"
                         )
 )
 

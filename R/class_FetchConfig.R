@@ -7,24 +7,31 @@
     if(object@is_null){
         return(TRUE)
     }
+    name_VAR = object@name_VAR
     #read_mode sensitive checks.
     if(grepl("bam", object@read_mode)){#bam checks
     }else{#bigwig checks
     }
     #check attributes are present
-    if(is.null(object$meta_data[["name"]])){
-        msg = "'name' attribute must be present in meta_data."
+    if(is.null(object$meta_data[[name_VAR]])){
+        msg = paste("'name_VAR':", name_VAR, " attribute must be present in meta_data.")
         errors = c(errors, msg)
     }
     #check attributes are valid
-    if(any(duplicated(object$meta_data[["name"]]))){
-        msg = paste0("'name' values must be unique. Following have been duplicated: ", paste(unique(object$meta_data$name[duplicated(object$meta_data$name)]), collapse = ", "))
+    if(any(duplicated(object$meta_data[[name_VAR]]))){
+        msg = paste0("'name_VAR': ", name_VAR, " values must be unique. Following have been duplicated: ", paste(unique(object$meta_data$name[duplicated(object$meta_data$name)]), collapse = ", "))
         errors = c(errors, msg)
     }
-    if(!is.factor(object$meta_data[["name"]])){
-        msg = "'name' attribute must be a factor."
+    if(!is.factor(object$meta_data[[name_VAR]])){
+        msg = paste("'name_VAR':", name_VAR, " attribute must be a factor.")
         errors = c(errors, msg)
     }
+
+    if(!all(file.exists(object$meta_data$file))){
+        stop(paste(c("Files specified in config do not exist:",
+                     object$meta_data$file[!file.exists(object$meta_data$file)]), collapse = "\n  "))
+    }
+
     #check to_run and reference
     if (length(errors) == 0) TRUE else errors
 }
@@ -57,7 +64,7 @@ setMethod("$", "FetchConfig",
           {
               switch (name,
                       view_size = x@view_size,
-                      window_size = x@win_size,
+                      window_size = x@window_size,
                       read_mode = x@read_mode,
                       fetch_options = x@fetch_options,
                       meta_data = x@meta_data
@@ -73,7 +80,7 @@ setReplaceMethod("$", "FetchConfig",
                                  x@view_size = value
                              },
                              window_size = {
-                                 x@win_size = value
+                                 x@window_size = value
                              },
                              read_mode = {
                                  stopifnot(value %in% c("bam_SE", "bam_PE", "bigwig", "null"))
@@ -140,8 +147,9 @@ FetchConfig = function(config_df,
         meta_data =  config_df,
         read_mode = read_mode,
         view_size = view_size,
-        win_size = window_size,
+        window_size = window_size,
         fetch_options = fetch_options,
+        name_VAR = name_VAR,
         is_null = is_null)
 }
 
@@ -157,8 +165,19 @@ FetchConfig.null = function(){
     qc
 }
 
-isConfigNull = function(cfg){
-    obj@is_null
+#' isFetchConfigNull
+#'
+#' @param cfg A FetchConfig object
+#'
+#' @return TRUE if object is null placeholder
+#' @export
+#' @rdname FetchConfig
+#'
+#' @examples
+#' cfg.null = FetchConfig.null()
+#' isFetchConfigNull(cfg.null)
+isFetchConfigNull = function(fetch_config){
+    fetch_config@is_null
 }
 
 #' @param signal_config_file Configuration file for signal data.
@@ -168,14 +187,18 @@ isConfigNull = function(cfg){
 #' @rdname FetchConfig
 #' @examples
 #' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
-#' FetchConfig.parse(bam_config_file)
+#' FetchConfig.load_config(bam_config_file)
 #'
 #' bigwig_config_file = system.file(package = "chiptsne2", "extdata/bigwig_config.csv", mustWork = TRUE)
-#' FetchConfig.parse(bigwig_config_file)
-FetchConfig.parse = function(signal_config_file){
-    signal_config_dt = .parse_config_body(signal_config_file)
-
+#' FetchConfig.load_config(bigwig_config_file)
+FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
     cfg_vals = .parse_config_header(signal_config_file)
+    if(!is.null(cfg_vals$name_VAR)){
+        name_VAR = cfg_vals$name_VAR
+    }else{
+        name_VAR = "name"
+    }
+    signal_config_dt = .parse_config_body(signal_config_file, name_VAR = name_VAR)
     if(any(c("main_dir", "data_dir", "file_prefix") %in% names(cfg_vals))){
         #ADD PREFIX TO FILE AND REMOVE VAR
         path_VAR = intersect(c("main_dir", "data_dir", "file_prefix"), names(cfg_vals))
@@ -193,23 +216,20 @@ FetchConfig.parse = function(signal_config_file){
         cfg_vals[[path_VAR]] = NULL
     }
 
-    if(!all(file.exists(signal_config_dt$file))){
-        stop(paste(c("Files specified in config do not exist:",
-                     signal_config_dt$file[!file.exists(signal_config_dt$file)]), collapse = "\n  "))
-    }
-
     tfun = function(config_dt,
                     read_mode = NULL,
                     view_size = getOption("CT_VIEW_SIZE", 3e3),
                     window_size = getOption("CT_WINDOW_SIZE", 200),
                     fetch_options = list(),
-                    is_null = FALSE){
+                    is_null = FALSE,
+                    name_VAR = "name"){
         FetchConfig(config_df = config_dt,
                     read_mode = read_mode,
                     view_size = view_size,
                     window_size = window_size,
                     fetch_options = fetch_options,
-                    is_null = is_null
+                    is_null = is_null,
+                    name_VAR = name_VAR
         )
     }
     do.call(tfun, c(list(config_dt = signal_config_dt), cfg_vals))
@@ -235,9 +255,11 @@ FetchConfig.parse = function(signal_config_file){
 #' )
 FetchConfig.files = function(file_paths,
                              group_names = NULL,
+                             name_VAR = "name",
                              view_size = getOption("CT_VIEW_SIZE", 3e3),
                              window_size = getOption("CT_WINDOW_SIZE", 200),
-                             read_mode = NULL
+                             read_mode = NULL,
+                             fetch_options = list()
 ){
     if(is.null(group_names)){
         if(is.null(names(file_paths))){
@@ -249,11 +271,14 @@ FetchConfig.files = function(file_paths,
     config_df = data.frame(file = as.character(file_paths),
                            group = group_names,
                            stringsAsFactors = FALSE)
-
+    colnames(config_df)[2] = name_VAR
 
     FetchConfig(config_df,
                 view_size = view_size,
-                window_size = window_size
+                window_size = window_size,
+                read_mode =  read_mode,
+                name_VAR = name_VAR,
+                fetch_options = fetch_options
     )
 }
 
@@ -282,7 +307,7 @@ get_fetch_fun = function(read_mode){
 #' @export
 #' @examples
 #' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv")
-#' fetch_config = FetchConfig.parse(bam_config_file)
+#' fetch_config = FetchConfig.load_config(bam_config_file)
 #'
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 #' chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
@@ -302,16 +327,16 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
             extra_args$fragLens = fetch_config@meta_data$fragLens # apply fragLens to extra_args from meta_data
         }
     }
-    if("win_size" %in% names(extra_args)){
-        warning("win_size found in configured fetch_options. ignored. Please use FetchConfig$window_size.")
-        extra_args[["win_size"]] = NULL
+    if("window_size" %in% names(extra_args)){
+        warning("window_size found in configured fetch_options. ignored. Please use FetchConfig$window_size.")
+        extra_args[["window_size"]] = NULL
     }
     call_args = c(list(
         file_paths = fetch_config@meta_data,
-        win_size = fetch_config@win_size,
+        win_size = fetch_config@window_size,
         qgr = query_gr,
         return_data.table = TRUE,
-        names_variable = "name"),
+        names_variable = fetch_config@name_VAR),
         extra_args)
     fetch_FUN = get_fetch_fun(fetch_config@read_mode)
     prof_dt = bfcif(bfc, digest::digest(list(fetch_FUN, call_args)), function(){
@@ -327,22 +352,21 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
 #' @rdname FetchConfig
 #' @examples
 #' bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
-#' bam_config = FetchConfig.parse(bam_config_file)
+#' bam_config = FetchConfig.load_config(bam_config_file)
 #' #FetchConfig.save_config(bam_config, "bam_config.csv")
 #'
 #' bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config.csv")
-#' bigwig_config = FetchConfig.parse(bigwig_config_file)
+#' bigwig_config = FetchConfig.load_config(bigwig_config_file)
 #' #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
 FetchConfig.save_config = function(object, file){
     slots_to_save = c(
         "view_size",
-        "win_size",
+        "window_size",
         "read_mode",
         "is_null"
     )
     # key value pair slots are saved/loaded differently
-    kvp_slots = c("color_mapping", "fetch_options")
-    # FetchConfig.parse(file)
+    kvp_slots = c("fetch_options")
     .save_config(object, file, slots_to_save, kvp_slots)
 }
 

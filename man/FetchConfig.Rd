@@ -6,7 +6,8 @@
 \alias{.FetchConfig}
 \alias{FetchConfig}
 \alias{FetchConfig.null}
-\alias{FetchConfig.parse}
+\alias{isFetchConfigNull}
+\alias{FetchConfig.load_config}
 \alias{FetchConfig.files}
 \alias{fetch_signal_at_features}
 \alias{FetchConfig.save_config}
@@ -25,14 +26,18 @@ FetchConfig(
 
 FetchConfig.null()
 
-FetchConfig.parse(signal_config_file)
+isFetchConfigNull(fetch_config)
+
+FetchConfig.load_config(signal_config_file, name_VAR = NULL)
 
 FetchConfig.files(
   file_paths,
   group_names = NULL,
+  name_VAR = "name",
   view_size = getOption("CT_VIEW_SIZE", 3000),
   window_size = getOption("CT_WINDOW_SIZE", 200),
-  read_mode = NULL
+  read_mode = NULL,
+  fetch_options = list()
 )
 
 fetch_signal_at_features(fetch_config, query_gr, bfc = new_cache())
@@ -64,15 +69,17 @@ fetch function.}
   assessment feature set is store in signal_data for each run group. They can
   be accessed like this: sqc$signal_data$FEATURE_NAME$SIGNAL_NAME$query_gr}
 
+\item{fetch_config}{A FetchConfig object}
+
 \item{signal_config_file}{Configuration file for signal data.}
 
 \item{file_paths}{character paths to files}
 
 \item{group_names}{vector of group names to assign from according to groups}
 
-\item{fetch_config}{A FetchConfig object}
-
 \item{query_gr}{A GRanges to fetch data for}
+
+\item{cfg}{A FetchConfig object}
 
 \item{group_colors}{vector of colors to use per group}
 
@@ -82,6 +89,8 @@ fetch function.}
 A FetchConfig object
 
 A null/empty FetchConfig object
+
+TRUE if object is null placeholder
 
 A FetchConfig object
 
@@ -100,6 +109,8 @@ Invisibly returns path to saved config file.
 FetchConfig
 
 FetchConfig null placeholder
+
+isFetchConfigNull
 
 FetchConfig.files
 
@@ -127,11 +138,13 @@ bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config
 bigwig_config_df = chiptsne2:::.parse_config_body(bigwig_config_file)
 sig_conf.bw = FetchConfig(bigwig_config_df)
 FetchConfig.null()
+cfg.null = FetchConfig.null()
+isFetchConfigNull(cfg.null)
 bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
-FetchConfig.parse(bam_config_file)
+FetchConfig.load_config(bam_config_file)
 
 bigwig_config_file = system.file(package = "chiptsne2", "extdata/bigwig_config.csv", mustWork = TRUE)
-FetchConfig.parse(bigwig_config_file)
+FetchConfig.load_config(bigwig_config_file)
 bam_files = dir(system.file(package = "ssvQC", "extdata"), pattern = "CTCF.+bam$", full.names = TRUE)
 object = FetchConfig.files(bam_files)
 
@@ -139,15 +152,15 @@ object2 = FetchConfig.files(bam_files,
   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
 )
 bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv")
-fetch_config = FetchConfig.parse(bam_config_file)
+fetch_config = FetchConfig.load_config(bam_config_file)
 
 query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
 bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
-bam_config = FetchConfig.parse(bam_config_file)
+bam_config = FetchConfig.load_config(bam_config_file)
 #FetchConfig.save_config(bam_config, "bam_config.csv")
 
 bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config.csv")
-bigwig_config = FetchConfig.parse(bigwig_config_file)
+bigwig_config = FetchConfig.load_config(bigwig_config_file)
 #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
 }

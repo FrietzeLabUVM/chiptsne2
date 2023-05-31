@@ -1,0 +1,13 @@
+#not meant to be used, just for testing arg parsing
+#CFG main_dir=$PACKAGE_DATA read_mode=bam_PE
+#CFG color_by=cell color_mapping=MCF10A:blue2,MCF10AT1:darkmagenta,MCF10CA1:violetred1
+#CFG run_by=mark to_run=CTCF to_run_reference=input view_size=2e3 window_size=25
+#CFG fetch_options=win_method:"summary",summary_FUN:weighted.mean
+#CFG name_VAR="sample"
+file,cell,mark,rep,sample
+MCF10A_CTCF_R1.100peaks.bam,MCF10A,CTCF,rep1,MCF10A_CTCF
+MCF10AT1_CTCF_R1.100peaks.bam,MCF10AT1,CTCF,rep1,MCF10AT1_CTCF
+MCF10CA1_CTCF_R1.100peaks.bam,MCF10CA1,CTCF,rep1,MCF10CA1_CTCF
+MCF10A_input_R1.100peaks.bam,MCF10A,input,rep1,MCF10A_input
+MCF10AT1_input_R1.100peaks.bam,MCF10AT1,input,rep1,MCF10AT1_input
+MCF10CA1_input_R1.100peaks.bam,MCF10CA1,input,rep1,MCF10CA1_input

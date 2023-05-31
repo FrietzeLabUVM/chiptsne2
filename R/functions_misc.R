@@ -102,10 +102,10 @@ get_mapped_reads = function(bam_file){
 }
 
 #' @importFrom utils read.table
-.parse_config_body = function(f){
+.parse_config_body = function(f, name_VAR = "name"){
     config_dt = utils::read.table(f, sep = ",", header = TRUE, stringsAsFactors = FALSE)
     config_dt = .enforce_file_var(config_dt)
-    config_dt = .enforce_name_var(config_dt)
+    config_dt = .enforce_name_var(config_dt, name_VAR = name_VAR)
     config_dt = .enforce_found_order(config_dt)
     #move file to first column
     config_dt = config_dt[, colnames(config_dt)[order(colnames(config_dt) != "file")]]
@@ -173,7 +173,8 @@ get_mapped_reads = function(bam_file){
                                     "window_size",
                                     "read_mode",
                                     "fetch_options",
-                                    "is_null"
+                                    "is_null",
+                                    "name_VAR"
 
                                 ), allowed_deprecated_VARS = c(
                                     "color_by",
@@ -204,13 +205,12 @@ get_mapped_reads = function(bam_file){
     bad_var = setdiff(cfg_names, valid_config_VARS)
     bad_var = setdiff(bad_var, allowed_deprecated_VARS)
     if(length(bad_var) > 0){
-        browser()
         stop("Unrecogized variables in config file: ", paste(bad_var, collapse = ", "))
     }
 
     ### special cases
     #numeric: consensus_n, consensus_fraction, n_peaks, view_size
-    for(var in c("consensus_n", "consensus_fraction", "n_peaks", "view_size", "overlap_extension", "heatmap_limit_values", "linearQuantile_cutoff")){
+    for(var in c("consensus_n", "consensus_fraction", "n_peaks", "view_size", "overlap_extension", "heatmap_limit_values", "linearQuantile_cutoff", "window_size")){
         if(!is.null(cfg_vals[[var]])){
             cfg_vals[[var]] = as.numeric(cfg_vals[[var]])
             if(!is.numeric(cfg_vals[[var]])){
@@ -239,6 +239,9 @@ get_mapped_reads = function(bam_file){
         cfg_vals[["fetch_options"]] = .parse_fetch_options(cfg_vals[["fetch_options"]])
     }
     cfg_vals = cfg_vals[setdiff(names(cfg_vals), allowed_deprecated_VARS)]
+    k_char = sapply(cfg_vals, is.character)
+    #strip quotes
+    cfg_vals[k_char] = gsub('"', "", cfg_vals[k_char])
     cfg_vals
 }
 
@@ -256,6 +259,7 @@ is_signal_file = function(files, suff = getOption("SQC_SIGNAL_FILE_SUFF", c("bam
 }
 
 #' internal function used by FetchConfig.save_config FetchConfigSignal.save_config and FetchConfigFeatures.save_config
+#' @importFrom data.table fwrite
 .save_config = function(object, file, slots_to_save, kvp_slots, toss_names = "summary_FUN"){
     hdr1 = sapply(slots_to_save, function(x){
         val = slot(object, x)
@@ -267,7 +271,19 @@ is_signal_file = function(files, suff = getOption("SQC_SIGNAL_FILE_SUFF", c("bam
 
     hdr2 = sapply(kvp_slots, function(x){
         val = slot(object, x)
-        val = val[!names(val) %in% names(toss_names)]
+        if(any(toss_names %in% names(val))){
+            warning("Could not save all FetchConfig slots: ", paste(intersect(toss_names, names(val)), collapse = ", "))
+            val = val[!names(val) %in% toss_names]
+        }
+        #characters must be protected with quotes
+        val = lapply(val, function(x){
+            if(is.character(x)){
+                x = paste0('"', x, '"')
+            }else{
+                x
+            }
+        })
+
         val = paste(names(val), val, sep = ":", collapse = ",")
         ifelse(length(val) > 0,
                paste0("#CFG ", x, "=", val),
@@ -280,9 +296,8 @@ is_signal_file = function(files, suff = getOption("SQC_SIGNAL_FILE_SUFF", c("bam
 
     hdr = c(hdr1, hdr2, hdr3)
     names(hdr) = NULL
-
     writeLines(hdr, file)
-    fwrite(object@meta_data, file, append = TRUE)
+    data.table::fwrite(object@meta_data, file, append = TRUE)
     invisible(file)
 }
 
