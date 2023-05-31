@@ -234,13 +234,15 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
     fetch_res = fetch_signal_at_features(fetch_config, query_gr)
     prof_dt = fetch_res$prof_dt
 
-    ChIPtsne2.from_tidy(prof_dt = prof_dt,
+    ct2 = ChIPtsne2.from_tidy(prof_dt = prof_dt,
                         name_VAR = name_VAR,
                         query_gr = query_gr,
                         sample_metadata = sample_metadata,
                         region_metadata = region_metadata,
                         obj_history = obj_history,
                         init = init)
+    ct2@fetch_config = fetch_config
+    ct2
 }
 
 #' ChIPtsne2.history

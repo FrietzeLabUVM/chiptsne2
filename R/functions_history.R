@@ -25,7 +25,7 @@
 #'   unique %>%
 #'   separate(sample, c("cell", "mark"), remove = FALSE)
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
-#' ct2.c = chiptsne2:::.centerSignalProfile(ct2, view_size = 500)
+#' ct2.c = chiptsne2:::.centerProfilesAndTrim(ct2, view_size = 500)
 #' rerun_history(ct2, ct2.c)
 #' rerun_history(ct2, ChIPtsne2.history(ct2.c))
 .rerun_history = function(ct2, history_source){

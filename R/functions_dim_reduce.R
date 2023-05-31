@@ -31,7 +31,7 @@
     xy_df = .tsne_from_profile_mat(rowToRowMat(ct2), perplexity = perplexity, ...)
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
-    history_item = list(centerSignalProfile = list(FUN = .tsne_from_ct2, ARG = args))
+    history_item = list(centerProfilesAndTrim = list(FUN = .tsne_from_ct2, ARG = args))
     ChIPtsne2.from_tidy(getTidyProfile(ct2),
                         rowRanges(ct2),
                         region_metadata = xy_df,
@@ -79,7 +79,7 @@ setMethod("dimReduceTSNE", c("ChIPtsne2"), .tsne_from_ct2)
     xy_df = .umap_from_profile_mat(rowToRowMat(ct2), config = config, ...)
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
-    history_item = list(centerSignalProfile = list(FUN = .umap_from_ct2, ARG = args))
+    history_item = list(centerProfilesAndTrim = list(FUN = .umap_from_ct2, ARG = args))
     ChIPtsne2.from_tidy(getTidyProfile(ct2),
                         rowRanges(ct2),
                         region_metadata = xy_df,
@@ -124,7 +124,7 @@ setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
     xy_df = .pca_from_profile_mat(rowToRowMat(ct2))
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
-    history_item = list(centerSignalProfile = list(FUN = .pca_from_ct2, ARG = args))
+    history_item = list(centerProfilesAndTrim = list(FUN = .pca_from_ct2, ARG = args))
     ChIPtsne2.from_tidy(getTidyProfile(ct2),
                         rowRanges(ct2),
                         region_metadata = xy_df,

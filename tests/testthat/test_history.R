@@ -18,11 +18,11 @@ ct2.dupe = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 #birthday is to the second so we need to override
 ct2.dupe@metadata$birthday = "test_value"
 
-# undebug(centerSignalProfile, signature = c("ChIPtsne2", "numeric"))
+# undebug(centerProfilesAndTrim, signature = c("ChIPtsne2", "numeric"))
 # debug(getTidyProfile, signature = c("ChIPtsne2"))
-ct2.c = centerSignalProfile(ct2, view_size = 200)
-ct2.c = centerSignalProfile(ct2.c, view_size = 100)
-ct2.c = centerSignalProfile(ct2.c, view_size = 50)
+ct2.c = centerProfilesAndTrim(ct2, view_size = 200)
+ct2.c = centerProfilesAndTrim(ct2.c, view_size = 100)
+ct2.c = centerProfilesAndTrim(ct2.c, view_size = 50)
 
 ChIPtsne2.history(ct2.c)
 ct2.rerun = rerun_history(ct2.dupe, ct2.c)
@@ -33,8 +33,8 @@ hist.rerun = ChIPtsne2.history(ct2.rerun)
 
 test_that("History names", {
     expect_setequal(names(hist.1), c("birthday", "session_info", "chiptsne2_version"))
-    expect_setequal(names(hist.c), c("birthday", "session_info", "chiptsne2_version", "centerSignalProfile", "centerSignalProfile", "centerSignalProfile"))
-    expect_setequal(names(hist.rerun), c("birthday", "session_info", "chiptsne2_version", "centerSignalProfile", "centerSignalProfile", "centerSignalProfile"))
+    expect_setequal(names(hist.c), c("birthday", "session_info", "chiptsne2_version", "centerProfilesAndTrim", "centerProfilesAndTrim", "centerProfilesAndTrim"))
+    expect_setequal(names(hist.rerun), c("birthday", "session_info", "chiptsne2_version", "centerProfilesAndTrim", "centerProfilesAndTrim", "centerProfilesAndTrim"))
 })
 
 test_that("ct2 rowRanges widths", {

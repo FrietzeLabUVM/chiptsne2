@@ -1,4 +1,4 @@
-#### centerSignalGRanges ####
+#### centerProfilesAndRefetch ####
 
 #' .centerSignal
 #'
@@ -10,18 +10,16 @@
 #'
 #' @examples
 #' library(tidyverse)
+#' bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
+#' fetch_config = FetchConfig.load_config(bam_cfg_f)
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
-#' prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
-#' meta_dt = prof_dt %>%
-#'   select(sample) %>%
-#'   unique %>%
-#'   separate(sample, c("cell", "mark"), remove = FALSE)
-#' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
-#' chiptsne2:::.centerSignalGRanges(ct2)
-.centerSignalGRanges = function(ct2){
+#' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
+#' ct2.c = centerProfilesAndRefetch(ct2)
+#' ct2.c
+.centerProfilesAndRefetch = function(ct2){
+    args = get_args()
     if(isFetchConfigNull(ct2@fetch_config)){
-        stop("FetchConfig must valid and not NULL. Use centerSignalProfile or create ChIPtsne2 with ChIPtsne2.from_FetchConfig.")
+        stop("FetchConfig must valid and not NULL. Use centerProfilesAndTrim or create ChIPtsne2 with ChIPtsne2.from_FetchConfig.")
     }
     w = ct2@fetch_config$view_size
     prof_dt = getTidyProfile(ct2)
@@ -32,18 +30,24 @@
     prof_dt$start = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] - win_size/2
     prof_dt$end = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] + win_size/2
     new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w)
-    ChIPtsne2.from_FetchConfig(ct2@fetch_config, new_query_gr, obj_history = ct2@metadata, init = FALSE)
+
+    history_item = list(centerProfilesAndTrim = list(FUN = .centerProfilesAndRefetch, ARG = args))
+
+    ChIPtsne2.from_FetchConfig(ct2@fetch_config,
+                               new_query_gr,
+                               obj_history = c(ChIPtsne2.history(ct2), history_item),
+                               init = FALSE)
 }
 
 #' @export
-setGeneric("centerSignalGRanges", function(ct2) standardGeneric("centerSignalGRanges"))
+setGeneric("centerProfilesAndRefetch", function(ct2) standardGeneric("centerProfilesAndRefetch"))
 
 #' @export
-setMethod("centerSignalGRanges", c("ChIPtsne2"), .centerSignalGRanges)
+setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 
-#### centerSignalProfile ####
+#### centerProfilesAndTrim ####
 
-#' .centerSignalProfile
+#' .centerProfilesAndTrim
 #'
 #' @param ct2 A ChIPtsne2 object
 #' @param view_size bp range to search for max
@@ -61,8 +65,8 @@ setMethod("centerSignalGRanges", c("ChIPtsne2"), .centerSignalGRanges)
 #'   unique %>%
 #'   separate(sample, c("cell", "mark"), remove = FALSE)
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
-#' ct2.c = chiptsne2:::.centerSignalProfile(ct2, view_size = 500)
-.centerSignalProfile = function(ct2, view_size){
+#' ct2.c = chiptsne2:::.centerProfilesAndTrim(ct2, view_size = 500)
+.centerProfilesAndTrim = function(ct2, view_size){
     args = get_args()
 
     w = rowRanges(ct2) %>% GenomicRanges::width() %>% unique
@@ -74,7 +78,7 @@ setMethod("centerSignalGRanges", c("ChIPtsne2"), .centerSignalGRanges)
     new_w = new_prof_dt[[ct2@position_VAR]] %>% range %>% diff
     new_query_gr = GenomicRanges::resize(rowRanges(ct2), new_w, fix = "center")
 
-    history_item = list(centerSignalProfile = list(FUN = .centerSignalProfile, ARG = args))
+    history_item = list(centerProfilesAndTrim = list(FUN = .centerProfilesAndTrim, ARG = args))
     ChIPtsne2.from_tidy(new_prof_dt,
                         new_query_gr,
                         sample_metadata = colData(ct2),
@@ -88,8 +92,8 @@ setMethod("centerSignalGRanges", c("ChIPtsne2"), .centerSignalGRanges)
 }
 
 #' @export
-setGeneric("centerSignalProfile", function(ct2, view_size) standardGeneric("centerSignalProfile"))
+setGeneric("centerProfilesAndTrim", function(ct2, view_size) standardGeneric("centerProfilesAndTrim"))
 
 #' @export
-setMethod("centerSignalProfile", c("ChIPtsne2", "numeric"), .centerSignalProfile)
+setMethod("centerProfilesAndTrim", c("ChIPtsne2", "numeric"), .centerProfilesAndTrim)
 
