@@ -34,8 +34,9 @@ ChIPtsne2.from_tidy = function(prof_dt,
                                region_VAR = "id",
                                auto_sample_metadata = TRUE,
                                obj_history = list(),
+                               fetch_config = FetchConfig.null(),
                                init = TRUE
-                               ){
+){
     if(init){
         init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne2_version = utils::packageDescription("chiptsne2")$Version)
         obj_history = c(init_history, obj_history)
@@ -76,12 +77,14 @@ ChIPtsne2.from_tidy = function(prof_dt,
     # use sample_metadata over prof_dt if provided and levels of factor if set, otherwise current order of character
     if(!is.null(sample_metadata)){
         if(is.factor(sample_metadata[[name_VAR]])){
+            sample_metadata[[name_VAR]] = droplevels(sample_metadata[[name_VAR]])
             cn = levels(sample_metadata[[name_VAR]])
         }else if(is.character(sample_metadata[[name_VAR]])){
             cn = unique(sample_metadata[[name_VAR]])
         }
     }else{
         if(is.factor(prof_dt[[name_VAR]])){
+            prof_dt[[name_VAR]] = droplevels(prof_dt[[name_VAR]])
             cn = levels(prof_dt[[name_VAR]])
         }else if(is.character(prof_dt[[name_VAR]])){
             cn = unique(prof_dt[[name_VAR]])
@@ -96,6 +99,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
     # use prof_dt levels of factor if set, otherwise current order of character
     if(!is.null(prof_dt)){
         if(is.factor(prof_dt[[region_VAR]])){
+            prof_dt[[region_VAR]] = droplevels(prof_dt[[region_VAR]])
             rn = levels(prof_dt[[region_VAR]])
         }else if(is.character(prof_dt[[region_VAR]])){
             rn = unique(prof_dt[[region_VAR]])
@@ -199,6 +203,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
               position_VAR = position_VAR,
               value_VAR = value_VAR,
               region_VAR = region_VAR,
+              fetch_config = fetch_config,
               metadata = obj_history)
 }
 
@@ -221,10 +226,10 @@ ChIPtsne2.from_tidy = function(prof_dt,
 #' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 #' ct2
 ChIPtsne2.from_FetchConfig = function(fetch_config,
-                               query_gr,
-                               region_metadata = NULL,
-                               obj_history = list(),
-                               init = TRUE
+                                      query_gr,
+                                      region_metadata = NULL,
+                                      obj_history = list(),
+                                      init = TRUE
 ){
     name_VAR = fetch_config@name_VAR
     sample_metadata = fetch_config@meta_data
@@ -235,12 +240,12 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
     prof_dt = fetch_res$prof_dt
 
     ct2 = ChIPtsne2.from_tidy(prof_dt = prof_dt,
-                        name_VAR = name_VAR,
-                        query_gr = query_gr,
-                        sample_metadata = sample_metadata,
-                        region_metadata = region_metadata,
-                        obj_history = obj_history,
-                        init = init)
+                              name_VAR = name_VAR,
+                              query_gr = query_gr,
+                              sample_metadata = sample_metadata,
+                              region_metadata = region_metadata,
+                              obj_history = obj_history,
+                              init = init)
     ct2@fetch_config = fetch_config
     ct2
 }
@@ -255,4 +260,67 @@ ChIPtsne2.history = function(ct2){
     ct2@metadata
 }
 
+.cloneChIPtsne2 = function(ct2, .rowToRowMat = NULL, .colToRowMatCols = NULL, .name_VAR = NULL, .position_VAR = NULL, .value_VAR = NULL, .region_VAR = NULL, .fetch_config = NULL, .rowRanges = NULL, .colData = NULL, .assays = NULL, .metadata = NULL){
+    if(is.null(.rowToRowMat)) .rowToRowMat = rowToRowMat(ct2)
+    if(is.null(.colToRowMatCols)) .colToRowMatCols = colToRowMatCols(ct2)
+    if(is.null(.name_VAR)) .name_VAR = ct2@name_VAR
+    if(is.null(.position_VAR)) .position_VAR = ct2@position_VAR
+    if(is.null(.value_VAR)) .value_VAR = ct2@value_VAR
+    if(is.null(.region_VAR)) .region_VAR = ct2@region_VAR
+    if(is.null(.fetch_config)) .fetch_config = ct2@fetch_config
+    if(is.null(.rowRanges)) .rowRanges = rowRanges(ct2)
+    if(is.null(.colData)) .colData = colData(ct2)
+    if(is.null(.assays)) .assays = as.list(ct2@assays@data)
+    if(is.null(.metadata)) .metadata = ct2@metadata
 
+
+    if(is.data.table())
+        ChIPtsne2(rowToRowMat = .rowToRowMat,
+                  colToRowMatCols = .colToRowMatCols,
+                  name_VAR = .name_VAR,
+                  position_VAR = .position_VAR,
+                  value_VAR = .value_VAR,
+                  region_VAR = .region_VAR,
+                  fetch_config = .fetch_config,
+                  rowRanges = .rowRanges,
+                  colData = .colData,
+                  assays = .assays,
+                  metadata = .metadata)
+}
+
+#' @export
+setGeneric("cloneChIPtsne2", function(ct2, .rowToRowMat = NULL, .colToRowMatCols = NULL, .name_VAR = NULL, .position_VAR = NULL, .value_VAR = NULL, .region_VAR = NULL, .fetch_config = NULL, .rowRanges = NULL, .colData = NULL, .assays = NULL, .metadata = NULL) standardGeneric("cloneChIPtsne2"))
+
+#' @export
+setMethod("cloneChIPtsne2", c("ChIPtsne2"), .cloneChIPtsne2)
+
+.cloneChIPtsne2_fromTidy = function(ct2, prof_dt = NULL, obj_history = NULL, name_VAR = NULL, position_VAR = NULL, value_VAR = NULL, region_VAR = NULL, fetch_config = NULL, query_gr = NULL, init = FALSE, sample_metadata = NULL, region_metadata = NULL){
+    if(is.null(prof_dt)) prof_dt = getTidyProfile(ct2)
+    if(is.null(obj_history)) obj_history = ChIPtsne2.history(ct2)
+    if(is.null(name_VAR)) name_VAR = ct2@name_VAR
+    if(is.null(position_VAR)) position_VAR = ct2@position_VAR
+    if(is.null(value_VAR)) value_VAR = ct2@value_VAR
+    if(is.null(region_VAR)) region_VAR = ct2@region_VAR
+    if(is.null(fetch_config)) fetch_config = ct2@fetch_config
+    if(is.null(query_gr)) query_gr = rowRanges(ct2)
+    if(is.null(sample_metadata)) sample_metadata = getSampleMetaData(ct2)
+
+
+    ChIPtsne2.from_tidy(prof_dt = prof_dt,
+                        query_gr = query_gr,
+                        sample_metadata = sample_metadata,
+                        region_metadata = region_metadata,
+                        name_VAR = name_VAR,
+                        position_VAR = position_VAR,
+                        value_VAR = value_VAR,
+                        region_VAR = region_VAR,
+                        obj_history = obj_history,
+                        fetch_config = fetch_config,
+                        init = init)
+}
+
+#' @export
+setGeneric("cloneChIPtsne2_fromTidy", function(ct2, prof_dt = NULL, obj_history = NULL, name_VAR = NULL, position_VAR = NULL, value_VAR = NULL, region_VAR = NULL, fetch_config = NULL, query_gr = NULL, init = FALSE, sample_metadata = NULL, region_metadata = NULL) standardGeneric("cloneChIPtsne2_fromTidy"))
+
+#' @export
+setMethod("cloneChIPtsne2_fromTidy", c("ChIPtsne2"), .cloneChIPtsne2_fromTidy)

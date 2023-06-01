@@ -331,11 +331,18 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
         warning("window_size found in configured fetch_options. ignored. Please use FetchConfig$window_size.")
         extra_args[["window_size"]] = NULL
     }
+    .n_region_splits = 50
+    if("n_region_splits" %in% names(extra_args)){
+        .n_region_splits = extra_args[["n_region_splits"]]
+        extra_args[["n_region_splits"]] = NULL
+    }
+
     call_args = c(list(
         file_paths = fetch_config@meta_data,
         win_size = fetch_config@window_size,
         qgr = query_gr,
         return_data.table = TRUE,
+        n_region_splits = .n_region_splits,
         names_variable = fetch_config@name_VAR),
         extra_args)
     fetch_FUN = get_fetch_fun(fetch_config@read_mode)

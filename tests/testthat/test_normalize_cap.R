@@ -44,3 +44,27 @@ test_that("normalizeSignalCapValue", {
     names(cap_values.bad) = NULL
     expect_error(normalizeSignalCapValue(ct2.no_mr, signal_cap_data = cap_values.bad), "When signal_cap_data is supplied, names must be set.")
 })
+
+test_that("calculateSignalCapValue", {
+    ct2.capped = ct2.no_mr %>%
+        calculateSignalCapValue %>%
+        normalizeSignalCapValue
+    expect_equal(rowToRowMat(ct2.capped) %>% max, 1)
+
+    ct2.no_norm1 = ct2.no_mr %>%
+        calculateSignalCapValue %>%
+        normalizeSignalCapValue(norm_to_1 = FALSE)
+    expect_gt(rowToRowMat(ct2.no_norm1) %>% max, 50)
+    expect_lt(rowToRowMat(ct2.no_norm1) %>% max, 100)
+
+    ct2.no_trim = ct2.no_mr %>%
+        calculateSignalCapValue %>%
+        normalizeSignalCapValue(trim_values_to_cap = FALSE)
+    expect_gt(rowToRowMat(ct2.no_trim) %>% max, 1)
+    expect_lt(rowToRowMat(ct2.no_trim) %>% max, 2)
+
+    expect_warning(ct2.no_mr %>%
+        calculateSignalCapValue %>%
+        normalizeSignalCapValue(trim_values_to_cap = FALSE, norm_to_1 = FALSE),
+        regexp = "With do_not_cap and do_not_scaleTo1, only cap_value will be appended")
+})

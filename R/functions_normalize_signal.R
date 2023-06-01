@@ -71,8 +71,8 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
         norm_value_ = "NEW_SIGNAL_",
         by1 = ct2@region_VAR,
         by2 = ct2@name_VAR,
-        do_not_cap = !norm_to_1,
-        do_not_scaleTo1 = !trim_values_to_cap
+        do_not_cap = !trim_values_to_cap,
+        do_not_scaleTo1 = !norm_to_1,
     )
 
     prof_dt[[ct2@value_VAR]] = NULL
@@ -100,3 +100,37 @@ setGeneric("normalizeSignalCapValue",
 
 #' @export
 setMethod("normalizeSignalCapValue", c("ChIPtsne2"), .normalizeSignalCapValue)
+
+.calculateSignalCapValue = function(ct2, signal_cap_VAR = "cap_value", cap_quantile = .95){
+    args = get_args()
+    prof_dt = getTidyProfile(ct2)
+    cap_dt = seqsetvis::calc_norm_factors(prof_dt,
+                                 value_ = ct2@value_VAR,
+                                 cap_value_ = signal_cap_VAR,
+                                 by1 = ct2@region_VAR,
+                                 by2 = ct2@name_VAR,
+                                 aggFUN2 = function(x)quantile(x, cap_quantile))
+    new_meta_dt = merge(getSampleMetaData(ct2), cap_dt, by = ct2@name_VAR)
+
+    history_item = list(normalizeSignalCapValue = list(FUN = .calculateSignalCapValue, ARG = args))
+
+    ChIPtsne2.from_tidy(prof_dt,
+                        rowRanges(ct2),
+                        sample_metadata = new_meta_dt,
+                        name_VAR = ct2@name_VAR,
+                        position_VAR = ct2@position_VAR,
+                        value_VAR = ct2@value_VAR,
+                        region_VAR = ct2@region_VAR,
+                        obj_history = c(ChIPtsne2.history(ct2), history_item),
+                        init = FALSE
+    )
+}
+
+#' @export
+setGeneric("calculateSignalCapValue",
+           function(ct2, signal_cap_VAR = "cap_value", cap_quantile = .95)
+               standardGeneric("calculateSignalCapValue"),
+           signature = "ct2")
+
+#' @export
+setMethod("calculateSignalCapValue", c("ChIPtsne2"), .calculateSignalCapValue)

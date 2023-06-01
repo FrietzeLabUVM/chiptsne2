@@ -15,6 +15,7 @@ ChIPtsne2.from_tidy(
   region_VAR = "id",
   auto_sample_metadata = TRUE,
   obj_history = list(),
+  fetch_config = FetchConfig.null(),
   init = TRUE
 )
 }
