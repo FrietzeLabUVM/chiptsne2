@@ -25,9 +25,16 @@ options(mc.cores = 20)
 # debug(ChIPtsne2.from_tidy)
 ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 showMethods(normalizeSignalCapValue)
+
+ct2 %>% dimReduceTSNE()
+
 ct2.final = ct2 %>%
     normalizeSignalRPM() %>%
     calculateSignalCapValue %>%
     normalizeSignalCapValue %>%
     centerProfilesAndRefetch() %>%
     dimReduceTSNE()
+
+ct2$cell
+# subset(ct2, cell == "MCF10A")
+# dplyr::filter(ct2, cell == "MCF10A")

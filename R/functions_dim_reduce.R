@@ -23,15 +23,15 @@
     xy_df = as.data.frame(tsne_res$Y)
     colnames(xy_df) =  c("tx", "ty")
     rownames(xy_df) = rownames(prof_mat)
-    .post_dim_reduce(xy_df[])
+    .post_dim_reduce(xy_df, prof_mat)
 }
 
-.tsne_from_ct2 = function(ct2, perplexity = 50, ...){
+.dimReduceTSNE = function(ct2, perplexity = 50, ...){
     args = get_args()
     xy_df = .tsne_from_profile_mat(rowToRowMat(ct2), perplexity = perplexity, ...)
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
-    history_item = list(centerProfilesAndTrim = list(FUN = .tsne_from_ct2, ARG = args))
+    history_item = list(dimReduceTSNE = list(FUN = .dimReduceTSNE, ARG = args))
     ChIPtsne2.from_tidy(getTidyProfile(ct2),
                         rowRanges(ct2),
                         region_metadata = xy_df,
@@ -49,7 +49,7 @@
 setGeneric("dimReduceTSNE", function(ct2, perplexity = 50, ...) standardGeneric("dimReduceTSNE"), signature = "ct2")
 
 #' @export
-setMethod("dimReduceTSNE", c("ChIPtsne2"), .tsne_from_ct2)
+setMethod("dimReduceTSNE", c("ChIPtsne2"), .dimReduceTSNE)
 
 #### UMAP ####
 
@@ -71,15 +71,15 @@ setMethod("dimReduceTSNE", c("ChIPtsne2"), .tsne_from_ct2)
     xy_df = as.data.frame(tsne_res$layout)
     colnames(xy_df) = c("tx", "ty")
     rownames(xy_df) = rownames(prof_mat)
-    .post_dim_reduce(xy_df[])
+    .post_dim_reduce(xy_df, prof_mat)
 }
 
-.umap_from_ct2 = function(ct2, config = umap::umap.defaults, ...){
+.dimReduceUMAP = function(ct2, config = umap::umap.defaults, ...){
     args = get_args()
     xy_df = .umap_from_profile_mat(rowToRowMat(ct2), config = config, ...)
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
-    history_item = list(centerProfilesAndTrim = list(FUN = .umap_from_ct2, ARG = args))
+    history_item = list(dimReduceUMAP = list(FUN = .dimReduceUMAP, ARG = args))
     ChIPtsne2.from_tidy(getTidyProfile(ct2),
                         rowRanges(ct2),
                         region_metadata = xy_df,
@@ -97,7 +97,7 @@ setMethod("dimReduceTSNE", c("ChIPtsne2"), .tsne_from_ct2)
 setGeneric("dimReduceUMAP", function(ct2, config = umap::umap.defaults, ...) standardGeneric("dimReduceUMAP"), signature = "ct2")
 
 #' @export
-setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
+setMethod("dimReduceUMAP", c("ChIPtsne2"), .dimReduceUMAP)
 
 #### PCA ####
 
@@ -116,15 +116,15 @@ setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
     xy_df = as.data.frame(pca_res$x[, c(1, 2)])
     colnames(xy_df) = c("tx", "ty")
     rownames(xy_df) = rownames(prof_mat)
-    .post_dim_reduce(xy_df[])
+    .post_dim_reduce(xy_df, prof_mat)
 }
 
-.pca_from_ct2 = function(ct2){
+.dimReducePCA = function(ct2){
     args = get_args()
     xy_df = .pca_from_profile_mat(rowToRowMat(ct2))
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
-    history_item = list(centerProfilesAndTrim = list(FUN = .pca_from_ct2, ARG = args))
+    history_item = list(dimReducePCA = list(FUN = .dimReducePCA, ARG = args))
     ChIPtsne2.from_tidy(getTidyProfile(ct2),
                         rowRanges(ct2),
                         region_metadata = xy_df,
@@ -142,7 +142,7 @@ setMethod("dimReduceUMAP", c("ChIPtsne2"), .umap_from_ct2)
 setGeneric("dimReducePCA", function(ct2) standardGeneric("dimReducePCA"), signature = "ct2")
 
 #' @export
-setMethod("dimReducePCA", c("ChIPtsne2"), .pca_from_ct2)
+setMethod("dimReducePCA", c("ChIPtsne2"), .dimReducePCA)
 #### helpers ####
 
 .rescale_capped = function(x, to = c(0,1), from = range(x, na.rm = TRUE, finite = TRUE)){
@@ -152,12 +152,12 @@ setMethod("dimReducePCA", c("ChIPtsne2"), .pca_from_ct2)
     y
 }
 
-.post_dim_reduce = function(xy_df, norm1 = TRUE, high_topright = TRUE){
+.post_dim_reduce = function(xy_df, prof_mat, norm1 = TRUE, high_topright = TRUE){
     if (norm1) {
         xy_df$tx = .rescale_capped(xy_df$tx) - 0.5
         xy_df$ty = .rescale_capped(xy_df$ty) - 0.5
     }
-    if (high_topright) {#flip tx/ty if needed so that
+    if (high_topright) {#flip tx/ty if needed so that strongest signal is at topright of plot
         rs = rowSums(prof_mat)
         xy_df$rs = rs[rownames(xy_df)]
         x_cutoff = mean(range(xy_df$tx))

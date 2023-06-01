@@ -31,7 +31,7 @@
     prof_dt$end = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] + win_size/2
     new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w)
 
-    history_item = list(centerProfilesAndTrim = list(FUN = .centerProfilesAndRefetch, ARG = args))
+    history_item = list(.centerProfilesAndRefetch = list(FUN = .centerProfilesAndRefetch, ARG = args))
 
     ChIPtsne2.from_FetchConfig(ct2@fetch_config,
                                new_query_gr,
@@ -65,7 +65,7 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 #'   unique %>%
 #'   separate(sample, c("cell", "mark"), remove = FALSE)
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
-#' ct2.c = chiptsne2:::.centerProfilesAndTrim(ct2, view_size = 500)
+#' ct2.c = centerProfilesAndTrim(ct2, view_size = 500)
 .centerProfilesAndTrim = function(ct2, view_size){
     args = get_args()
 
@@ -79,15 +79,12 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
     new_query_gr = GenomicRanges::resize(rowRanges(ct2), new_w, fix = "center")
 
     history_item = list(centerProfilesAndTrim = list(FUN = .centerProfilesAndTrim, ARG = args))
-    ChIPtsne2.from_tidy(new_prof_dt,
-                        new_query_gr,
-                        sample_metadata = colData(ct2),
-                        name_VAR = ct2@name_VAR,
-                        position_VAR = ct2@position_VAR,
-                        value_VAR = ct2@value_VAR,
-                        region_VAR = ct2@region_VAR,
-                        obj_history = c(ChIPtsne2.history(ct2), history_item),
-                        init = FALSE
+    cloneChIPtsne2_fromTidy(
+        ct2 = ct2,
+        prof_dt = new_prof_dt,
+        query_gr = new_query_gr,
+        obj_history = c(ChIPtsne2.history(ct2), history_item),
+        init = FALSE
     )
 }
 

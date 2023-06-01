@@ -27,24 +27,19 @@
     args = get_args()
     mapped_reads_data = .form_merge_df(ct2, mapped_reads_data, "mapped_reads_data", mapped_reads_VAR, "mapped_reads_VAR")
     #merge mapped_reads_data to tidy profile
-    prof_dt = getTidyProfile(ct2)
-    prof_dt = merge(prof_dt, mapped_reads_data, by = ct2@name_VAR)
-    prof_dt = prof_dt %>%
+    new_prof_dt = getTidyProfile(ct2)
+    new_prof_dt = merge(new_prof_dt, mapped_reads_data, by = ct2@name_VAR)
+    new_prof_dt = new_prof_dt %>%
         dplyr::mutate(NEW_SIGNAL_ = get(ct2@value_VAR) / get(mapped_reads_VAR) * 1e6)
-    prof_dt[[ct2@value_VAR]] = NULL
-    prof_dt[[mapped_reads_VAR]] = NULL
-    data.table::setnames(prof_dt, "NEW_SIGNAL_", ct2@value_VAR)
+    new_prof_dt[[ct2@value_VAR]] = NULL
+    new_prof_dt[[mapped_reads_VAR]] = NULL
+    data.table::setnames(new_prof_dt, "NEW_SIGNAL_", ct2@value_VAR)
 
     history_item = list(normalizeSignalRPM = list(FUN = .normalizeSignalRPM, ARG = args))
-    ChIPtsne2.from_tidy(prof_dt,
-                        rowRanges(ct2),
-                        sample_metadata = colData(ct2),
-                        name_VAR = ct2@name_VAR,
-                        position_VAR = ct2@position_VAR,
-                        value_VAR = ct2@value_VAR,
-                        region_VAR = ct2@region_VAR,
-                        obj_history = c(ChIPtsne2.history(ct2), history_item),
-                        init = FALSE
+    cloneChIPtsne2_fromTidy(
+        ct2 = ct2,
+        prof_dt = new_prof_dt,
+        obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
@@ -62,10 +57,10 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
     args = get_args()
     signal_cap_data = .form_merge_df(ct2, signal_cap_data, "signal_cap_data", signal_cap_VAR, "signal_cap_VAR")
 
-    prof_dt = getTidyProfile(ct2)
+    new_prof_dt = getTidyProfile(ct2)
 
-    prof_dt = seqsetvis::append_ynorm(
-        prof_dt,
+    new_prof_dt = seqsetvis::append_ynorm(
+        new_prof_dt,
         cap_dt = signal_cap_data,
         cap_value_ = signal_cap_VAR,
         norm_value_ = "NEW_SIGNAL_",
@@ -75,20 +70,15 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
         do_not_scaleTo1 = !norm_to_1,
     )
 
-    prof_dt[[ct2@value_VAR]] = NULL
-    prof_dt[[signal_cap_VAR]] = NULL
-    data.table::setnames(prof_dt, "NEW_SIGNAL_", ct2@value_VAR)
+    new_prof_dt[[ct2@value_VAR]] = NULL
+    new_prof_dt[[signal_cap_VAR]] = NULL
+    data.table::setnames(new_prof_dt, "NEW_SIGNAL_", ct2@value_VAR)
 
     history_item = list(normalizeSignalCapValue = list(FUN = .normalizeSignalCapValue, ARG = args))
-    ChIPtsne2.from_tidy(prof_dt,
-                        rowRanges(ct2),
-                        sample_metadata = colData(ct2),
-                        name_VAR = ct2@name_VAR,
-                        position_VAR = ct2@position_VAR,
-                        value_VAR = ct2@value_VAR,
-                        region_VAR = ct2@region_VAR,
-                        obj_history = c(ChIPtsne2.history(ct2), history_item),
-                        init = FALSE
+    cloneChIPtsne2_fromTidy(
+        ct2 = ct2,
+        prof_dt = new_prof_dt,
+        obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
@@ -112,17 +102,11 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2"), .normalizeSignalCapValue)
                                  aggFUN2 = function(x)quantile(x, cap_quantile))
     new_meta_dt = merge(getSampleMetaData(ct2), cap_dt, by = ct2@name_VAR)
 
-    history_item = list(normalizeSignalCapValue = list(FUN = .calculateSignalCapValue, ARG = args))
-
-    ChIPtsne2.from_tidy(prof_dt,
-                        rowRanges(ct2),
-                        sample_metadata = new_meta_dt,
-                        name_VAR = ct2@name_VAR,
-                        position_VAR = ct2@position_VAR,
-                        value_VAR = ct2@value_VAR,
-                        region_VAR = ct2@region_VAR,
-                        obj_history = c(ChIPtsne2.history(ct2), history_item),
-                        init = FALSE
+    history_item = list(calculateSignalCapValue = list(FUN = .calculateSignalCapValue, ARG = args))
+    cloneChIPtsne2_fromTidy(
+        ct2 = ct2,
+        sample_metadata = new_meta_dt,
+        obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
