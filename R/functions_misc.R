@@ -362,3 +362,13 @@ get_args = function(env = parent.frame(), to_ignore = "ct2", ...){
     args = args[!names(args) %in% to_ignore]
     args[order(names(args))]
 }
+
+.add_region_metadata = function(query_gr, region_metadata, region_VAR){
+    new_mcols = cbind(
+        GenomicRanges::mcols(query_gr[region_metadata[[region_VAR]]]),
+        as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
+    )
+    GenomicRanges::mcols(query_gr) = NULL
+    GenomicRanges::mcols(query_gr) = new_mcols
+    query_gr
+}

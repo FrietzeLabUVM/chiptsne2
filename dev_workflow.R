@@ -1,7 +1,8 @@
 library(chiptsne2)
 library(tidyverse)
-bam_file_dt = data.BRCAprogression::chip.setup_bam_files()
+bam_file_dt = data.BRCAprogression::chip.setup_bam_files(pooled = TRUE)
 bam_file_dt = bam_file_dt %>% filter(cell %in% c("MCF10A", "MCF10AT1") & mark %in% c("H3K4me3", "H3K27ac", "H3K4me1", "input"))
+bam_file_dt = bam_file_dt[!grepl("rep", file)]
 
 np_file_dt = data.BRCAprogression::chip.setup_narrowPeak_files()
 np_file_dt = np_file_dt %>% filter(cell %in% c("MCF10A", "MCF10AT1") & mark %in% c("H3K4me3", "H3K27ac", "H3K4me1"))
@@ -12,6 +13,7 @@ olap_gr = seqsetvis::ssvConsensusIntervalSets(np_grs, min_number = 2, min_fracti
 seqsetvis::ssvFeatureBinaryHeatmap(olap_gr)
 
 query_gr = sampleCap(olap_gr, 500)
+query_gr = seqsetvis::prepare_fetch_GRanges_names(query_gr)
 
 
 bam_file_dt$fragLens = 200
@@ -35,6 +37,28 @@ ct2.final = ct2 %>%
     centerProfilesAndRefetch() %>%
     dimReduceTSNE()
 
-ct2$cell
-# subset(ct2, cell == "MCF10A")
-# dplyr::filter(ct2, cell == "MCF10A")
+ct2.grouped = ct2.final %>%
+    groupRegionBySignalCluster(group_VAR = "cluster_id_4", n_clusters = 4) %>%
+    groupRegionBySignalCluster(group_VAR = "cluster_id_6", n_clusters = 6) %>%
+    groupRegionByDimReduceCluster(group_VAR = "knn_50", nearest_neighbors = 50)
+
+
+man_df = data.frame(id = rownames(ct2.final))
+man_df$group_id = sample(c("A", "B", "C"), nrow(man_df), replace = TRUE)
+man_df$random_group_id = sample(c("A", "B", "C"), nrow(man_df), replace = TRUE)
+ct2.grouped2 = ct2.final %>%
+    groupRegionManually(assignment = man_df) %>%
+    groupRegionManually(assignment = man_df, group_VAR = "random_group_id")
+
+rowRanges(ct2.final)
+rowRanges(ct2.grouped2)
+
+olap_gr.k4me3 = query_gr[, c("MCF10A H3K4me3", "MCF10AT1 H3K4me3")]
+olap_gr.10a_enh = query_gr[, c("MCF10A H3K4me1", "MCF10A H3K27ac")]
+
+# debug(groupRegionByMembershipTable, "ChIPtsne2")
+ct2.grouped3 = ct2.final %>%
+    groupRegionByMembershipTable(membership = olap_gr.k4me3, group_VAR = "k4me3_overlap") %>%
+    groupRegionByMembershipTable(membership = olap_gr.10a_enh, group_VAR = "10a_enhancer")
+rowRanges(ct2.grouped3)
+

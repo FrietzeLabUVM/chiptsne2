@@ -170,15 +170,8 @@ ChIPtsne2.from_tidy = function(prof_dt,
     if(!is.null(region_metadata)){
         #merge region_metadata into query_gr
         #region_metadata is not used after
-        region_metadata
-        new_mcols = cbind(
-            GenomicRanges::mcols(query_gr[region_metadata[[region_VAR]]]),
-            as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
-        )
-        GenomicRanges::mcols(query_gr) = NULL
-        GenomicRanges::mcols(query_gr) = new_mcols
+        query_gr = .add_region_metadata(query_gr, region_metadata, region_VAR)
     }
-
 
     map_dt = prof_dt %>%
         dplyr::select(all_of(c(name_VAR, position_VAR))) %>%
@@ -304,7 +297,6 @@ setMethod("cloneChIPtsne2", c("ChIPtsne2"), .cloneChIPtsne2)
     if(is.null(fetch_config)) fetch_config = ct2@fetch_config
     if(is.null(query_gr)) query_gr = rowRanges(ct2)
     if(is.null(sample_metadata)) sample_metadata = getSampleMetaData(ct2)
-
 
     ChIPtsne2.from_tidy(prof_dt = prof_dt,
                         query_gr = query_gr,
