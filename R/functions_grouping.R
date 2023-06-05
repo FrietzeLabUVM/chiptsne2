@@ -77,8 +77,8 @@ setMethod("groupRegionBySignalCluster", c("ChIPtsne2"), .groupRegionBySignalClus
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
     knn_res = .knn_clustering(xy_df,
-                    nn = nearest_neighbors,
-                    id_var = ct2@region_VAR)
+                              nn = nearest_neighbors,
+                              id_var = ct2@region_VAR)
     colnames(knn_res)[4] = group_VAR
     knn_res = knn_res[, c(ct2@region_VAR, group_VAR)]
 
@@ -165,3 +165,36 @@ setGeneric("groupRegionManually",
 
 #' @export
 setMethod("groupRegionManually", c("ChIPtsne2"), .groupRegionManually)
+
+#### sort regions ####
+.sortRegions = function(ct2, group_VAR = NULL){
+    args = get_args()
+    prof_dt = getTidyProfile(ct2, region_meta_VARS = group_VAR)
+    clust_dt = seqsetvis::within_clust_sort(
+        prof_dt,
+        row_ = ct2@region_VAR,
+        column_ = ct2@position_VAR,
+        fill_ = ct2@value_VAR,
+        facet_ = ct2@name_VAR,
+        cluster_ = group_VAR,
+        dcast_fill = 0)
+    region_lev = clust_dt[[ct2@region_VAR]]
+
+    new_query_gr = rowRanges(ct2)[region_lev]
+
+    history_item = list(sortRegions  = list(FUN = .sortRegions , ARG = args))
+    cloneChIPtsne2_fromTidy(
+        ct2 = ct2,
+        query_gr = new_query_gr,
+        obj_history = c(ChIPtsne2.history(ct2), history_item)
+    )
+}
+
+#' @export
+setGeneric("sortRegions",
+           function(ct2, assignment, group_VAR = NULL)
+               standardGeneric("sortRegions"),
+           signature = "ct2")
+
+#' @export
+setMethod("sortRegions", c("ChIPtsne2"), .sortRegions)

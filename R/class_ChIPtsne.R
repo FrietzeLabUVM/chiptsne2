@@ -16,14 +16,16 @@ ChIPtsne2 <- function(
         ...)
 {
     se <- SummarizedExperiment(...)
-    k = colnames(GenomicRanges::mcols(rowRanges(se))) %in% colnames(se)
-    if(any(k)){
-        old_names = colnames(GenomicRanges::mcols(se@rowRanges))[k]
-        new_names = paste0("region_", colnames(GenomicRanges::mcols(rowRanges(se)))[k])
-        warning("Modifying region metadata column names to prevent collision with ChIPtsne2 colnames.\n",
-                paste(paste(old_names, "->", new_names), collapse = "\n"))
-        colnames(GenomicRanges::mcols(se@rowRanges))[k] =
-            new_names
+    if(!is.null(rowRanges(se))){
+        k = colnames(GenomicRanges::mcols(rowRanges(se))) %in% colnames(se)
+        if(any(k)){
+            old_names = colnames(GenomicRanges::mcols(se@rowRanges))[k]
+            new_names = paste0("region_", colnames(GenomicRanges::mcols(rowRanges(se)))[k])
+            warning("Modifying region metadata column names to prevent collision with ChIPtsne2 colnames.\n",
+                    paste(paste(old_names, "->", new_names), collapse = "\n"))
+            colnames(GenomicRanges::mcols(se@rowRanges))[k] =
+                new_names
+        }
     }
     .ChIPtsne2(se,
                rowToRowMat = rowToRowMat,
@@ -33,7 +35,7 @@ ChIPtsne2 <- function(
                value_VAR = value_VAR,
                region_VAR = region_VAR,
                fetch_config = fetch_config
-               )
+    )
 }
 
 #### Getters ####
@@ -170,6 +172,32 @@ getRegionMetaData = function(ct2){
     df
 }
 
+#' exampleQueryGR
+#'
+#' @return GRanges example
+#' @export
+#'
+#' @examples
+#' exampleQueryGR()
+exampleQueryGR = function(){
+    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+    colnames(GenomicRanges::mcols(query_gr)) = paste0(
+        "peak_",
+        colnames(GenomicRanges::mcols(query_gr))
+    )
+    query_gr
+}
+#' exampleProfDT
+#'
+#' @return data.table example
+#' @export
+#'
+#' @examples
+#' exampleProfDT()
+exampleProfDT = function(){
+    seqsetvis::CTCF_in_10a_profiles_dt
+}
+
 #' query_gr
 #'
 #' @return ChIPtsne object for testing
@@ -178,12 +206,8 @@ getRegionMetaData = function(ct2){
 #' @examples
 #' exampleChIPtsne2()
 exampleChIPtsne2 = function(){
-    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-    colnames(GenomicRanges::mcols(query_gr)) = paste0(
-        "peak_",
-        colnames(GenomicRanges::mcols(query_gr))
-    )
-    prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+    query_gr = exampleQueryGR()
+    prof_dt = exampleProfDT()
 
     ChIPtsne2.from_tidy(prof_dt, query_gr)
 }
@@ -196,12 +220,8 @@ exampleChIPtsne2 = function(){
 #' @examples
 #' exampleChIPtsne2.with_meta()
 exampleChIPtsne2.with_meta = function(){
-    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-    colnames(GenomicRanges::mcols(query_gr)) = paste0(
-        "peak_",
-        colnames(GenomicRanges::mcols(query_gr))
-    )
-    prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+    query_gr = exampleQueryGR()
+    prof_dt = exampleProfDT()
     meta_dt = prof_dt %>%
         dplyr::select(sample) %>%
         unique %>%

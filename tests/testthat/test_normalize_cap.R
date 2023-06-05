@@ -3,8 +3,8 @@ testthat::context("norm cap")
 library(chiptsne2)
 library(testthat)
 
-query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+query_gr = exampleQueryGR()
+prof_dt = exampleProfDT()
 meta_dt = prof_dt %>%
     dplyr::select(sample) %>%
     unique %>%
@@ -35,14 +35,19 @@ test_that("normalizeSignalCapValue", {
     expect_gt(m_norm2, m_norm1)
 
     normalizeSignalCapValue(ct2.no_mr, signal_cap_data = meta_dt)
-    expect_error(normalizeSignalCapValue(ct2.no_mr, signal_cap_data = meta_dt, signal_cap_VAR = "bad_VAR"), "signal_cap_data does not contain signal_cap_VAR: bad_VAR")
+    expect_error(
+        normalizeSignalCapValue(
+            ct2.no_mr,
+            signal_cap_data = meta_dt,
+            signal_cap_VAR = "bad_VAR"),
+        "Supplied signal_cap_data does not contain bad_VAR")
     normalizeSignalCapValue(ct2.no_mr, signal_cap_data = meta_dt, signal_cap_VAR = "test_cap")
 
 
     normalizeSignalCapValue(ct2.no_mr, signal_cap_data = cap_values)
     cap_values.bad = cap_values
     names(cap_values.bad) = NULL
-    expect_error(normalizeSignalCapValue(ct2.no_mr, signal_cap_data = cap_values.bad), "When signal_cap_data is supplied, names must be set.")
+    expect_error(normalizeSignalCapValue(ct2.no_mr, signal_cap_data = cap_values.bad), "vector signal_cap_data must be named.")
 })
 
 test_that("calculateSignalCapValue", {
@@ -64,7 +69,7 @@ test_that("calculateSignalCapValue", {
     expect_lt(rowToRowMat(ct2.no_trim) %>% max, 2)
 
     expect_warning(ct2.no_mr %>%
-        calculateSignalCapValue %>%
-        normalizeSignalCapValue(trim_values_to_cap = FALSE, norm_to_1 = FALSE),
-        regexp = "With do_not_cap and do_not_scaleTo1, only cap_value will be appended")
+                       calculateSignalCapValue %>%
+                       normalizeSignalCapValue(trim_values_to_cap = FALSE, norm_to_1 = FALSE),
+                   regexp = "With do_not_cap and do_not_scaleTo1, only cap_value will be appended")
 })

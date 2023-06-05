@@ -1,7 +1,9 @@
 #'
 #' @importFrom dplyr select
 #' @importFrom data.table as.data.table
-.prof_dt_from_chiptsne2 = function(ct2, sample_meta_VARS = NULL){
+.prof_dt_from_chiptsne2 = function(ct2,
+                                   sample_meta_VARS = NULL,
+                                   region_meta_VARS = NULL){
     df = do.call(rbind,
                  lapply(names(ct2@colToRowMatCols), function(nam){
                      i = ct2@colToRowMatCols[[nam]]
@@ -26,13 +28,16 @@
         meta_df[[ct2@name_VAR]] = rownames(meta_df)
         df = merge(meta_df, df, by = ct2@name_VAR)
     }
+    if(!is.null(region_meta_VARS)){
+        browser()
+    }
     data.table::as.data.table(df)
 }
 
 
 
 #' @export
-setGeneric("getTidyProfile", function(ct2, sample_meta_VARS = NULL) standardGeneric("getTidyProfile"), signature = "ct2")
+setGeneric("getTidyProfile", function(ct2, sample_meta_VARS = NULL, region_meta_VARS = NULL) standardGeneric("getTidyProfile"), signature = "ct2")
 
 #' @export
 setMethod("getTidyProfile", c("ChIPtsne2"), .prof_dt_from_chiptsne2)

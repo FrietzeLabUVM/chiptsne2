@@ -1,16 +1,15 @@
 
 
-#' Title
+#' plotDimReducePoints
 #'
-#' @param ct2
-#' @param color_VAR
-#' @param point_size
+#' @param ct2 valid ChIPtsne2 after dimReduce has been run
+#' @param color_VAR Control color assignment in plot. Can match entries in *either* sample metadata (colnames) or region metadata (rowRanges). Default of NULL will plot max signal for all sample profiles. NA will perform no color mapping.
+#' @param point_size Size of points in plot.
 #'
-#' @return
+#' @return ggplot
 #' @export
 #'
 #' @examples
-#'
 #' ct2 = exampleChIPtsne2() %>%
 #'    dimReduceUMAP() %>%
 #'    groupRegionByDimReduceCluster(group_VAR = "umap_cluster") %>%
@@ -19,7 +18,7 @@
 #' plotDimReducePoints(ct2, NA)
 #' plotDimReducePoints(ct2)
 #' plotDimReducePoints(ct2, "umap_cluster")
-#' plotDimReducePoints(ct2, c("umap_cluster, "signal_cluster"))
+#' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 #' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 .plotDimReducePoints = function(ct2, color_VAR = NULL, point_size = NULL){
     xy_df = getRegionMetaData(ct2) %>%

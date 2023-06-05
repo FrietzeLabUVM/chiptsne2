@@ -3,8 +3,8 @@ testthat::context("norm RPM")
 library(chiptsne2)
 library(testthat)
 
-query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+query_gr = exampleQueryGR()
+prof_dt = exampleProfDT()
 meta_dt = prof_dt %>%
     dplyr::select(sample) %>%
     unique %>%

@@ -53,9 +53,27 @@ setGeneric("normalizeSignalRPM",
 setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
 
 #### cap normalizeSignalCapValue #####
-.normalizeSignalCapValue = function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE){
+.normalizeSignalCapValue = function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, minimum_ceiling = NULL){
     args = get_args()
-    signal_cap_data = .form_merge_df(ct2, signal_cap_data, "signal_cap_data", signal_cap_VAR, "signal_cap_VAR")
+    if(is.null(signal_cap_data)){
+        signal_cap_data = .form_merge_df(ct2, signal_cap_data, "signal_cap_data", signal_cap_VAR, "signal_cap_VAR")
+    }else{
+        if(is.numeric(signal_cap_data)){
+            if(is.null(names(signal_cap_data))){
+                stop("vector signal_cap_data must be named.")
+            }
+            tmp = data.frame(names(signal_cap_data), signal_cap_data)
+            colnames(tmp) = c(ct2@name_VAR, signal_cap_VAR)
+            signal_cap_data = tmp
+        }
+        if(!signal_cap_VAR %in% colnames(signal_cap_data)){
+            stop("Supplied signal_cap_data does not contain ", signal_cap_VAR)
+        }
+    }
+    if(!is.null(minimum_ceiling)){
+        k = signal_cap_data[[signal_cap_VAR]] < minimum_ceiling
+        signal_cap_data[[signal_cap_VAR]][k] = minimum_ceiling
+    }
 
     new_prof_dt = getTidyProfile(ct2)
 
@@ -84,7 +102,7 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
 
 #' @export
 setGeneric("normalizeSignalCapValue",
-           function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE)
+           function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, minimum_ceiling = NULL)
                standardGeneric("normalizeSignalCapValue"),
            signature = "ct2")
 

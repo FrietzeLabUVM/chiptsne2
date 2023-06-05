@@ -5,9 +5,9 @@ library(testthat)
 library(GenomicRanges)
 library(SummarizedExperiment)
 
-query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+query_gr = exampleQueryGR()
 query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
-prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+prof_dt = exampleProfDT()
 meta_dt = prof_dt %>%
     dplyr::select(sample) %>%
     unique %>%
