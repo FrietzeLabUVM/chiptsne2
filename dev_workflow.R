@@ -17,48 +17,37 @@ query_gr = seqsetvis::prepare_fetch_GRanges_names(query_gr)
 
 
 bam_file_dt$fragLens = 200
-# bam_file_dt$fragLens = sapply(bam_file_dt$file, function(f){
-#     message(f)
-#     seqsetvis::fragLen_calcStranded(f, qgr = query_gr)
-# })
 
 fetch_config = FetchConfig(bam_file_dt, name_VAR = "group_split", read_mode = "bam_SE")
 options(mc.cores = 20)
-# debug(ChIPtsne2.from_tidy)
 ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
-showMethods(normalizeSignalCapValue)
 
-ct2 %>% dimReduceTSNE()
-
-ct2.final = ct2 %>%
-    normalizeSignalRPM() %>%
-    calculateSignalCapValue %>%
-    normalizeSignalCapValue %>%
-    centerProfilesAndRefetch() %>%
-    dimReduceTSNE()
-
-ct2.grouped = ct2.final %>%
-    groupRegionBySignalCluster(group_VAR = "cluster_id_4", n_clusters = 4) %>%
-    groupRegionBySignalCluster(group_VAR = "cluster_id_6", n_clusters = 6) %>%
-    groupRegionByDimReduceCluster(group_VAR = "knn_50", nearest_neighbors = 50)
-
-
-man_df = data.frame(id = rownames(ct2.final))
-man_df$group_id = sample(c("A", "B", "C"), nrow(man_df), replace = TRUE)
-man_df$random_group_id = sample(c("A", "B", "C"), nrow(man_df), replace = TRUE)
-ct2.grouped2 = ct2.final %>%
-    groupRegionManually(assignment = man_df) %>%
-    groupRegionManually(assignment = man_df, group_VAR = "random_group_id")
-
-rowRanges(ct2.final)
-rowRanges(ct2.grouped2)
+#extra ways to assign groups
+manual_df = data.frame(id = rownames(ct2.final))
+manual_df$group_id = sample(c("A", "B", "C"), nrow(manual_df), replace = TRUE)
+manual_df$random_group_id = sample(c("A", "B", "C"), nrow(manual_df), replace = TRUE)
 
 olap_gr.k4me3 = query_gr[, c("MCF10A H3K4me3", "MCF10AT1 H3K4me3")]
 olap_gr.10a_enh = query_gr[, c("MCF10A H3K4me1", "MCF10A H3K27ac")]
 
-# debug(groupRegionByMembershipTable, "ChIPtsne2")
-ct2.grouped3 = ct2.final %>%
+ct2.final = ct2 %>%
+    setSeed(1) %>%
+    normalizeSignalRPM() %>%
+    calculateSignalCapValue %>%
+    normalizeSignalCapValue %>%
+    centerProfilesAndRefetch() %>%
+    dimReduceTSNE() %>%
+    groupRegionBySignalCluster(group_VAR = "cluster_id_4", n_clusters = 4) %>%
+    groupRegionBySignalCluster(group_VAR = "cluster_id_6", n_clusters = 6) %>%
+    groupRegionByDimReduceCluster(group_VAR = "knn_50", nearest_neighbors = 50) %>%
+    groupRegionManually(assignment = manual_df) %>%
+    groupRegionManually(assignment = manual_df, group_VAR = "random_group_id") %>%
     groupRegionByMembershipTable(membership = olap_gr.k4me3, group_VAR = "k4me3_overlap") %>%
     groupRegionByMembershipTable(membership = olap_gr.10a_enh, group_VAR = "10a_enhancer")
-rowRanges(ct2.grouped3)
 
+ct2.redo = rerun_history(ct2, history_source = ct2.final)
+
+reg1 = getRegionMetaData(ct2.final)
+reg2 = getRegionMetaData(ct2.redo)
+
+all(reg1 == reg2)

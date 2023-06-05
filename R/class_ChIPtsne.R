@@ -16,6 +16,15 @@ ChIPtsne2 <- function(
         ...)
 {
     se <- SummarizedExperiment(...)
+    k = colnames(GenomicRanges::mcols(rowRanges(se))) %in% colnames(se)
+    if(any(k)){
+        old_names = colnames(GenomicRanges::mcols(se@rowRanges))[k]
+        new_names = paste0("region_", colnames(GenomicRanges::mcols(rowRanges(se)))[k])
+        warning("Modifying region metadata column names to prevent collision with ChIPtsne2 colnames.\n",
+                paste(paste(old_names, "->", new_names), collapse = "\n"))
+        colnames(GenomicRanges::mcols(se@rowRanges))[k] =
+            new_names
+    }
     .ChIPtsne2(se,
                rowToRowMat = rowToRowMat,
                colToRowMatCols = colToRowMatCols,
@@ -66,6 +75,12 @@ S4Vectors::setValidity2("ChIPtsne2", function(object) {
     if (length(colToRowMatCols(object)) != NC) {
         msg <- c(
             msg, "'length(colToRowMatCols)' should be equal to the number of columns"
+        )
+    }
+    #rowRanges mcols cannot include colnames
+    if(any(colnames(GenomicRanges::mcols(rowRanges(object))) %in% colnames(object))){
+        msg <- c(
+            msg, "'mcols(rowRanges(object))' may not have entries equal to colnames of ChIPtsne2 object."
         )
     }
 
@@ -134,7 +149,24 @@ getSampleMetaData = function(ct2){
     cd = colData(ct2)
     df = as.data.frame(cd)
     df[[ct2@name_VAR]] = rownames(cd)
-    rownames(df) = NULL
+    rownames(df)
+    df
+}
+
+#' getRegionMetaData
+#'
+#' @param ct2 A ChIPtsne object
+#'
+#' @return data.frame with region meta data, similar to rowRanges but suitable for tidyverse operations.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' getRegionMetaData(ct2)
+getRegionMetaData = function(ct2){
+    gr = rowRanges(ct2)
+    df = GenomicRanges::mcols(gr) %>% as.data.frame
+    df[[ct2@region_VAR]] = names(gr)
     df
 }
 
@@ -147,6 +179,10 @@ getSampleMetaData = function(ct2){
 #' exampleChIPtsne2()
 exampleChIPtsne2 = function(){
     query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+    colnames(GenomicRanges::mcols(query_gr)) = paste0(
+        "peak_",
+        colnames(GenomicRanges::mcols(query_gr))
+    )
     prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
 
     ChIPtsne2.from_tidy(prof_dt, query_gr)
@@ -161,6 +197,10 @@ exampleChIPtsne2 = function(){
 #' exampleChIPtsne2.with_meta()
 exampleChIPtsne2.with_meta = function(){
     query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+    colnames(GenomicRanges::mcols(query_gr)) = paste0(
+        "peak_",
+        colnames(GenomicRanges::mcols(query_gr))
+    )
     prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
     meta_dt = prof_dt %>%
         dplyr::select(sample) %>%

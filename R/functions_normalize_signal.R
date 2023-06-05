@@ -52,7 +52,7 @@ setGeneric("normalizeSignalRPM",
 #' @export
 setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
 
-#### cap value #####
+#### cap normalizeSignalCapValue #####
 .normalizeSignalCapValue = function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE){
     args = get_args()
     signal_cap_data = .form_merge_df(ct2, signal_cap_data, "signal_cap_data", signal_cap_VAR, "signal_cap_VAR")
@@ -90,6 +90,8 @@ setGeneric("normalizeSignalCapValue",
 
 #' @export
 setMethod("normalizeSignalCapValue", c("ChIPtsne2"), .normalizeSignalCapValue)
+
+#### calculateSignalCapValue ####
 
 .calculateSignalCapValue = function(ct2, signal_cap_VAR = "cap_value", cap_quantile = .95){
     args = get_args()

@@ -267,18 +267,17 @@ ChIPtsne2.history = function(ct2){
     if(is.null(.metadata)) .metadata = ct2@metadata
 
 
-    if(is.data.table())
-        ChIPtsne2(rowToRowMat = .rowToRowMat,
-                  colToRowMatCols = .colToRowMatCols,
-                  name_VAR = .name_VAR,
-                  position_VAR = .position_VAR,
-                  value_VAR = .value_VAR,
-                  region_VAR = .region_VAR,
-                  fetch_config = .fetch_config,
-                  rowRanges = .rowRanges,
-                  colData = .colData,
-                  assays = .assays,
-                  metadata = .metadata)
+    ChIPtsne2(rowToRowMat = .rowToRowMat,
+              colToRowMatCols = .colToRowMatCols,
+              name_VAR = .name_VAR,
+              position_VAR = .position_VAR,
+              value_VAR = .value_VAR,
+              region_VAR = .region_VAR,
+              fetch_config = .fetch_config,
+              rowRanges = .rowRanges,
+              colData = .colData,
+              assays = .assays,
+              metadata = .metadata)
 }
 
 #' @export
