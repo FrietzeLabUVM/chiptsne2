@@ -4,7 +4,9 @@
 #### Constructor ####
 
 #' @export
+#'
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom GenomicRanges mcols
 ChIPtsne2 <- function(
         rowToRowMat=matrix(0,0,0),
         colToRowMatCols=list(),
@@ -136,6 +138,8 @@ rowData = SummarizedExperiment::rowData
 rowRanges = SummarizedExperiment::rowRanges
 #' @export
 colData = SummarizedExperiment::colData
+#' @export
+assay = SummarizedExperiment::assay
 
 #' getSampleMetaData
 #'
@@ -177,6 +181,7 @@ getRegionMetaData = function(ct2){
 #' @return GRanges example
 #' @export
 #'
+#' @importFrom GenomicRanges mcols
 #' @examples
 #' exampleQueryGR()
 exampleQueryGR = function(){

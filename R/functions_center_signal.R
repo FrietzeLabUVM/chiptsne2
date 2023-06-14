@@ -54,7 +54,7 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 #'
 #' @return A chiptsne2 object updated to reflect centering procedure. Some x
 #'   values will have been lost.
-#'
+#' @importFrom GenomicRanges resize width
 #' @examples
 #' library(tidyverse)
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr

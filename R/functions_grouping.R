@@ -1,5 +1,5 @@
 #### signal clustering ####
-.groupRegionBySignalCluster = function(ct2, group_VAR = "cluster_id", n_clusters = 6){
+.groupRegionsBySignalCluster = function(ct2, group_VAR = "cluster_id", n_clusters = 6){
     args = get_args()
     prof_dt = getTidyProfile(ct2)
     clust_dt = seqsetvis::ssvSignalClustering(prof_dt,
@@ -15,7 +15,7 @@
     # new_query_gr = .add_region_metadata(rowRanges(ct2), region_metadata, region_VAR)
 
 
-    history_item = list(groupRegionBySignalCluster = list(FUN = .groupRegionBySignalCluster, ARG = args))
+    history_item = list(groupRegionsBySignalCluster = list(FUN = .groupRegionsBySignalCluster, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
         region_metadata = assign_dt,
@@ -24,17 +24,32 @@
 }
 
 #' @export
-setGeneric("groupRegionBySignalCluster",
+setGeneric("groupRegionsBySignalCluster",
            function(ct2, group_VAR = "cluster_id", n_clusters = 6)
-               standardGeneric("groupRegionBySignalCluster"),
+               standardGeneric("groupRegionsBySignalCluster"),
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionBySignalCluster", c("ChIPtsne2"), .groupRegionBySignalCluster)
+setMethod("groupRegionsBySignalCluster", c("ChIPtsne2"), .groupRegionsBySignalCluster)
 
 
 
 #### dim clustering ####
+#' .knn_clustering
+#'
+#' @param xy_df data.frame contain "tx", "ty", and id_var
+#' @param nn number of nearest neighbors, passed as k to RANN::nn2
+#' @param id_var must be in xy_df, default is "id"
+#'
+#' @return cluster assignment table for xy_df based on tx and ty coordinates
+#' @importFrom Matrix Matrix
+#' @importFrom igraph graph.adjacency simplify cluster_walktrap
+#' @importFrom RANN nn2
+#'
+#' @examples
+#' xy_df = data.frame(tx = runif(100), ty = runif(100))
+#' xy_df$id = paste0("id_", seq_len(nrow(xy_df)))
+#' .knn_clustering(xy_df, 20)
 .knn_clustering = function(xy_df,
                            nn = 100,
                            id_var = "id"){
@@ -69,7 +84,7 @@ setMethod("groupRegionBySignalCluster", c("ChIPtsne2"), .groupRegionBySignalClus
     p_dt
 }
 
-.groupRegionByDimReduceCluster = function(ct2, group_VAR = "knn_id", nearest_neighbors = 100){
+.groupRegionsByDimReduceCluster = function(ct2, group_VAR = "knn_id", nearest_neighbors = 100){
     args = get_args()
     xy_df = GenomicRanges::mcols(rowRanges(ct2)) %>%
         as.data.frame() %>%
@@ -82,7 +97,7 @@ setMethod("groupRegionBySignalCluster", c("ChIPtsne2"), .groupRegionBySignalClus
     colnames(knn_res)[4] = group_VAR
     knn_res = knn_res[, c(ct2@region_VAR, group_VAR)]
 
-    history_item = list(groupRegionByDimReduceCluster = list(FUN = .groupRegionByDimReduceCluster, ARG = args))
+    history_item = list(groupRegionsByDimReduceCluster = list(FUN = .groupRegionsByDimReduceCluster, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
         region_metadata = knn_res,
@@ -92,22 +107,26 @@ setMethod("groupRegionBySignalCluster", c("ChIPtsne2"), .groupRegionBySignalClus
 
 
 #' @export
-setGeneric("groupRegionByDimReduceCluster",
+setGeneric("groupRegionsByDimReduceCluster",
            function(ct2, group_VAR = "knn_id", nearest_neighbors = 100)
-               standardGeneric("groupRegionByDimReduceCluster"),
+               standardGeneric("groupRegionsByDimReduceCluster"),
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionByDimReduceCluster", c("ChIPtsne2"), .groupRegionByDimReduceCluster)
+setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2"), .groupRegionsByDimReduceCluster)
 
-#### memb table grouping ####
+#### region overlap ####
 
-.groupRegionByMembershipTable = function(ct2, membership, group_VAR = "membership_id"){
+.groupRegionsByOverlap = function(ct2, gr_list, group_VAR = "overlap_id"){
     args = get_args()
-    memb_df = seqsetvis::ssvMakeMembTable(membership)
+    gr = rowRanges(ct2)
+    GenomicRanges::mcols(gr) = NULL
+    memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), gr_list))
+    memb_gr$TMP__ = NULL
+    memb_df = as.data.frame(GenomicRanges::mcols(memb_gr))
     group_df = seqsetvis::ssvFactorizeMembTable(memb_df)
     colnames(group_df) = c(ct2@region_VAR, group_VAR)
-    history_item = list(groupRegionByMembershipTable = list(FUN = .groupRegionByMembershipTable, ARG = args))
+    history_item = list(groupRegionsByMembershipTable = list(FUN = .groupRegionsByMembershipTable, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
         region_metadata = group_df,
@@ -117,16 +136,41 @@ setMethod("groupRegionByDimReduceCluster", c("ChIPtsne2"), .groupRegionByDimRedu
 
 
 #' @export
-setGeneric("groupRegionByMembershipTable",
-           function(ct2, membership, group_VAR = "membership_id")
-               standardGeneric("groupRegionByMembershipTable"),
+setGeneric("groupRegionsByOverlap",
+           function(ct2, gr_list, group_VAR = "overlap_id")
+               standardGeneric("groupRegionsByOverlap"),
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionByMembershipTable", c("ChIPtsne2"), .groupRegionByMembershipTable)
+setMethod("groupRegionsByOverlap", c("ChIPtsne2"), .groupRegionsByOverlap)
+
+#### memb table grouping ####
+
+.groupRegionsByMembershipTable = function(ct2, membership, group_VAR = "membership_id"){
+    args = get_args()
+    memb_df = seqsetvis::ssvMakeMembTable(membership)
+    group_df = seqsetvis::ssvFactorizeMembTable(memb_df)
+    colnames(group_df) = c(ct2@region_VAR, group_VAR)
+    history_item = list(groupRegionsByMembershipTable = list(FUN = .groupRegionsByMembershipTable, ARG = args))
+    cloneChIPtsne2_fromTidy(
+        ct2 = ct2,
+        region_metadata = group_df,
+        obj_history = c(ChIPtsne2.history(ct2), history_item)
+    )
+}
+
+
+#' @export
+setGeneric("groupRegionsByMembershipTable",
+           function(ct2, membership, group_VAR = "membership_id")
+               standardGeneric("groupRegionsByMembershipTable"),
+           signature = "ct2")
+
+#' @export
+setMethod("groupRegionsByMembershipTable", c("ChIPtsne2"), .groupRegionsByMembershipTable)
 
 #### manual grouping ####
-.groupRegionManually = function(ct2, assignment, group_VAR = "group_id"){
+.groupRegionsManually = function(ct2, assignment, group_VAR = "group_id"){
     args = get_args()
     if(is.data.frame(assignment)){
         if(!ct2@region_VAR %in% colnames(assignment)){
@@ -149,7 +193,7 @@ setMethod("groupRegionByMembershipTable", c("ChIPtsne2"), .groupRegionByMembersh
             assignment = df
         }
     }
-    history_item = list(groupRegionManually = list(FUN = .groupRegionManually, ARG = args))
+    history_item = list(groupRegionsManually = list(FUN = .groupRegionsManually, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
         region_metadata = assignment,
@@ -158,18 +202,18 @@ setMethod("groupRegionByMembershipTable", c("ChIPtsne2"), .groupRegionByMembersh
 }
 
 #' @export
-setGeneric("groupRegionManually",
+setGeneric("groupRegionsManually",
            function(ct2, assignment, group_VAR = "group_id")
-               standardGeneric("groupRegionManually"),
+               standardGeneric("groupRegionsManually"),
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionManually", c("ChIPtsne2"), .groupRegionManually)
+setMethod("groupRegionsManually", c("ChIPtsne2"), .groupRegionsManually)
 
 #### sort regions ####
 .sortRegions = function(ct2, group_VAR = NULL){
     args = get_args()
-    prof_dt = getTidyProfile(ct2, region_meta_VARS = group_VAR)
+    prof_dt = getTidyProfile(ct2, meta_VARS = group_VAR)
     clust_dt = seqsetvis::within_clust_sort(
         prof_dt,
         row_ = ct2@region_VAR,

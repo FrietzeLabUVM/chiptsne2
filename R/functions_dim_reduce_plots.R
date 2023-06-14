@@ -12,8 +12,8 @@
 #' @examples
 #' ct2 = exampleChIPtsne2() %>%
 #'    dimReduceUMAP() %>%
-#'    groupRegionByDimReduceCluster(group_VAR = "umap_cluster") %>%
-#'    groupRegionBySignalCluster(group_VAR = "signal_cluster")
+#'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%
+#'    groupRegionsBySignalCluster(group_VAR = "signal_cluster")
 #'
 #' plotDimReducePoints(ct2, NA)
 #' plotDimReducePoints(ct2)

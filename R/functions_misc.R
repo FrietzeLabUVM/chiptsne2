@@ -364,8 +364,18 @@ get_args = function(env = parent.frame(), to_ignore = "ct2", ...){
 }
 
 .add_region_metadata = function(query_gr, region_metadata, region_VAR){
+    stopifnot(setequal(
+        names(query_gr),
+        region_metadata[[region_VAR]]
+    ))
+    region_metadata[[region_VAR]] = factor(region_metadata[[region_VAR]], levels = names(query_gr))
+    region_metadata = region_metadata %>% dplyr::arrange(get(region_VAR))
+    # new_mcols = cbind(
+    #     GenomicRanges::mcols(query_gr[region_metadata[[region_VAR]]]),
+    #     as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
+    # )
     new_mcols = cbind(
-        GenomicRanges::mcols(query_gr[region_metadata[[region_VAR]]]),
+        GenomicRanges::mcols(query_gr),
         as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
     )
     GenomicRanges::mcols(query_gr) = NULL

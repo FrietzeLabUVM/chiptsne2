@@ -1,0 +1,243 @@
+---
+title: "chiptsne2_usage"
+author: "Joe Boyd"
+date: "2023-06-14"
+output:
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+    %\VignetteIndexEntry{chiptsne2_usage}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+*chiptsne2* (working name only) is a new R package that accomplishes 2 things:
+
+1. It supports the use of tSNE (and UMAP and PCA) in the analysis of enrichment profiles at regions of interest across the genome in ChIPseq experiments.  Though developed for ChIPseq, the same procedures can be applied to ATACseq, BSseq, almost any kind of NGS really.
+
+2. It provides a user friendly and robust way to use *seqsetvis*.
+
+*seqsetvis* provides a way to work interactively via Rstudio with sequencing data in a tidy formatted way, leveraging the power of parallel processing and the [data.table](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html) package and opening up the world of [ggplot2](https://ggplot2.tidyverse.org/) for visualization of NGS data. 
+
+*seqsetvis* does have issues with using more RAM than necessary and it requires some proficiency with *data.table* to use effectively. *chiptsne2* addresses both of these problems, and makes numerous other improvements to improve its usability.
+
+*chiptsne2* key features:
+
+1. *ChIPtsne2* class implemented as an extension of the bioc *SummarizedExperiment* class. This provides greater usability right of the bat.
+
+2. Since you have to create a *ChIPtsne2* object, we can catch errors early and provide useful feedback to resolve them.
+
+3. All package methods are build for use with the [magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) pipe, %>%. This enables concise and readable workflows.
+
+4. *ChIPtsne2* objects maintain a history of all package methods applied to them. Importantly, the history from one object can be applied to any number of other objects.  This allows for workflows to be developed and reproducibly deployed.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Getting Started
+
+First, load *chiptsne2* and supporting packages.
+
+```{r libs}
+suppressPackageStartupMessages({
+    library(chiptsne2)
+    library(tidyverse)
+    library(GenomicRanges)    
+    library(SummarizedExperiment)
+})
+options(mc.cores = 20)
+```
+
+## Quick Start
+
+Before getting into the details, here's what a *chiptsne2* workflow looks like:
+
+```{r quick start}
+ct2_quick = ChIPtsne2.from_tidy(
+    exampleProfDT(), 
+    exampleQueryGR()
+)
+
+ct2_quick = ct2_quick %>% 
+    setSeed(0) %>%
+    calculateSignalCapValue() %>%
+    normalizeSignalCapValue() %>%
+    centerProfilesAndTrim(view_size = 200) %>%
+    dimReduceTSNE() %>%
+    groupRegionsBySignalCluster(group_VAR = "cluster") %>%
+    groupRegionsByDimReduceCluster(group_VAR = "tsne_group")
+
+theme_update(panel.background = element_blank())
+plotDimReducePoints(ct2_quick)+
+    coord_fixed() +
+    scale_color_gradient(low = "gray90", high = "red")
+plotDimReducePoints(ct2_quick, color_VAR = "cluster") +
+    coord_fixed()
+plotDimReducePoints(ct2_quick, color_VAR = "tsne_group")+
+    coord_fixed()
+
+```
+
+## Rerunning
+
+The history of any ChIPtsne2 object can be used to rerun complete workflows for convenience and reprodcibility.
+
+```{r}
+ct2_rerun = ChIPtsne2.from_tidy(
+    exampleProfDT(), 
+    exampleQueryGR()
+)
+ct2_rerun = rerun_history(ct2_rerun, history_source = ct2_quick)
+cowplot::plot_grid(
+    plotDimReducePoints(ct2_quick, color_VAR = "tsne_group")+
+        coord_fixed() +
+        labs(title = "quick"),
+    plotDimReducePoints(ct2_rerun, color_VAR = "tsne_group")+
+        coord_fixed() +
+        labs(title = "rerun")
+)
+```
+
+Running the same history with identical inputs yields identical results.  We could of course modify the signal data or query GRanges, or even modify the history, most commonly by changing the random seed. A history that does not include setSeed will not be reproducible.
+
+# Details
+
+To use *chiptsne2*, we need to create a ChIPtsne2 object. There are two intended ways to go about this, either ChIPtsne2.from_FetchConfig or ChIPtsne2.from_tidy. ChIPtsne2.from_FetchConfig relies on a FetchConfig object to allow *chiptsne2* to fetch signal as needed. ChIPtsne2.from_tidy relies on you to having already fetched signal using *seqsetvis* ssvFetch\*. The latter provides more flexibility but places more responsibility on the user.  Without providing a FetchConfig, some *chiptsne2* methods will not work.
+
+Either way, we also need a set of query GRanges. These should represent areas of interest, such as peak calls or TSSes (transcription start sites).
+
+Let's start with making a meaningful set or regions to query.
+
+## Query GRanges
+
+The following procedure selects narrowPeak files for 3 histone modifications in 2 cell lines, loads all peaks, overlaps them, resizes 1.5kb and downsamples to 500 regions for speed.
+
+This is a good general approach to creating a meaningful tSNE projection. If you plan on visualizing something more selective, such as differential chromatin regions, it's a good idea to add some amount (30-50% of all regions) of "background" regions to allow the tSNE space to remain contiguous.
+
+```{r regions}
+sel_marks = c("H3K4me3", "H3K27ac", "H3K4me1", "input")
+sel_cells = c("MCF10A", "MCF10AT1")
+
+np_file_dt = data.BRCAprogression::chip.setup_narrowPeak_files()
+np_file_dt = np_file_dt %>% 
+    filter(cell %in% sel_cells & mark %in% sel_marks)
+np_grs = seqsetvis::easyLoad_narrowPeak(np_file_dt$file, file_names = np_file_dt$group)
+olap_gr = seqsetvis::ssvOverlapIntervalSets(np_grs)
+# for speed in this example, we'll only use 500 regions
+query_gr = olap_gr %>%
+    resize(width = 1.5e3, fix = "center") %>%
+    sample(size = 500)
+```
+
+## ChIPtsne2
+
+### from_FetchConfig
+
+We need some files to pull signal from. We can use either bam files or bigwig files.
+
+To create a FetchConfig object, at a minimum we need a vector of file paths. If we include those file paths and meta data into a data.frame, that meta data will be carried through to the final ChIPtsne2 object.
+
+```{r bam files}
+bam_file_dt = data.BRCAprogression::chip.setup_bam_files(pooled = TRUE)
+bam_file_dt = bam_file_dt %>% 
+    filter(cell %in% c("MCF10A", "MCF10AT1") & mark %in% c("H3K4me3", "H3K27ac", "H3K4me1", "input"))
+bam_file_dt$fragLens = 200
+DT::datatable(bam_file_dt)
+```
+
+We have a nice data.frame with sample metadata, but we could also just use file paths to create a FetchConfig. This is the simplest way to create a FetchConfig.
+
+```{r}
+bam_files = bam_file_dt[1:2,]$file
+simple_fetch_config = FetchConfig.from_files(bam_files)
+
+ct2_simple = ChIPtsne2.from_FetchConfig(
+    simple_fetch_config, 
+    query_gr)
+DT::datatable(as.data.frame(colData(ct2_simple)))
+```
+
+FetchConfig using data.frame of file paths and meta data:
+
+```{r}
+full_fetch_config = FetchConfig(bam_file_dt, name_VAR = "group")
+
+ct2_full = ChIPtsne2.from_FetchConfig(
+    full_fetch_config, 
+    query_gr)
+DT::datatable(as.data.frame(colData(ct2_full)))
+```
+
+### from_tidy
+
+```{r}
+prof_gr = seqsetvis::ssvFetchBam(bam_file_dt[1:2], query_gr, fragLens = 200)
+ct2_tidy = ChIPtsne2.from_tidy(prof_gr, query_gr, name_VAR = "group")
+# you could also do any normalization or other transformations before
+prof_df = prof_gr %>% 
+    as.data.frame %>%
+    mutate(RPM = y / mapped_reads * 1e6)
+# undebug(ChIPtsne2.from_tidy)
+ct2_tidy2 = ChIPtsne2.from_tidy(prof_df, query_gr, value_VAR = "RPM", name_VAR = "group")
+```
+
+
+## Normalization
+
+### RPM 
+
+Reads-per-million (RPM) normalizes for the depth of sequencing. "mapped_reads" must be present in the sample metadata for this to work.
+
+```{r rpm}
+getSampleMetaData(ct2_full) %>%
+    select(group, mapped_reads)
+
+ct2_rpm = ct2_full %>% 
+    normalizeSignalRPM() 
+
+
+cbind(
+    raw = assay(ct2_full, "max") %>% colSums,
+    RPM = assay(ct2_rpm, "max") %>% colSums
+)
+```
+
+### Cap 
+
+*chiptsne2* provides a normalization method where values are re-scaled to be from 0-1 based on a provided "signal cap" per sample. By default, this cap is calculated as the 95th quantile of max signal per region.
+
+```{r}
+ct2_cap = ct2_full %>%
+    calculateSignalCapValue(cap_quantile = .95) %>%
+    normalizeSignalCapValue()
+
+cbind(
+    raw = assay(ct2_full, "max") %>% colSums,
+    cap = assay(ct2_cap, "max") %>% colSums
+)
+
+ct2_cap50 = ct2_full %>%
+    calculateSignalCapValue() %>%
+    normalizeSignalCapValue(minimum_ceiling = 50)
+
+# note the low signal input samples are much lower with a minimum ceiling.
+cbind(
+    raw = assay(ct2_full, "max") %>% colSums,
+    cap50 = assay(ct2_cap50, "max") %>% colSums
+)
+
+# this reproduces the effect of minimum_ceiling = 50, but you could do whatever
+prof_dt = getTidyProfile(ct2_full)
+cap_dt = seqsetvis::calc_norm_factors(prof_dt, by2 = "group")
+cap_dt = mutate(cap_dt, y_cap_value = ifelse(y_cap_value < 50, 50, y_cap_value))
+ct2_cap_manual = ct2_full %>%
+    normalizeSignalCapValue(signal_cap_data = cap_dt, signal_cap_VAR = "y_cap_value")
+
+cbind(
+    raw = assay(ct2_full, "max") %>% colSums,
+    manual = assay(ct2_cap_manual, "max") %>% colSums
+)
+```

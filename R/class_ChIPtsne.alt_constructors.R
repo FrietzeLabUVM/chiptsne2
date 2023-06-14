@@ -42,12 +42,15 @@ ChIPtsne2.from_tidy = function(prof_dt,
         obj_history = c(init_history, obj_history)
     }
 
+    if(is(prof_dt, "GRanges")){
+        prof_dt = data.table::as.data.table(prof_dt)
+    }
     #basic VAR checks
     if(!all(c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt))){
         missed = !c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt)
         missed_msg = paste(c("name_VAR", "position_VAR", "value_VAR", "region_VAR")[missed],
                            c(name_VAR, position_VAR, value_VAR, region_VAR)[missed], sep = ": ")
-        stop(paste(c("Missing required VAR in prof_dt:", missed_msg, collapse = "\n")))
+        stop(paste(c("Missing required VAR in prof_dt:", missed_msg), collapse = "\n"))
     }
     if(is.null(names(query_gr))){
         stop("names() must be set on query_gr. Maybe call seqsetvis::prepare_fetch_GRanges_names on query_gr before fetching prof_dt?")
@@ -150,7 +153,9 @@ ChIPtsne2.from_tidy = function(prof_dt,
                           "id",
                           "y",
                           "x",
-                          "cluster_id")
+                          "cluster_id",
+                          position_VAR,
+                          value_VAR)
             sample_metadata = prof_dt %>%
                 # dplyr::select(all_of(c(name_VAR))) %>%
                 dplyr::select(!any_of(c(drop_vars))) %>%

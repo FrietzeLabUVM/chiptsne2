@@ -236,7 +236,7 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 }
 
 #
-#' FetchConfig.files
+#' FetchConfig.from_files
 #'
 #' @param file_paths character paths to files
 #' @param group_names vector of group names to assign from according to groups
@@ -248,12 +248,12 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 #' @rdname FetchConfig
 #' @examples
 #' bam_files = dir(system.file(package = "ssvQC", "extdata"), pattern = "CTCF.+bam$", full.names = TRUE)
-#' object = FetchConfig.files(bam_files)
+#' object = FetchConfig.from_files(bam_files)
 #'
-#' object2 = FetchConfig.files(bam_files,
+#' object2 = FetchConfig.from_files(bam_files,
 #'   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
 #' )
-FetchConfig.files = function(file_paths,
+FetchConfig.from_files = function(file_paths,
                              group_names = NULL,
                              name_VAR = "name",
                              view_size = getOption("CT_VIEW_SIZE", 3e3),

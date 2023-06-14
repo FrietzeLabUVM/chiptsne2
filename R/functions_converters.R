@@ -1,7 +1,8 @@
+
 #'
 #' @importFrom dplyr select
 #' @importFrom data.table as.data.table
-.prof_dt_from_chiptsne2 = function(ct2,
+.getTidyProfile.with_meta = function(ct2,
                                    sample_meta_VARS = NULL,
                                    region_meta_VARS = NULL){
     df = do.call(rbind,
@@ -29,16 +30,33 @@
         df = merge(meta_df, df, by = ct2@name_VAR)
     }
     if(!is.null(region_meta_VARS)){
-        browser()
+        reg_df = getRegionMetaData(ct2) %>%
+            dplyr::select(ct2@region_VAR, region_meta_VARS)
+        df = merge(df, reg_df, by = ct2@region_VAR)
     }
     data.table::as.data.table(df)
 }
 
-
+#' @export
+setGeneric("getTidyProfile.with_meta", function(ct2, sample_meta_VARS = NULL, region_meta_VARS = NULL) standardGeneric("getTidyProfile.with_meta"), signature = "ct2")
 
 #' @export
-setGeneric("getTidyProfile", function(ct2, sample_meta_VARS = NULL, region_meta_VARS = NULL) standardGeneric("getTidyProfile"), signature = "ct2")
+setMethod("getTidyProfile.with_meta", c("ChIPtsne2"), .getTidyProfile.with_meta)
+
+.getTidyProfile = function(ct2, meta_VARS = NULL){
+    sample_meta_VARS = intersect(meta_VARS, colnames(getSampleMetaData(ct2)))
+    region_meta_VARS = intersect(meta_VARS, colnames(getRegionMetaData(ct2)))
+    if(length(intersect(sample_meta_VARS, region_meta_VARS)) > 0){
+        stop("Ambiguous meta_VARS between sample and region.")
+    }
+    .getTidyProfile.with_meta(ct2 = ct2,
+                          sample_meta_VARS = sample_meta_VARS,
+                          region_meta_VARS = region_meta_VARS)
+}
 
 #' @export
-setMethod("getTidyProfile", c("ChIPtsne2"), .prof_dt_from_chiptsne2)
+setGeneric("getTidyProfile", function(ct2, meta_VARS = NULL) standardGeneric("getTidyProfile"), signature = "ct2")
+
+#' @export
+setMethod("getTidyProfile", c("ChIPtsne2"), .getTidyProfile)
 

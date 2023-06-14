@@ -52,13 +52,13 @@ ct2.final = ct2 %>%
     calculateSignalCapValue %>%
     normalizeSignalCapValue(minimum_ceiling = 1) %>%
     dimReduceTSNE() %>%
-    groupRegionBySignalCluster(group_VAR = "cluster_id_4", n_clusters = 4) %>%
-    groupRegionBySignalCluster(group_VAR = "cluster_id_6", n_clusters = 6) %>%
-    groupRegionByDimReduceCluster(group_VAR = "knn_50", nearest_neighbors = 50) %>%
-    groupRegionManually(assignment = manual_df) %>%
-    groupRegionManually(assignment = manual_df, group_VAR = "random_group_id") %>%
-    groupRegionByMembershipTable(membership = olap_gr.k4me3, group_VAR = "k4me3_overlap") %>%
-    groupRegionByMembershipTable(membership = olap_gr.10a_enh, group_VAR = "10a_enhancer")
+    groupRegionsBySignalCluster(group_VAR = "cluster_id_4", n_clusters = 4) %>%
+    groupRegionsBySignalCluster(group_VAR = "cluster_id_6", n_clusters = 6) %>%
+    groupRegionsByDimReduceCluster(group_VAR = "knn_50", nearest_neighbors = 50) %>%
+    groupRegionsManually(assignment = manual_df) %>%
+    groupRegionsManually(assignment = manual_df, group_VAR = "random_group_id") %>%
+    groupRegionsByMembershipTable(membership = olap_gr.k4me3, group_VAR = "k4me3_overlap") %>%
+    groupRegionsByMembershipTable(membership = olap_gr.10a_enh, group_VAR = "10a_enhancer")
 
 colData(ct2.final)
 
@@ -90,6 +90,6 @@ plotDimReducePoints(ct2.final, color_VAR = c("cluster_id_4", "cluster_id_6", "kn
 
 # back to seqsetvis
 rowRanges(ct2.final)
-prof_dt = getTidyProfile(ct2.final, sample_meta_VARS = c("cell", "mark"))
+prof_dt = getTidyProfile(ct2.final, meta_VARS = c("cell", "mark"))
 seqsetvis::ssvSignalHeatmap(prof_dt, facet_ = "group_split")
 

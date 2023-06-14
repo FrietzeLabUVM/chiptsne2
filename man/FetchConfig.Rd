@@ -8,7 +8,7 @@
 \alias{FetchConfig.null}
 \alias{isFetchConfigNull}
 \alias{FetchConfig.load_config}
-\alias{FetchConfig.files}
+\alias{FetchConfig.from_files}
 \alias{fetch_signal_at_features}
 \alias{FetchConfig.save_config}
 \alias{show,FetchConfig-method}
@@ -30,7 +30,7 @@ isFetchConfigNull(fetch_config)
 
 FetchConfig.load_config(signal_config_file, name_VAR = NULL)
 
-FetchConfig.files(
+FetchConfig.from_files(
   file_paths,
   group_names = NULL,
   name_VAR = "name",
@@ -112,7 +112,7 @@ FetchConfig null placeholder
 
 isFetchConfigNull
 
-FetchConfig.files
+FetchConfig.from_files
 
 FetchConfig.save_config
 }
@@ -146,9 +146,9 @@ FetchConfig.load_config(bam_config_file)
 bigwig_config_file = system.file(package = "chiptsne2", "extdata/bigwig_config.csv", mustWork = TRUE)
 FetchConfig.load_config(bigwig_config_file)
 bam_files = dir(system.file(package = "ssvQC", "extdata"), pattern = "CTCF.+bam$", full.names = TRUE)
-object = FetchConfig.files(bam_files)
+object = FetchConfig.from_files(bam_files)
 
-object2 = FetchConfig.files(bam_files,
+object2 = FetchConfig.from_files(bam_files,
   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
 )
 bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv")

@@ -13,6 +13,7 @@
 #'
 #' @return Result of FUN, from cache if available.
 #' @export
+#' @importFrom BiocFileCache bfcquery bfcnew bfcrpath BiocFileCache
 #'
 #' @examples
 #' bfc = BiocFileCache::BiocFileCache()

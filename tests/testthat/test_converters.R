@@ -15,8 +15,8 @@ ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 
 prof_dt1 = getTidyProfile(ct2)
 
-prof_dt1.cell = getTidyProfile(ct2, sample_meta_VARS = "cell")
-prof_dt1.true = getTidyProfile(ct2, sample_meta_VARS = TRUE)
+prof_dt1.cell = getTidyProfile(ct2, meta_VARS = "cell")
+prof_dt1.true = getTidyProfile(ct2, meta_VARS = TRUE)
 
 test_that("Conversion", {
     expect_setequal(colnames(prof_dt1), c("id", "x", "y", "sample"))

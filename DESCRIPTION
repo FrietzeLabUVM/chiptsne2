@@ -1,7 +1,7 @@
 Package: chiptsne2
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.3
+Version: 0.1.4
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
@@ -10,10 +10,19 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
+Depends:
+    ggplot2
 Imports: 
+    BiocGenerics, 
     data.table,
     dplyr,
+    igraph,
     magrittr,
+    Matrix,
+    methods,
+    pbapply,
+    pbmcapply,
+    RANN,
     S4Vectors,
-    seqsetvis (>= 1.21.3),
+    seqsetvis (>= 1.21.4),
     SummarizedExperiment

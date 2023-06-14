@@ -38,15 +38,15 @@ test_that("FetchConfig.null", {
     expect_true(isFetchConfigNull(cfg.null))
 })
 
-test_that("FetchConfig.files", {
-    cfg = FetchConfig.files(bam_files)
+test_that("FetchConfig.from_files", {
+    cfg = FetchConfig.from_files(bam_files)
     expect_setequal(colnames(cfg$meta_data), c("file", "name"))
     expect_equal(cfg$read_mode, "bam_SE")
     expect_equal(cfg$view_size, 3000)
     expect_equal(cfg$window_size, 200)
     expect_equal(cfg$fetch_options, list())
 
-    cfg.args = FetchConfig.files(bam_files, read_mode = "bam_PE", view_size = 500, window_size = 20, fetch_options = list(win_method = "summary"), name_VAR = "sample")
+    cfg.args = FetchConfig.from_files(bam_files, read_mode = "bam_PE", view_size = 500, window_size = 20, fetch_options = list(win_method = "summary"), name_VAR = "sample")
     expect_setequal(colnames(cfg.args$meta_data), c("file", "sample"))
     expect_equal(cfg.args$read_mode, "bam_PE")
     expect_equal(cfg.args$view_size, 500)
@@ -55,11 +55,11 @@ test_that("FetchConfig.files", {
 
     bw_files.named = bw_files
     names(bw_files.named) = sub("_.+", "", basename(bw_files))
-    cfg.bw = FetchConfig.files(bw_files)
+    cfg.bw = FetchConfig.from_files(bw_files)
     expect_equal(cfg.bw$read_mode, "bigwig")
     expect_true(all(grepl("random100.bw", cfg.bw$meta_data$name)))
 
-    cfg.bw_named = FetchConfig.files(bw_files.named)
+    cfg.bw_named = FetchConfig.from_files(bw_files.named)
     expect_equal(cfg.bw_named$read_mode, "bigwig")
     expect_true(!any(grepl("random100.bw", cfg.bw_named$meta_data$name)))
 })
