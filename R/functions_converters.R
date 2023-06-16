@@ -2,6 +2,7 @@
 #'
 #' @importFrom dplyr select
 #' @importFrom data.table as.data.table
+#' @importFrom reshape2 melt
 .getTidyProfile.with_meta = function(ct2,
                                    sample_meta_VARS = NULL,
                                    region_meta_VARS = NULL){
@@ -30,8 +31,11 @@
         df = merge(meta_df, df, by = ct2@name_VAR)
     }
     if(!is.null(region_meta_VARS)){
+        if(length(region_meta_VARS) == 1 && region_meta_VARS == TRUE){
+            region_meta_VARS = colnames(mcols(rowRanges(ct2)))
+        }
         reg_df = getRegionMetaData(ct2) %>%
-            dplyr::select(ct2@region_VAR, region_meta_VARS)
+            dplyr::select(all_of(c(ct2@region_VAR, region_meta_VARS)))
         df = merge(df, reg_df, by = ct2@region_VAR)
     }
     data.table::as.data.table(df)
@@ -44,11 +48,17 @@ setGeneric("getTidyProfile.with_meta", function(ct2, sample_meta_VARS = NULL, re
 setMethod("getTidyProfile.with_meta", c("ChIPtsne2"), .getTidyProfile.with_meta)
 
 .getTidyProfile = function(ct2, meta_VARS = NULL){
-    sample_meta_VARS = intersect(meta_VARS, colnames(getSampleMetaData(ct2)))
-    region_meta_VARS = intersect(meta_VARS, colnames(getRegionMetaData(ct2)))
-    if(length(intersect(sample_meta_VARS, region_meta_VARS)) > 0){
-        stop("Ambiguous meta_VARS between sample and region.")
+    if(length(meta_VARS) == 1 && meta_VARS == TRUE){
+        sample_meta_VARS = TRUE
+        region_meta_VARS = TRUE
+    }else{
+        sample_meta_VARS = intersect(meta_VARS, colnames(getSampleMetaData(ct2)))
+        region_meta_VARS = intersect(meta_VARS, colnames(getRegionMetaData(ct2)))
+        if(length(intersect(sample_meta_VARS, region_meta_VARS)) > 0){
+            stop("Ambiguous meta_VARS between sample and region.")
+        }
     }
+
     .getTidyProfile.with_meta(ct2 = ct2,
                           sample_meta_VARS = sample_meta_VARS,
                           region_meta_VARS = region_meta_VARS)
