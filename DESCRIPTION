@@ -1,18 +1,19 @@
 Package: chiptsne2
 Type: Package
-Title: What the Package Does (Title Case)
+Title: ChIPseq analysis using tSNE
 Version: 0.1.4
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Authors@R: person("Joseph R", "Boyd", email = "jrboyd@uvm.edu",
+                  role = c("aut", "cre"))
+Description: chiptsne2 provides support for tSNE and other dimensional 
+    reduction techniques for analyzing ChIP-seq profiles.  In addtion, it 
+    provides a friendlier and more robust way to work with seqsetvis.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
 Depends:
     ggplot2
 Imports: 
+    BiocFileCache,
     BiocGenerics, 
     data.table,
     dplyr,
@@ -23,6 +24,12 @@ Imports:
     pbapply,
     pbmcapply,
     RANN,
+    reshape2,
     S4Vectors,
     seqsetvis (>= 1.21.4),
     SummarizedExperiment
+RoxygenNote: 7.2.3
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2018-01-08 17:54:19 UTC; joeboyd
+biocViews: Software, ChIPSeq, MultipleComparison, Sequencing, Visualization

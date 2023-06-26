@@ -45,6 +45,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2"), .groupRegionsBySignalCl
 #' @importFrom Matrix Matrix
 #' @importFrom igraph graph.adjacency simplify cluster_walktrap
 #' @importFrom RANN nn2
+#' @importFrom reshape2 melt
 #'
 #' @examples
 #' xy_df = data.frame(tx = runif(100), ty = runif(100))

@@ -144,35 +144,70 @@ assay = SummarizedExperiment::assay
 #' getSampleMetaData
 #'
 #' @param ct2 A ChIPtsne object
+#' @param select_VARS character vector of variables to select from sample
+#'   metadata. Default of NULL will select all available sample metadata
+#'   variables.
 #'
-#' @return data.frame with sample meta data, similar to colData but suitable for tidyverse operations.
+#' @return data.frame with sample meta data, similar to colData but suitable for
+#'   tidyverse operations.
 #' @export
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2()
 #' getSampleMetaData(ct2)
-getSampleMetaData = function(ct2){
+#' getSampleMetaData(ct2, "sample")
+getSampleMetaData = function(ct2, select_VARS = NULL){
     cd = colData(ct2)
     df = as.data.frame(cd)
     df[[ct2@name_VAR]] = rownames(cd)
-    rownames(df)
+    if(!is.null(select_VARS)){
+        if(!all(select_VARS %in% colnames(df))){
+            stop(
+                paste(collapse = "\n",
+                      c(
+                          "select_VARS not found in region metadata:",
+                          setdiff(select_VARS, colnames(df))
+                      )
+                )
+            )
+        }
+        df = df[, union(ct2@name_VAR, select_VARS), drop = FALSE]
+    }
     df
 }
 
 #' getRegionMetaData
 #'
 #' @param ct2 A ChIPtsne object
+#' @param select_VARS character vector of variables to select from region
+#'   metadata. Default of NULL will select all available region metadata
+#'   variables.
 #'
-#' @return data.frame with region meta data, similar to rowRanges but suitable for tidyverse operations.
+#' @return data.frame with region meta data, similar to rowRanges but suitable
+#'   for tidyverse operations.
 #' @export
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2()
 #' getRegionMetaData(ct2)
-getRegionMetaData = function(ct2){
+#' getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+getRegionMetaData = function(ct2, select_VARS = NULL){
     gr = rowRanges(ct2)
     df = GenomicRanges::mcols(gr) %>% as.data.frame
     df[[ct2@region_VAR]] = names(gr)
+    if(!is.null(select_VARS)){
+        if(!all(select_VARS %in% colnames(df))){
+            stop(
+                paste(collapse = "\n",
+                      c(
+                          "select_VARS not found in region metadata:",
+                          setdiff(select_VARS, colnames(df))
+                      )
+                )
+            )
+        }
+        df = df[, union(ct2@region_VAR, select_VARS), drop = FALSE]
+    }
     df
 }
 
