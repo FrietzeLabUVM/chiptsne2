@@ -367,11 +367,20 @@ cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = c(2, 1))
                               group_VARS = NULL,
                               sort_VAR = NULL,
                               sort_strategy =  c("hclust", "sort", "left", "right")[2],
-                              name_FUN = .prep_names){
+                              name_FUN = .prep_names,
+                              assume_sorted_is_clustered = TRUE,
+                              n_legend_rows = 1){
     if(!is.null(group_VARS) & is.null(sort_VAR)){
         sort_VAR = group_VARS[length(group_VARS)]
     }
+
     prof_dt = .getTidyProfile(ct2, group_VARS)
+
+    fake_VAR = "__FAKE_CLUSTER__"
+    if(sort_VAR == FALSE){
+        sort_VAR = fake_VAR
+        prof_dt[[sort_VAR]] = 1
+    }
 
     clust_dt = seqsetvis::within_clust_sort(
         prof_dt,
@@ -407,6 +416,7 @@ cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = c(2, 1))
 
 
     anno_VARS = group_VARS#union(group_VARS, sort_VAR)
+    anno_VARS = setdiff(anno_VARS, fake_VAR)
     anno_df = getRegionMetaData(ct2, anno_VARS)[, c(ct2@region_VAR, anno_VARS)]
     anno_df[[ct2@region_VAR]] = factor(anno_df[[ct2@region_VAR]], levels = levels(assign_dt[[ct2@region_VAR]]))
     anno_df = anno_df[order(anno_df[[ct2@region_VAR]]),]
@@ -416,7 +426,12 @@ cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = c(2, 1))
     for(var in anno_VARS){
         anno_rle = rle(as.character(anno_df[[var]]))
         is_sorted = length(anno_rle$values) == length(unique(anno_rle$values))
-        if(is_sorted){
+        if(assume_sorted_is_clustered){
+            is_clustered = is_sorted
+        }else{
+            is_clustered = var == sort_VAR
+        }
+        if(is_clustered){
             p_anno = add_cluster_annotation(anno_df, row_ = ct2@region_VAR, cluster_ = var)
         }else{
             p_anno = add_group_annotation(anno_df, row_ = ct2@region_VAR, cluster_ = var)
@@ -428,10 +443,17 @@ cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = c(2, 1))
     legend_plots = c(legend_plots, list(p_heat.leg))
     row1 = seqsetvis::assemble_heatmap_cluster_bars(c(anno_plots, list(p_heat)), rel_widths = c(rep(1, length(anno_plots)), 5))
 
-    leg_rel_widths = get_rel_widths(legend_plots, sync_width = TRUE)
-    row2 = cowplot::plot_grid(
-        plotlist = legend_plots, nrow = 1, rel_widths = leg_rel_widths
-    )
+    leg_grps = ceiling((seq_along(legend_plots) / length(legend_plots)) * n_legend_rows)
+    legend_plots.sp = split(legend_plots, leg_grps)
+    leg_rows = lapply(legend_plots.sp, function(x){
+        leg_rel_widths = get_rel_widths(x, sync_width = TRUE)
+        row = cowplot::plot_grid(
+            plotlist = x, nrow = 1, rel_widths = leg_rel_widths
+        )
+        row
+    })
+    row2 = cowplot::plot_grid(plotlist = leg_rows, ncol = 1)
+
 
     cowplot::plot_grid(row1, row2, ncol = 1)
 }
@@ -453,6 +475,20 @@ head(getRegionMetaData(ct2))
                                        "peak_MCF10CA1_CTCF",
                                        "cluster",
                                        "overlap"))
+
+.plotSignalHeatmap(ct2, group_VARS = c("overlap",
+                                       "peak_MCF10A_CTCF",
+                                       "peak_MCF10AT1_CTCF",
+                                       "peak_MCF10CA1_CTCF",
+                                       "cluster",
+                                       "overlap"), assume_sorted_is_clustered = FALSE)
+
+.plotSignalHeatmap(ct2, group_VARS = c("overlap",
+                                       "peak_MCF10A_CTCF",
+                                       "peak_MCF10AT1_CTCF",
+                                       "peak_MCF10CA1_CTCF",
+                                       "cluster",
+                                       "overlap"), sort_VAR = FALSE, n_legend_rows = 2)
 
 p_heat
 
