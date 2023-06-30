@@ -150,7 +150,8 @@ add_group_annotation = function(group_ids,
 add_group_annotation.legend = function(group_ids,
                                        rect_colors = RColorBrewer::brewer.pal(8, "Dark2"),
                                        row_ = "id",
-                                       cluster_ = "group_id"){
+                                       cluster_ = "group_id",
+                                       plot_format_FUN = NULL){
     xleft = 0
     xright = 1
     text_colors = rep("black", length(rect_colors))
@@ -166,6 +167,9 @@ add_group_annotation.legend = function(group_ids,
         cluster_ = cluster_,
         show_legend = TRUE
     )
+    if(!is.null(plot_format_FUN)){
+        p = plot_format_FUN(p)
+    }
     cowplot::get_legend(p)
 }
 
@@ -363,12 +367,24 @@ cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = c(2, 1))
 
 .getTidyProfile = chiptsne2:::.getTidyProfile
 
+
+COLOR_KEY_STRAT = list(
+    if_not_sorted = "if_not_sorted",
+    except_sort_VAR = "except_sort_VAR",
+    all = "all"
+)
+
 .plotSignalHeatmap = function(ct2,
                               group_VARS = NULL,
                               sort_VAR = NULL,
                               sort_strategy =  c("hclust", "sort", "left", "right")[2],
+                              heatmap_colors = scale_fill_viridis_c(option = "magma"),
+                              heatmap_format_FUN = NULL,
+                              annotation_colors = seqsetvis::safeBrew(n = 8),
+                              annotation_format_FUN = NULL,
                               name_FUN = .prep_names,
-                              assume_sorted_is_clustered = TRUE,
+                              color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
+                              # assume_sorted_is_clustered = TRUE,
                               n_legend_rows = 1){
     if(!is.null(group_VARS) & is.null(sort_VAR)){
         sort_VAR = group_VARS[length(group_VARS)]
@@ -409,39 +425,75 @@ cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = c(2, 1))
         scale_x_discrete(expand = c(0,0)) +
         plot_theme +
         facet_grid(paste0(".~", ct2@name_VAR))
+    if(is(heatmap_colors, "Scale")){
+        p_heat = p_heat + heatmap_colors
+    }else{
+        p_heat = p_heat + scale_color_gradientn(colours = heatmap_colors)
+    }
+    if(!is.null(heatmap_format_FUN)){
+        p_heat = heatmap_format_FUN(p_heat)
+    }
     p_heat.leg = cowplot::get_legend(p_heat)
     p_heat = p_heat + guides(fill = "none")
 
     #### annotation ####
-
-
-    anno_VARS = group_VARS#union(group_VARS, sort_VAR)
-    anno_VARS = setdiff(anno_VARS, fake_VAR)
+    # browser()
+    anno_VARS = group_VARS
+    anno_VARS = anno_VARS[!anno_VARS %in% fake_VAR]
     anno_df = getRegionMetaData(ct2, anno_VARS)[, c(ct2@region_VAR, anno_VARS)]
-    anno_df[[ct2@region_VAR]] = factor(anno_df[[ct2@region_VAR]], levels = levels(assign_dt[[ct2@region_VAR]]))
+    anno_df[[ct2@region_VAR]] = factor(anno_df[[ct2@region_VAR]],
+                                       levels = levels(assign_dt[[ct2@region_VAR]]))
     anno_df = anno_df[order(anno_df[[ct2@region_VAR]]),]
+
+    if(is.null(annotation_format_FUN)){
+        annotation_format_FUN = function(p)p
+    }
+    if(!is.list(annotation_format_FUN)){
+        annotation_format_FUN = lapply(seq_along(anno_VARS), function(i){
+            annotation_format_FUN
+        })
+    }
+    stopifnot(length(annotation_format_FUN) == length(anno_VARS))
+    if(!is.list(annotation_colors)){
+        annotation_colors = lapply(seq_along(anno_VARS), function(i){
+            annotation_colors
+        })
+    }
+    stopifnot(length(annotation_colors) == length(anno_VARS))
 
     anno_plots = list()
     legend_plots = list()
-    for(var in anno_VARS){
+    for(i in seq_along(anno_VARS)){
+        var = anno_VARS[i]
         anno_rle = rle(as.character(anno_df[[var]]))
         is_sorted = length(anno_rle$values) == length(unique(anno_rle$values))
-        if(assume_sorted_is_clustered){
+        if(color_key_strategy  == COLOR_KEY_STRAT$if_not_sorted){
+            # if(assume_sorted_is_clustered){
             is_clustered = is_sorted
+        }else if(color_key_strategy == COLOR_KEY_STRAT$except_sort_VAR){
+            #only the final instance of duplicate var should be considered clustered
+            is_clustered = (var == sort_VAR) & (i == max(which(var == anno_VARS)))
+        }else if(color_key_strategy == COLOR_KEY_STRAT$all){
+            is_clustered = FALSE
         }else{
-            is_clustered = var == sort_VAR
+            stop("Unrecognized color_key_strategy: ", color_key_strategy,
+                 "\nAllowed values are:\n\"", paste(as.character(COLOR_KEY_STRAT), collapse = "\"\n\""), "\"")
         }
         if(is_clustered){
-            p_anno = add_cluster_annotation(anno_df, row_ = ct2@region_VAR, cluster_ = var)
+            p_anno = add_cluster_annotation(anno_df, row_ = ct2@region_VAR, cluster_ = var, rect_colors = annotation_colors[[i]])
+            p_anno = annotation_format_FUN[[i]](p_anno)
         }else{
-            p_anno = add_group_annotation(anno_df, row_ = ct2@region_VAR, cluster_ = var)
-            p_leg = add_group_annotation.legend(anno_df, row_ = ct2@region_VAR, cluster_ = var)
+            p_anno = add_group_annotation(anno_df, row_ = ct2@region_VAR, cluster_ = var, rect_colors = annotation_colors[[i]])
+            p_anno = annotation_format_FUN[[i]](p_anno)
+            p_leg = add_group_annotation.legend(anno_df, row_ = ct2@region_VAR, cluster_ = var, rect_colors = annotation_colors[[i]], plot_format_FUN = annotation_format_FUN[[i]])
             legend_plots[[length(legend_plots) + 1]] = p_leg
         }
         anno_plots[[length(anno_plots) + 1]] = p_anno
     }
     legend_plots = c(legend_plots, list(p_heat.leg))
-    row1 = seqsetvis::assemble_heatmap_cluster_bars(c(anno_plots, list(p_heat)), rel_widths = c(rep(1, length(anno_plots)), 5))
+    row1 = seqsetvis::assemble_heatmap_cluster_bars(
+        c(anno_plots, list(p_heat)),
+        rel_widths = c(rep(1, length(anno_plots)), 5))
 
     leg_grps = ceiling((seq_along(legend_plots) / length(legend_plots)) * n_legend_rows)
     legend_plots.sp = split(legend_plots, leg_grps)
@@ -453,8 +505,6 @@ cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = c(2, 1))
         row
     })
     row2 = cowplot::plot_grid(plotlist = leg_rows, ncol = 1)
-
-
     cowplot::plot_grid(row1, row2, ncol = 1)
 }
 
@@ -469,19 +519,46 @@ head(getRegionMetaData(ct2))
 
 .plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap"))
 .plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
-.plotSignalHeatmap(ct2, group_VARS = c("overlap",
-                                       "peak_MCF10A_CTCF",
-                                       "peak_MCF10AT1_CTCF",
-                                       "peak_MCF10CA1_CTCF",
-                                       "cluster",
-                                       "overlap"))
+.plotSignalHeatmap(
+    ct2,
+    group_VARS = c(
+        "overlap",
+        "peak_MCF10A_CTCF",
+        "peak_MCF10AT1_CTCF",
+        "peak_MCF10CA1_CTCF",
+        "cluster",
+        "overlap"
+    ),
+    color_key_strategy = "if_not_sorted"
+)
 
-.plotSignalHeatmap(ct2, group_VARS = c("overlap",
-                                       "peak_MCF10A_CTCF",
-                                       "peak_MCF10AT1_CTCF",
-                                       "peak_MCF10CA1_CTCF",
-                                       "cluster",
-                                       "overlap"), assume_sorted_is_clustered = FALSE)
+.plotSignalHeatmap(
+    ct2,
+    group_VARS = c(
+        "cluster",
+        "peak_MCF10A_CTCF",
+        "peak_MCF10AT1_CTCF",
+        "peak_MCF10CA1_CTCF",
+        "overlap",
+        "cluster",
+        "cluster"
+    ),
+    color_key_strategy = "all"
+)
+
+.plotSignalHeatmap(
+    ct2,
+    group_VARS = c(
+        "cluster",
+        "peak_MCF10A_CTCF",
+        "peak_MCF10AT1_CTCF",
+        "peak_MCF10CA1_CTCF",
+        "overlap",
+        "cluster",
+        "cluster"
+    ),
+    color_key_strategy = "except_sort_VAR"
+)
 
 .plotSignalHeatmap(ct2, group_VARS = c("overlap",
                                        "peak_MCF10A_CTCF",
