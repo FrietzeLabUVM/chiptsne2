@@ -58,7 +58,10 @@
 }
 
 #' @export
-setGeneric("plotDimReducePoints", function(ct2, color_VAR = NULL, point_size = NULL) standardGeneric("plotDimReducePoints"), signature = "ct2")
+setGeneric("plotDimReducePoints",
+           function(ct2, color_VAR = NULL, point_size = NULL)
+               standardGeneric("plotDimReducePoints"),
+           signature = "ct2")
 
 #' @export
 setMethod("plotDimReducePoints", c("ChIPtsne2"), .plotDimReducePoints)

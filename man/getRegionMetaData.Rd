@@ -4,13 +4,18 @@
 \alias{getRegionMetaData}
 \title{getRegionMetaData}
 \usage{
-getRegionMetaData(ct2)
+getRegionMetaData(ct2, select_VARS = NULL)
 }
 \arguments{
 \item{ct2}{A ChIPtsne object}
+
+\item{select_VARS}{character vector of variables to select from region
+metadata. Default of NULL will select all available region metadata
+variables.}
 }
 \value{
-data.frame with region meta data, similar to rowRanges but suitable for tidyverse operations.
+data.frame with region meta data, similar to rowRanges but suitable
+  for tidyverse operations.
 }
 \description{
 getRegionMetaData
@@ -18,4 +23,5 @@ getRegionMetaData
 \examples{
 ct2 = exampleChIPtsne2()
 getRegionMetaData(ct2)
+getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
 }

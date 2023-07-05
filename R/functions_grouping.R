@@ -12,8 +12,6 @@
     assign_dt = clust_dt %>%
         dplyr::select(all_of(c(group_VAR, ct2@region_VAR))) %>%
         unique
-    # new_query_gr = .add_region_metadata(rowRanges(ct2), region_metadata, region_VAR)
-
 
     history_item = list(groupRegionsBySignalCluster = list(FUN = .groupRegionsBySignalCluster, ARG = args))
     cloneChIPtsne2_fromTidy(

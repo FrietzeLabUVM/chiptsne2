@@ -4,13 +4,18 @@
 \alias{getSampleMetaData}
 \title{getSampleMetaData}
 \usage{
-getSampleMetaData(ct2)
+getSampleMetaData(ct2, select_VARS = NULL)
 }
 \arguments{
 \item{ct2}{A ChIPtsne object}
+
+\item{select_VARS}{character vector of variables to select from sample
+metadata. Default of NULL will select all available sample metadata
+variables.}
 }
 \value{
-data.frame with sample meta data, similar to colData but suitable for tidyverse operations.
+data.frame with sample meta data, similar to colData but suitable for
+  tidyverse operations.
 }
 \description{
 getSampleMetaData
@@ -18,4 +23,5 @@ getSampleMetaData
 \examples{
 ct2 = exampleChIPtsne2()
 getSampleMetaData(ct2)
+getSampleMetaData(ct2, "sample")
 }

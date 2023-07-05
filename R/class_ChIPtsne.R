@@ -176,6 +176,55 @@ getSampleMetaData = function(ct2, select_VARS = NULL){
     df
 }
 
+#' setSampleMetaData
+#'
+#' @param ct2 A ChIPtsne object
+#' @param new_meta A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.
+#'
+#' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' getSampleMetaData(ct2)
+#' new_meta = data.frame(sample = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"), id = seq(3))
+#' ct2 = setSampleMetaData(ct2, new_meta)
+#' getSampleMetaData(ct2)
+#'
+#' #metadata may be overriden
+#' new_meta2 = data.frame(id = LETTERS[seq(3)], id2 = LETTERS[seq(3)])
+#' rownames(new_meta2) = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF")
+#' ct2 = setSampleMetaData(ct2, new_meta2)
+#' getSampleMetaData(ct2)
+setSampleMetaData = function(ct2, new_meta){
+    cd = getSampleMetaData(ct2)
+    if(!ct2@name_VAR %in% colnames(new_meta)){
+        if(is.null(rownames(new_meta))){
+            stop("new_meta must contain name_VAR or have rownames.")
+        }else{
+            new_meta[[ct2@name_VAR]] = rownames(new_meta)
+        }
+    }
+
+    if(!setequal(new_meta[[ct2@name_VAR]], rownames(cd))){
+        stop(paste(sep = "\n",
+                   "name_VAR is not equivalent in new metadata.",
+                   paste(c("Extra entries in new_meta:", setdiff(new_meta[[ct2@name_VAR]], rownames(cd))), collapse = "\n"),
+                   paste(c("Missing entries from new_meta:", setdiff(rownames(cd), new_meta[[ct2@name_VAR]])), collapse = "\n")
+        ))
+    }
+    retained_cn = setdiff(colnames(cd),
+            setdiff(colnames(new_meta), ct2@name_VAR)
+    )
+    new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@name_VAR)
+    rownames(new_cd) = new_cd[[ct2@name_VAR]]
+    new_cd[[ct2@name_VAR]] = NULL
+    new_cd = S4Vectors::DataFrame(new_cd)
+
+    ct2@colData = new_cd
+    ct2
+}
+
 #' getRegionMetaData
 #'
 #' @param ct2 A ChIPtsne object
@@ -210,6 +259,48 @@ getRegionMetaData = function(ct2, select_VARS = NULL){
     }
     df
 }
+
+#' setRegionMetaData
+#'
+#' @param ct2 A ChIPtsne object
+#' @param new_meta A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.
+#'
+#' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' new_meta = getRegionMetaData(ct2)
+#' new_meta[["10A_and_AT1"]] = ifelse(new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF, "yes", "no")
+#' ct2 = setRegionMetaData(ct2, new_meta)
+#' getRegionMetaData(ct2)
+setRegionMetaData = function(ct2, new_meta){
+    cd = getRegionMetaData(ct2)
+    if(!ct2@region_VAR %in% colnames(new_meta)){
+        if(is.null(rownames(new_meta))){
+            stop("new_meta must contain region_VAR or have rownames.")
+        }else{
+            new_meta[[ct2@region_VAR]] = rownames(new_meta)
+        }
+    }
+
+    if(!setequal(new_meta[[ct2@region_VAR]], rownames(cd))){
+        stop(paste(sep = "\n",
+                   "region_VAR is not equivalent in new metadata.",
+                   paste(c("Extra entries in new_meta:", setdiff(new_meta[[ct2@region_VAR]], rownames(cd))), collapse = "\n"),
+                   paste(c("Missing entries from new_meta:", setdiff(rownames(cd), new_meta[[ct2@region_VAR]])), collapse = "\n")
+        ))
+    }
+    retained_cn = setdiff(colnames(cd),
+                          setdiff(colnames(new_meta), ct2@region_VAR)
+    )
+    new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@region_VAR)
+    new_gr = .add_region_metadata(rowRanges(ct2), region_metadata = new_cd, region_VAR = ct2@region_VAR)
+    ct2@rowRanges = new_gr
+    ct2
+}
+
+
 
 #' exampleQueryGR
 #'

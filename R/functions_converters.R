@@ -41,10 +41,8 @@
     data.table::as.data.table(df)
 }
 
-#' @export
 setGeneric("getTidyProfile.with_meta", function(ct2, sample_meta_VARS = NULL, region_meta_VARS = NULL) standardGeneric("getTidyProfile.with_meta"), signature = "ct2")
 
-#' @export
 setMethod("getTidyProfile.with_meta", c("ChIPtsne2"), .getTidyProfile.with_meta)
 
 .getTidyProfile = function(ct2, meta_VARS = NULL){

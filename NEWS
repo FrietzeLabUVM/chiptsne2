@@ -1,3 +1,7 @@
+# v 0.1.5
+
+plotSignalHeatmap and setRegionMetaData and setSampleMetaData
+
 # v 0.1.4
 
 FetchConfig.files -> FetchConfig.from_files
