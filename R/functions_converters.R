@@ -51,6 +51,7 @@ setMethod("getTidyProfile.with_meta", c("ChIPtsne2"), .getTidyProfile.with_meta)
         region_meta_VARS = TRUE
     }else{
         sample_meta_VARS = intersect(meta_VARS, colnames(getSampleMetaData(ct2)))
+        sample_meta_VARS = setdiff(sample_meta_VARS, ct2@name_VAR)
         region_meta_VARS = intersect(meta_VARS, colnames(getRegionMetaData(ct2)))
         if(length(intersect(sample_meta_VARS, region_meta_VARS)) > 0){
             stop("Ambiguous meta_VARS between sample and region.")

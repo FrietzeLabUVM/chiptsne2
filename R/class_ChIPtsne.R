@@ -214,7 +214,7 @@ setSampleMetaData = function(ct2, new_meta){
         ))
     }
     retained_cn = setdiff(colnames(cd),
-            setdiff(colnames(new_meta), ct2@name_VAR)
+                          setdiff(colnames(new_meta), ct2@name_VAR)
     )
     new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@name_VAR)
     rownames(new_cd) = new_cd[[ct2@name_VAR]]
@@ -412,3 +412,7 @@ setMethod("[", "ChIPtsne2", function(x, i, j, drop=TRUE) {
                                 check=FALSE)
 })
 
+hasDimReduce = function(ct2){
+    meta_dt = getRegionMetaData(ct2)
+    all(c("tx", "ty") %in% colnames(meta_dt))
+}

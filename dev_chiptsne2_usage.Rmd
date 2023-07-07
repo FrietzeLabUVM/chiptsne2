@@ -103,7 +103,7 @@ cowplot::plot_grid(
 
 Running the same history with identical inputs yields identical results.  We could of course modify the signal data or query GRanges, or even modify the history, most commonly by changing the random seed. A history that does not include setSeed will not be reproducible.
 
-# Details
+# Workflow Details
 
 To use *chiptsne2*, we need to create a ChIPtsne2 object. There are two intended ways to go about this, either ChIPtsne2.from_FetchConfig or ChIPtsne2.from_tidy. ChIPtsne2.from_FetchConfig relies on a FetchConfig object to allow *chiptsne2* to fetch signal as needed. ChIPtsne2.from_tidy relies on you to having already fetched signal using *seqsetvis* ssvFetch\*. The latter provides more flexibility but places more responsibility on the user.  Without providing a FetchConfig, some *chiptsne2* methods will not work.
 
@@ -241,3 +241,39 @@ cbind(
     manual = assay(ct2_cap_manual, "max") %>% colSums
 )
 ```
+
+# Plotting Details
+
+```{r dim}
+plotDimReducePoints(ct2_quick) +
+  coord_fixed()
+```
+
+
+```{r heatmap, fig.width=3.5, fig.height=3}
+rowRanges(ct2_quick)
+plotSignalHeatmap(ct2_quick, 
+                  group_VARS = "cluster", 
+                  relative_heatmap_width = .8)
+```
+
+```{r, heatmap}
+peak_colors = c("TRUE" = "black", "FALSE" = "white")
+tsne_colors = seqsetvis::safeBrew(rowRanges(ct2_quick)$tsne_group)
+plotSignalHeatmap(ct2_quick, 
+                  group_VARS = c("peak_MCF10A_CTCF", 
+                                 "peak_MCF10AT1_CTCF", 
+                                 "peak_MCF10CA1_CTCF", 
+                                 "tsne_group", 
+                                 "cluster"), 
+                  annotation_colors = list(
+                    peak_colors,
+                    peak_colors, 
+                    peak_colors,
+                    NULL,
+                    NULL
+                  ),
+                  relative_heatmap_width = .5)
+```
+
+
