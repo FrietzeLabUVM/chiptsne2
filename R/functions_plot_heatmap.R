@@ -144,6 +144,8 @@
 .plotSignalHeatmap = function(ct2,
                               group_VARS = NULL,
                               sort_VAR = NULL,
+                              balance_VAR = NULL,
+                              max_rows = 500,
                               sort_strategy =  c("hclust", "sort", "left", "right")[2],
                               heatmap_colors = scale_fill_viridis_c(option = "magma"),
                               heatmap_format_FUN = NULL,
@@ -157,20 +159,48 @@
                               n_legend_rows = 1,
                               relative_heatmap_width = .5,
                               relative_heatmap_height = .66,
-                              return_data = FALSE){
+                              return_data = FALSE
+){
     if(!is.null(group_VARS) & is.null(sort_VAR)){
         sort_VAR = group_VARS[length(group_VARS)]
+    }
+    if(is.null(sort_VAR)){
+        sort_VAR = FALSE
     }
     stopifnot(relative_heatmap_width > 0 & relative_heatmap_width < 1)
     stopifnot(relative_heatmap_height > 0 & relative_heatmap_height < 1)
     stopifnot(n_legend_rows >= 1)
 
-    prof_dt = .getTidyProfile(ct2, group_VARS)
+    prof_dt = .getTidyProfile(ct2, unique(c(group_VARS, sort_VAR, balance_VAR)))
 
     fake_VAR = "__FAKE_CLUSTER__"
     if(sort_VAR == FALSE){
         sort_VAR = fake_VAR
         prof_dt[[sort_VAR]] = 1
+    }
+    if(!is.null(balance_VAR)){
+        group_dt = unique(prof_dt[, c(ct2@region_VAR, balance_VAR), with = FALSE])
+        group_l = split(as.character(group_dt[[ct2@region_VAR]]), group_dt[[balance_VAR]])
+        min_group = min(lengths(group_l))
+        if((length(group_l)*min_group) > max_rows){
+            min_group = floor(max_rows / length(group_l))
+        }
+        min_l = lapply(group_l, function(x){
+            sample(x, min_group)
+        })
+        all_ids = unlist(min_l)
+        names(all_ids) = NULL
+    }else{
+        all_ids = unique(prof_dt[[ct2@region_VAR]])
+    }
+    if(!is.infinite(max_rows)){
+        if(max_rows < length(all_ids)){
+            all_ids = sample(all_ids, max_rows)
+        }
+    }
+    prof_dt = dplyr::filter(prof_dt, get(ct2@region_VAR) %in% all_ids)
+    if(is.factor(prof_dt[[ct2@region_VAR]])){
+        prof_dt[[ct2@region_VAR]] = droplevels(prof_dt[[ct2@region_VAR]])
     }
     clust_dt = seqsetvis::within_clust_sort(
         prof_dt,
@@ -214,10 +244,12 @@
     #### annotation ####
     anno_VARS = group_VARS
     anno_VARS = anno_VARS[!anno_VARS %in% fake_VAR]
-    anno_df = getRegionMetaData(ct2, anno_VARS)[, c(ct2@region_VAR, anno_VARS)]
+    anno_df = getRegionMetaData(ct2, anno_VARS)[, c(ct2@region_VAR, anno_VARS), drop = FALSE]
+    # anno_df = anno_df[anno_df[[ct2@region_VAR]] %in% assign_dt[[ct2@region_VAR]], , drop = FALSE]
+    anno_df = dplyr::filter(anno_df, get(ct2@region_VAR) %in% assign_dt[[ct2@region_VAR]])
     anno_df[[ct2@region_VAR]] = factor(anno_df[[ct2@region_VAR]],
                                        levels = levels(assign_dt[[ct2@region_VAR]]))
-    anno_df = anno_df[order(anno_df[[ct2@region_VAR]]),]
+    anno_df = anno_df[order(anno_df[[ct2@region_VAR]]),, drop = FALSE]
 
     if(is.null(annotation_format_FUN)){
         annotation_format_FUN = function(p)p
@@ -313,6 +345,8 @@ setGeneric("plotSignalHeatmap", function(
         ct2,
         group_VARS = NULL,
         sort_VAR = NULL,
+        balance_VAR = NULL,
+        max_rows = 500,
         sort_strategy =  c("hclust", "sort", "left", "right")[2],
         heatmap_colors = scale_fill_viridis_c(option = "magma"),
         heatmap_format_FUN = NULL,

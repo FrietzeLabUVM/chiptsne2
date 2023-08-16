@@ -8,7 +8,9 @@
                                               fill_ =ct2@value_VAR,
                                               facet_ = ct2@name_VAR,
                                               column_ = ct2@position_VAR,
-                                              row_ = ct2@region_VAR)
+                                              row_ = ct2@region_VAR,
+                                              max_rows = Inf,
+                                              max_cols = Inf)
     assign_dt = clust_dt %>%
         dplyr::select(all_of(c(group_VAR, ct2@region_VAR))) %>%
         unique

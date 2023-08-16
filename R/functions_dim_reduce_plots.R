@@ -39,7 +39,7 @@
     }else if(all(color_VAR %in% colnames(getRegionMetaData(ct2)))){
         xy_df = getRegionMetaData(ct2) %>%
             select(all_of(c("tx", "ty", ct2@region_VAR, color_VAR)))
-        xy_df = pivot_longer(xy_df, setdiff(colnames(xy_df), c("id", "tx", "ty")), names_to = "group")
+        xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c("id", "tx", "ty")), names_to = "group")
         p = ggplot(xy_df, aes(x = tx, y = ty, color = value)) +
             geom_point(size = point_size) +
             facet_wrap(paste0("~", "group"))
@@ -49,7 +49,7 @@
         signal_df = signal_df[, color_VAR]
         signal_df[[ct2@region_VAR]] = rownames(signal_df)
         xy_df = merge(xy_df, signal_df, by = ct2@region_VAR)
-        xy_df = pivot_longer(xy_df, setdiff(colnames(xy_df), c("id", "tx", "ty")), names_to = ct2@name_VAR, values_to = "max")
+        xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c("id", "tx", "ty")), names_to = ct2@name_VAR, values_to = "max")
         p = ggplot(xy_df, aes(x = tx, y = ty, color = max)) +
             geom_point(size = point_size) +
             facet_wrap(paste0("~", ct2@name_VAR))
@@ -155,7 +155,7 @@ bin_values_centers = function(n_bins, rng){
                               xbins = 50,
                               ybins = xbins,
                               bg_color = "gray60",
-                              min_size = 5,
+                              min_size = 1,
                               extra_vars = character()){
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
@@ -212,14 +212,4 @@ bin_values_centers = function(n_bins, rng){
         )
 }
 
-ct2 = exampleChIPtsne2.with_meta()
-ct2 = dimReduceTSNE(ct2)
-hasDimReduce = chiptsne2:::hasDimReduce
-.plotDimReduceBins(ct2)
-# meta_dt = getSampleMetaData(ct2)
-# meta_dt = meta_dt %>% separate(sample, c("cell", "mark"), "_", remove = FALSE)
-# ct2 = setSampleMetaData(ct2, meta_dt)
-.plotDimReduceBins(ct2, facet_columns = "sample", facet_rows = NULL)
-colData(ct2)
-debug(.plotDimReduceBins)
-.plotDimReduceBins(ct2, facet_columns = "cell", facet_rows = "mark")
+
