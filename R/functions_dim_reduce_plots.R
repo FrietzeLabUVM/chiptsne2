@@ -147,25 +147,40 @@ bin_values_centers = function(n_bins, rng){
 }
 
 .plotDimReduceBins = function(ct2,
+<<<<<<< HEAD
                               facet_rows = ct2@name_VAR,
                               facet_columns = NULL,
+=======
+>>>>>>> 483319b17d54e295152eb866a993227375b8b4c1
                               xmin = -Inf,
                               xmax = Inf,
                               agg_FUN = max,
                               xbins = 50,
                               ybins = xbins,
                               bg_color = "gray60",
+<<<<<<< HEAD
                               min_size = 1,
+=======
+                              min_size = 5,
+>>>>>>> 483319b17d54e295152eb866a993227375b8b4c1
                               extra_vars = character()){
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
     }
+<<<<<<< HEAD
     meta_VARS = c(facet_rows, facet_columns, "tx", "ty")
     prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
     #aggregate_signals is retrieves a single representative value for a genomic region per sample
     #by default this is the maximum anywhere in the region but this can be
     #overridden using xmin/xmax and agg_FUN
     extra_vars = c(facet_rows, facet_columns)
+=======
+    prof_dt = getTidyProfile(ct2)
+    tsne_dt = getRegionMetaData(ct2, c("tx", "ty"))
+    #aggregate_signals is retrieves a single representative value for a genomic region per sample
+    #by default this is the maximum anywhere in the region but this can be
+    #overriden using xmin/xmax and agg_FUN
+>>>>>>> 483319b17d54e295152eb866a993227375b8b4c1
     agg_dt = aggregate_signals(
         prof_dt,
         y_ = ct2@value_VAR,
@@ -173,6 +188,7 @@ bin_values_centers = function(n_bins, rng){
         agg_FUN = agg_FUN,
         xmin = xmin,
         xmax = xmax,
+<<<<<<< HEAD
         by_ = meta_VARS
     )
     # agg_dt = merge(agg_dt, tsne_dt, by = "id")
@@ -196,13 +212,36 @@ bin_values_centers = function(n_bins, rng){
     #
     # ))
     # extra_vars = extra_vars[extra_vars %in% colnames(agg_dt)]
+=======
+        by_ = ct2@name_VAR)
+    agg_dt = merge(agg_dt, tsne_dt, by = "id")
+    # m_vars = setdiff(colnames(sts$signal_config$meta_data), colnames(agg_dt))
+    # agg_dt = as.data.table(merge(sts$signal_config$meta_data[, m_vars], agg_dt, by.y = "wide_var", by.x = "name"))
+    # facet_str = paste0(sts$signal_config$color_by, "~", sts$signal_config$run_by)
+    facet_str = paste0(ct2@name_VAR, "~", ".")
+    #TODO add extra vars
+    #TODO add ssvQC win_size
+    extra_vars =  unique(c(
+        # sts$signal_config$run_by,
+        # sts$signal_config$color_by,
+        # extra_vars,
+        ct2@name_VAR
+
+    ))
+    extra_vars = extra_vars[extra_vars %in% colnames(agg_dt)]
+>>>>>>> 483319b17d54e295152eb866a993227375b8b4c1
     plot_binned_aggregates(
         agg_dt = agg_dt,
         xbins = xbins,
         ybins = ybins,
         val = ct2@value_VAR,
+<<<<<<< HEAD
         extra_vars = extra_vars[-1],
         facet_ = extra_vars[1],
+=======
+        extra_vars = extra_vars,
+        facet_ = ct2@name_VAR,
+>>>>>>> 483319b17d54e295152eb866a993227375b8b4c1
         min_size = min_size
     ) +
         facet_grid(facet_str) +
@@ -212,4 +251,7 @@ bin_values_centers = function(n_bins, rng){
         )
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 483319b17d54e295152eb866a993227375b8b4c1
