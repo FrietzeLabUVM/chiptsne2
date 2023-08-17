@@ -1,3 +1,7 @@
+# v 0.1.7
+
+bug: add_cluster_annotation was not respecting factor order for heatmap
+
 # v 0.1.6
 
 added max_row and balance_groups to plotHeatmap

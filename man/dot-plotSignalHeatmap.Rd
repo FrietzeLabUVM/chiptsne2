@@ -8,6 +8,8 @@
   ct2,
   group_VARS = NULL,
   sort_VAR = NULL,
+  balance_VAR = NULL,
+  max_rows = 500,
   sort_strategy = c("hclust", "sort", "left", "right")[2],
   heatmap_colors = scale_fill_viridis_c(option = "magma"),
   heatmap_format_FUN = NULL,
@@ -124,7 +126,7 @@ plotSignalHeatmap(
         "overlap",
         "cluster",
         "cluster"
-    ),
+    ), n_legend_rows = 2, relative_heatmap_height = .5,
     color_key_strategy = "except_sort_VAR"
 )
 

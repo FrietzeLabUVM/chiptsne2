@@ -202,6 +202,9 @@
     if(is.factor(prof_dt[[ct2@region_VAR]])){
         prof_dt[[ct2@region_VAR]] = droplevels(prof_dt[[ct2@region_VAR]])
     }
+    if(!is.factor(prof_dt[[sort_VAR]])){
+        prof_dt[[sort_VAR]] = factor(prof_dt[[sort_VAR]])
+    }
     clust_dt = seqsetvis::within_clust_sort(
         prof_dt,
         row_ = ct2@region_VAR,

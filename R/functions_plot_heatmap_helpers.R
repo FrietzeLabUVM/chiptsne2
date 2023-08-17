@@ -33,9 +33,11 @@ COLOR_KEY_STRAT = list(
         ids = assign_dt[[cluster_]]
 
     }
-    if(is.character(ids)) ids = factor(ids, levels = unique(ids))
-    if(is.numeric(ids)) ids = factor(ids)
-    if(is.logical(ids)) ids = factor(ids, levels = c("TRUE", "FALSE"))
+    if(!is.factor(ids)){
+        ids = factor(ids, levels = unique(ids))
+    }
+    # if(is.numeric(ids)) ids = factor(ids)
+    # if(is.logical(ids)) ids = factor(ids, levels = c("TRUE", "FALSE"))
 
     stopifnot(is.factor(ids))
 
