@@ -232,6 +232,7 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
     name_VAR = fetch_config@name_VAR
     sample_metadata = fetch_config@meta_data
     query_gr = seqsetvis::prepare_fetch_GRanges_names(query_gr)
+    query_gr = GenomicRanges::resize(query_gr, width = fetch_config@view_size, fix = "center")
     query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = fetch_config$window_size)
 
     fetch_res = fetch_signal_at_features(fetch_config, query_gr)
