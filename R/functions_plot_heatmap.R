@@ -42,6 +42,9 @@
 #' meta_df = getRegionMetaData(ct2)
 #' meta_df = meta_df %>% dplyr::mutate(overlap_num = as.numeric(overlap))
 #' ct2 = setRegionMetaData(ct2, meta_df)
+#'
+#' plotSignalHeatmap(ct2)
+#'
 #' plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "overlap_num"))
 #' plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
 #' plotSignalHeatmap(
@@ -171,15 +174,17 @@
     stopifnot(relative_heatmap_height > 0 & relative_heatmap_height < 1)
     stopifnot(n_legend_rows >= 1)
 
-    prof_dt = .getTidyProfile(ct2, unique(c(group_VARS, sort_VAR, balance_VAR)))
+    # prof_dt = .getTidyProfile(ct2, unique(c(group_VARS, sort_VAR, balance_VAR)))
+    # meta_dt = getRegionMetaData(ct2, unique(c(group_VARS, sort_VAR, balance_VAR)))
+    meta_dt = getRegionMetaData(ct2)
 
     fake_VAR = "__FAKE_CLUSTER__"
     if(sort_VAR == FALSE){
         sort_VAR = fake_VAR
-        prof_dt[[sort_VAR]] = 1
+        meta_dt[[sort_VAR]] = 1
     }
     if(!is.null(balance_VAR)){
-        group_dt = unique(prof_dt[, c(ct2@region_VAR, balance_VAR), with = FALSE])
+        group_dt = unique(meta_dt[, c(ct2@region_VAR, balance_VAR), with = FALSE])
         group_l = split(as.character(group_dt[[ct2@region_VAR]]), group_dt[[balance_VAR]])
         min_group = min(lengths(group_l))
         if((length(group_l)*min_group) > max_rows){
@@ -191,19 +196,24 @@
         all_ids = unlist(min_l)
         names(all_ids) = NULL
     }else{
-        all_ids = unique(prof_dt[[ct2@region_VAR]])
+        all_ids = unique(meta_dt[[ct2@region_VAR]])
     }
     if(!is.infinite(max_rows)){
         if(max_rows < length(all_ids)){
             all_ids = sample(all_ids, max_rows)
         }
     }
-    prof_dt = dplyr::filter(prof_dt, get(ct2@region_VAR) %in% all_ids)
-    if(is.factor(prof_dt[[ct2@region_VAR]])){
-        prof_dt[[ct2@region_VAR]] = droplevels(prof_dt[[ct2@region_VAR]])
+    meta_dt = dplyr::filter(meta_dt, get(ct2@region_VAR) %in% all_ids)
+    if(is.factor(meta_dt[[ct2@region_VAR]])){
+        meta_dt[[ct2@region_VAR]] = droplevels(meta_dt[[ct2@region_VAR]])
     }
-    if(!is.factor(prof_dt[[sort_VAR]])){
-        prof_dt[[sort_VAR]] = factor(prof_dt[[sort_VAR]])
+    if(!is.factor(meta_dt[[sort_VAR]])){
+        meta_dt[[sort_VAR]] = factor(meta_dt[[sort_VAR]])
+    }
+    #### Fetch profile ####
+    prof_dt = getTidyProfile(ct2[meta_dt[[ct2@region_VAR]],], unique(c(group_VARS, sort_VAR, balance_VAR)))
+    if(sort_VAR == "__FAKE_CLUSTER__"){
+        prof_dt[[sort_VAR]] = 1
     }
     clust_dt = seqsetvis::within_clust_sort(
         prof_dt,
@@ -230,9 +240,11 @@
     if(return_data) return(clust_dt)
     p_heat = ggplot(clust_dt, aes(x = !!x_, y = !!y_, fill = !!fill_)) +
         geom_raster() +
-        scale_x_discrete(expand = c(0,0)) +
+        scale_x_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 3)) +
         heatmap_theme +
-        facet_grid(paste0(".~", ct2@name_VAR))
+        facet_grid(paste0(".~", ct2@name_VAR)) +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
+    p_heat
     if(is(heatmap_colors, "Scale")){
         p_heat = p_heat + heatmap_colors
     }else{
