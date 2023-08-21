@@ -87,8 +87,8 @@ aggregate_signals = function(profile_dt,
 }
 
 plot_binned_aggregates = function(agg_dt,
-                                  xbins = 50,
-                                  ybins = xbins,
+                                  x_bins = 50,
+                                  y_bins = x_bins,
                                   xrng = NULL,
                                   yrng = NULL,
                                   val = "y",
@@ -105,13 +105,13 @@ plot_binned_aggregates = function(agg_dt,
     if(is.null(yrng)) yrng = range(agg_dt[[byval]])
     agg_dt[bxval >= min(xrng) & bxval <= max(xrng) &
                byval >= min(yrng) & byval <= max(yrng)]
-    agg_dt[, bx := bin_values(get(bxval), n_bins = xbins, xrng = xrng)]
-    agg_dt[, by := bin_values(get(byval), n_bins = ybins, xrng = yrng)]
+    agg_dt[, bx := bin_values(get(bxval), n_bins = x_bins, xrng = xrng)]
+    agg_dt[, by := bin_values(get(byval), n_bins = y_bins, xrng = yrng)]
 
     bin_dt = agg_dt[, .(y = bin_met(get(val)), N = .N), c(unique(c(facet_, extra_vars, "bx", "by")))]
-    bxvc = bin_values_centers(n_bins = xbins, xrng)
+    bxvc = bin_values_centers(n_bins = x_bins, xrng)
     w = diff(bxvc[1:2])
-    byvc = bin_values_centers(n_bins = ybins, yrng)
+    byvc = bin_values_centers(n_bins = y_bins, yrng)
     h = diff(byvc[1:2])
     bin_dt[, tx := bxvc[bx]]
     bin_dt[, ty := byvc[by]]
@@ -156,19 +156,19 @@ bin_values_centers = function(n_bins, rng){
                               xmin = -Inf,
                               xmax = Inf,
                               agg_FUN = max,
-                              xbins = NULL,
-                              ybins = xbins,
+                              x_bins = NULL,
+                              y_bins = x_bins,
                               bg_color = "gray60",
                               min_size = 1,
                               extra_vars = character()){
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
     }
-    if(is.null(xbins)){
-        xbins = round(nrow(ct2)^.5)
+    if(is.null(x_bins)){
+        x_bins = round(nrow(ct2)^.5)
     }
-    if(is.null(ybins)){
-        ybins = round(nrow(ct2)^.5)
+    if(is.null(y_bins)){
+        y_bins = round(nrow(ct2)^.5)
     }
     meta_VARS = c(facet_rows, facet_columns, "tx", "ty")
     prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
@@ -194,8 +194,8 @@ bin_values_centers = function(n_bins, rng){
     facet_str = paste0(facet_rows, "~", facet_columns)
     plot_binned_aggregates(
         agg_dt = agg_dt,
-        xbins = xbins,
-        ybins = ybins,
+        x_bins = x_bins,
+        y_bins = y_bins,
         val = ct2@value_VAR,
         extra_vars = extra_vars[-1],
         facet_ = extra_vars[1],
@@ -206,7 +206,7 @@ bin_values_centers = function(n_bins, rng){
             panel.background = element_rect(fill = bg_color),
             panel.grid = element_blank()
         ) +
-        labs(caption = paste("Binned to", ybins, "rows by", xbins, "columns."))
+        labs(caption = paste("Binned to", y_bins, "rows by", x_bins, "columns."))
 }
 
 generic_plotDimReduceBins = function(ct2,
@@ -215,8 +215,8 @@ generic_plotDimReduceBins = function(ct2,
                                      xmin = -Inf,
                                      xmax = Inf,
                                      agg_FUN = max,
-                                     xbins = 50,
-                                     ybins = xbins,
+                                     x_bins = 50,
+                                     y_bins = x_bins,
                                      bg_color = "gray60",
                                      min_size = 1,
                                      extra_vars = character()){

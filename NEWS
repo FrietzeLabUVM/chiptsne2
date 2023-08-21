@@ -1,3 +1,16 @@
+# v 0.1.10
+
+added summary profiles
+
+# v 0.1.9
+
+heatmap color scales
+
+# v 0.1.8
+
+heatmap efficiency and theme
+use config view size
+
 # v 0.1.7
 
 bug: add_cluster_annotation was not respecting factor order for heatmap

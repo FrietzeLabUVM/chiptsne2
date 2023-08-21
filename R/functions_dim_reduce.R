@@ -19,10 +19,15 @@
         perplexity = nrow(prof_mat)/4
         warning("autoreduced perplexity to ", perplexity, " due to small number of regions.")
     }
-    tsne_res = Rtsne::Rtsne(prof_mat, check_duplicates = FALSE, perplexity = perplexity, ...)
+    tsne_res = Rtsne::Rtsne(prof_mat,
+                            check_duplicates = FALSE,
+                            perplexity = perplexity,
+                            num_threads = getOption("mc.cores", 1),
+                            ...)
     xy_df = as.data.frame(tsne_res$Y)
     colnames(xy_df) =  c("tx", "ty")
     rownames(xy_df) = rownames(prof_mat)
+    ggplot(xy_df, aes(x = tx, y = ty)) + geom_point()
     .post_dim_reduce(xy_df, prof_mat)
 }
 

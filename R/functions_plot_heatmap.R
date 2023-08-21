@@ -8,6 +8,7 @@
 #'   are: 1) "sort", which sorts decreasing top to bottom, 2) "hclust" which
 #'   uses hierarchical clustering, 3) "left" which puts most left tiled profiles
 #'   at top, and 4) "right" which puts most right tilted profiles at top.
+#' @param heatmap_fill_limits Passed to limits of scale_fill_gradientn. Default of c(NA, NA) uses natural range of the data.
 #' @param heatmap_colors Either a scale_fill_* or vector of R colors passed to
 #'   scale_fill_gradientn.
 #' @param heatmap_format_FUN A function that applies any additional formatting
@@ -150,7 +151,8 @@
                               balance_VAR = NULL,
                               max_rows = 500,
                               sort_strategy =  c("hclust", "sort", "left", "right")[2],
-                              heatmap_colors = scale_fill_viridis_c(option = "magma"),
+                              heatmap_fill_limits = c(NA, NA),
+                              heatmap_colors = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF"),
                               heatmap_format_FUN = NULL,
                               heatmap_theme = .heatmap_theme.no_y,
                               annotation_colors = NULL,
@@ -237,6 +239,22 @@
 
     clust_dt[[ct2@region_VAR]] = factor(clust_dt[[ct2@region_VAR]], levels = rev(levels(clust_dt[[ct2@region_VAR]])))
     clust_dt[[ct2@name_VAR]] = name_FUN(clust_dt[[ct2@name_VAR]])
+    # apply limits
+    if(!is.na(heatmap_fill_limits[1])){
+        #TODO
+        clust_dt[[ct2@value_VAR]] = ifelse(
+            clust_dt[[ct2@value_VAR]] < heatmap_fill_limits[1],
+            heatmap_fill_limits[1],
+            clust_dt[[ct2@value_VAR]]
+        )
+    }
+    if(!is.na(heatmap_fill_limits[2])){
+        clust_dt[[ct2@value_VAR]] = ifelse(
+            clust_dt[[ct2@value_VAR]] > heatmap_fill_limits[2],
+            heatmap_fill_limits[2],
+            clust_dt[[ct2@value_VAR]]
+        )
+    }
     if(return_data) return(clust_dt)
     p_heat = ggplot(clust_dt, aes(x = !!x_, y = !!y_, fill = !!fill_)) +
         geom_raster() +
@@ -248,7 +266,7 @@
     if(is(heatmap_colors, "Scale")){
         p_heat = p_heat + heatmap_colors
     }else{
-        p_heat = p_heat + scale_fill_gradientn(colours = heatmap_colors)
+        p_heat = p_heat + scale_fill_gradientn(colours = heatmap_colors, limits = heatmap_fill_limits)
     }
     if(!is.null(heatmap_format_FUN)){
         p_heat = heatmap_format_FUN(p_heat)
@@ -363,6 +381,7 @@ setGeneric("plotSignalHeatmap", function(
         balance_VAR = NULL,
         max_rows = 500,
         sort_strategy =  c("hclust", "sort", "left", "right")[2],
+        heatmap_fill_limits = c(NA, NA),
         heatmap_colors = scale_fill_viridis_c(option = "magma"),
         heatmap_format_FUN = NULL,
         heatmap_theme = .heatmap_theme.no_y,

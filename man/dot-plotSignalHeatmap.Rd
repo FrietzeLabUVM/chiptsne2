@@ -11,7 +11,8 @@
   balance_VAR = NULL,
   max_rows = 500,
   sort_strategy = c("hclust", "sort", "left", "right")[2],
-  heatmap_colors = scale_fill_viridis_c(option = "magma"),
+  heatmap_fill_limits = c(NA, NA),
+  heatmap_colors = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF"),
   heatmap_format_FUN = NULL,
   heatmap_theme = .heatmap_theme.no_y,
   annotation_colors = NULL,
@@ -38,6 +39,8 @@ Default to last entry in group_VARS.}
 are: 1) "sort", which sorts decreasing top to bottom, 2) "hclust" which
 uses hierarchical clustering, 3) "left" which puts most left tiled profiles
 at top, and 4) "right" which puts most right tilted profiles at top.}
+
+\item{heatmap_fill_limits}{Passed to limits of scale_fill_gradientn. Default of c(NA, NA) uses natural range of the data.}
 
 \item{heatmap_colors}{Either a scale_fill_* or vector of R colors passed to
 scale_fill_gradientn.}
@@ -87,6 +90,9 @@ ct2 = groupRegionsByOverlap(ct2, seqsetvis::CTCF_in_10a_narrowPeak_grs[1:2], gro
 meta_df = getRegionMetaData(ct2)
 meta_df = meta_df \%>\% dplyr::mutate(overlap_num = as.numeric(overlap))
 ct2 = setRegionMetaData(ct2, meta_df)
+
+plotSignalHeatmap(ct2)
+
 plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "overlap_num"))
 plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
 plotSignalHeatmap(
