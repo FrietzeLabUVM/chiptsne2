@@ -1,5 +1,6 @@
 .plotDimReduceSummaryProfiles = function(
         ct2,
+        color_VAR = ct2@name_VAR,
         x_bins = nrow(ct2)^.5,
         y_bins = x_bins,
         extra_vars = character(),
@@ -15,6 +16,10 @@
         min_size = 0.3,
         return_data = FALSE){
 
+    position_VAR = ct2@position_VAR
+    value_VAR = ct2@value_VAR
+    region_VAR = ct2@region_VAR
+
     profile_dt = getTidyProfile(ct2, meta_VARS = TRUE)
     cn = colnames(getSampleMetaData(ct2))
     profile_dt = profile_dt[order(x)]
@@ -24,6 +29,10 @@
     plot_summary_profiles(
         profile_dt = profile_dt,
         position_dt = position_dt,
+        position_VAR = position_VAR,
+        value_VAR = value_VAR,
+        region_VAR = region_VAR,
+        color_VAR = color_VAR,
         x_bins = x_bins,
         y_bins = x_bins,
         extra_vars = extra_vars,
@@ -43,6 +52,7 @@
 #' plotDimReduceSummaryProfiles
 #'
 #' @param ct2
+#' @param color_VAR
 #' @param x_bins
 #' @param y_bins
 #' @param extra_vars
@@ -64,6 +74,7 @@
 #' @export
 setGeneric("plotDimReduceSummaryProfiles", function(
         ct2,
+        color_VAR = ct2@name_VAR,
         x_bins = nrow(ct2)^.5,
         y_bins = x_bins,
         extra_vars = character(),
@@ -86,6 +97,10 @@ setMethod("plotDimReduceSummaryProfiles", c("ChIPtsne2"), .plotDimReduceSummaryP
 
 plot_summary_profiles = function (profile_dt,
                                   position_dt,
+                                  position_VAR,
+                                  value_VAR,
+                                  region_VAR,
+                                  color_VAR,
                                   x_bins = 8,
                                   y_bins = x_bins,
                                   extra_vars = character(),
@@ -101,10 +116,7 @@ plot_summary_profiles = function (profile_dt,
                                   min_size = 0.3,
                                   return_data = FALSE) {
 
-    position_VAR = ct2@position_VAR
-    value_VAR = ct2@value_VAR
-    region_VAR = ct2@region_VAR
-    color_VAR = ct2@name_VAR
+
 
     if (is.null(line_color_mapping)) {
         line_color_mapping = seqsetvis::safeBrew(length(unique(profile_dt[[color_VAR]])))

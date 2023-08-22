@@ -6,6 +6,7 @@
 \usage{
 plotDimReduceSummaryProfiles(
   ct2,
+  color_VAR = ct2@name_VAR,
   x_bins = nrow(ct2)^0.5,
   y_bins = x_bins,
   extra_vars = character(),

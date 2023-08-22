@@ -62,12 +62,7 @@ increase resolution but also RAM usage. Default is 200 bp.}
 \item{fetch_options}{Named list of additional arguments to pass to signal
 fetch function.}
 
-\item{is_null}{If TRUE, this FetchConfig is considered null/empty.
-
-  Since center_signal_at_max and flip_signal_mode have the potential to
-  modify the assessment regions based on signal run groups, the modified
-  assessment feature set is store in signal_data for each run group. They can
-  be accessed like this: sqc$signal_data$FEATURE_NAME$SIGNAL_NAME$query_gr}
+\item{is_null}{If TRUE, this FetchConfig is considered null/empty.}
 
 \item{fetch_config}{A FetchConfig object}
 
