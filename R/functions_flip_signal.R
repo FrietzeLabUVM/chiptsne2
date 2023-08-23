@@ -53,11 +53,10 @@
         prof_dt$needs_flip = NULL
 
     history_item = list(.flipProfilesToMatch = list(FUN = .flipProfilesToMatch, ARG = args))
-
-    ChIPtsne2.from_tidy(prof_dt = prof_dt,
-                        new_query_gr,
-                        obj_history = c(ChIPtsne2.history(ct2), history_item),
-                        init = FALSE)
+    cloneChIPtsne2_fromTidy(ct2,
+                            prof_dt = prof_dt,
+                            query_gr = new_query_gr,
+                            obj_history = c(ChIPtsne2.history(ct2), history_item))
 }
 
 #' @export
