@@ -1,3 +1,63 @@
+.prep_color_scale = function(values, color_scale){
+    if(is.null(color_scale)){
+        if(any(values < 0)){
+            #for negative values, default to different colors and symmetrical limits
+            color_scale = c("orange", "white", "purple")
+        }else{
+            color_scale = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF")
+        }
+    }
+    color_scale
+}
+
+.prep_symmetrical = function(values, has_symmetrical_limits, scale_limits){
+    if(any(values < 0)){
+        #for negative values, default to different colors and symmetrical limits
+        if(is.null(has_symmetrical_limits)){
+            has_symmetrical_limits = TRUE
+        }
+    }else{
+        if(is.null(has_symmetrical_limits)){
+            has_symmetrical_limits = FALSE
+        }
+    }
+    if(has_symmetrical_limits){
+        if(is.na(scale_limits[1])){
+            scale_limits[1] = min(values)
+        }
+        if(is.na(scale_limits[2])){
+            scale_limits[2] = max(values)
+        }
+        lim_max = max(abs(scale_limits))
+        scale_limits = c(-lim_max, lim_max)
+    }
+    scale_limits
+}
+
+.apply_limits = function(values, scale_limits){
+    values[values > max(scale_limits)] = max(scale_limits)
+    values[values < min(scale_limits)] = min(scale_limits)
+    values
+}
+
+.apply_scale = function(p, color_scale, scale_limits, fill = TRUE){
+    if(is(color_scale, "Scale")){
+        p = p + color_scale
+    }else{
+        if(fill){
+            p = p + scale_fill_gradientn(colours = color_scale, limits = scale_limits)
+        }else{
+            p = p + scale_color_gradientn(colours = color_scale, limits = scale_limits)
+        }
+
+    }
+    p
+}
+
+
+
+
+
 #' plotDimReducePoints
 #'
 #' @param ct2 valid ChIPtsne2 after dimReduce has been run
@@ -8,22 +68,29 @@
 #' @export
 #'
 #' @examples
-#' ct2 = exampleChIPtsne2() %>%
+#' ct2 = exampleChIPtsne2.with_meta() %>%
 #'    dimReduceUMAP() %>%
 #'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%
 #'    groupRegionsBySignalCluster(group_VAR = "signal_cluster")
 #'
 #' plotDimReducePoints(ct2, NA)
 #' plotDimReducePoints(ct2)
+#' ct2_diff = subsetCol(ct2, cell == "MCF10A") - subsetCol(ct2, cell == "MCF10AT1")
+#' plotDimReducePoints(ct2_diff)
 #' plotDimReducePoints(ct2, "umap_cluster")
 #' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 #' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
-.plotDimReducePoints = function(ct2, color_VAR = NULL, point_size = NULL){
+.plotDimReducePoints = function(ct2,
+                                color_VAR = NULL,
+                                point_size = NULL,
+                                point_color_limits = c(NA, NA),
+                                has_symmetrical_limits = NULL,
+                                point_colors = NULL){
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
     }
     xy_df = getRegionMetaData(ct2) %>%
-        select(all_of(c("tx", "ty", ct2@region_VAR)))
+        dplyr::select(all_of(c("tx", "ty", ct2@region_VAR)))
     if(is.null(point_size)){
         nr = nrow(xy_df)
         point_size = 1/nr*100
@@ -38,7 +105,7 @@
             geom_point(size = point_size)
     }else if(all(color_VAR %in% colnames(getRegionMetaData(ct2)))){
         xy_df = getRegionMetaData(ct2) %>%
-            select(all_of(c("tx", "ty", ct2@region_VAR, color_VAR)))
+            dplyr::select(all_of(c("tx", "ty", ct2@region_VAR, color_VAR)))
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c("id", "tx", "ty")), names_to = "group")
         p = ggplot(xy_df, aes(x = tx, y = ty, color = value)) +
             geom_point(size = point_size) +
@@ -46,20 +113,31 @@
     }else if(all(color_VAR %in% colnames(ct2))){
         signal_df = SummarizedExperiment::assay(ct2, "max") %>%
             as.data.frame
-        signal_df = signal_df[, color_VAR]
+        signal_df = signal_df[, color_VAR, drop = FALSE]
         signal_df[[ct2@region_VAR]] = rownames(signal_df)
         xy_df = merge(xy_df, signal_df, by = ct2@region_VAR)
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c("id", "tx", "ty")), names_to = ct2@name_VAR, values_to = "max")
+
+        point_colors = .prep_color_scale(xy_df$max, point_colors)
+        point_color_limits = .prep_symmetrical(xy_df$max, has_symmetrical_limits, point_color_limits)
+        xy_df$max = .apply_limits(xy_df$max, point_color_limits)
+
         p = ggplot(xy_df, aes(x = tx, y = ty, color = max)) +
             geom_point(size = point_size) +
             facet_wrap(paste0("~", ct2@name_VAR)) +
             labs(color = paste("max", ct2@value_VAR, "\nper", ct2@region_VAR))
+        p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
     }
 
     p
 }
 
-generic_plotDimReducePoints = function(ct2, color_VAR = NULL, point_size = NULL){
+generic_plotDimReducePoints = function(ct2,
+                                       color_VAR = NULL,
+                                       point_size = NULL,
+                                       point_color_limits = c(NA, NA),
+                                       has_symmetrical_limits = NULL,
+                                       point_colors = NULL){
     standardGeneric("plotDimReducePoints")
 }
 
@@ -86,21 +164,18 @@ aggregate_signals = function(profile_dt,
     agg_dt[, c(yout_, "id", by_), with = FALSE]
 }
 
-plot_binned_aggregates = function(agg_dt,
-                                  x_bins = 50,
-                                  y_bins = x_bins,
-                                  xrng = NULL,
-                                  yrng = NULL,
-                                  val = "y",
-                                  bxval = "tx",
-                                  byval = "ty",
-                                  facet_ = "wide_var",
-                                  extra_vars = character(),
-                                  bin_met = mean,
-                                  min_size = 1, return_data = FALSE){
-
-
-
+bin_signals = function(agg_dt,
+                       x_bins = 50,
+                       y_bins = x_bins,
+                       xrng = NULL,
+                       yrng = NULL,
+                       val = "y",
+                       bxval = "tx",
+                       byval = "ty",
+                       facet_ = "wide_var",
+                       extra_vars = character(),
+                       bin_met = mean,
+                       min_size = 1, return_data = FALSE){
     if(is.null(xrng)) xrng = range(agg_dt[[bxval]])
     if(is.null(yrng)) yrng = range(agg_dt[[byval]])
     agg_dt[bxval >= min(xrng) & bxval <= max(xrng) &
@@ -115,9 +190,20 @@ plot_binned_aggregates = function(agg_dt,
     h = diff(byvc[1:2])
     bin_dt[, tx := bxvc[bx]]
     bin_dt[, ty := byvc[by]]
-    if(return_data){
-        return(bin_dt)
-    }
+
+    bin_dt
+}
+
+plot_binned_aggregates = function(bin_dt,
+                                  xrng = NULL,
+                                  yrng = NULL,
+                                  val = "y",
+                                  bxval = "tx",
+                                  byval = "ty",
+                                  facet_ = "wide_var",
+                                  min_size = 1){
+    if(is.null(xrng)) xrng = range(bin_dt[[bxval]])
+    if(is.null(yrng)) yrng = range(bin_dt[[byval]])
     if(nrow(bin_dt[N >= min_size]) == 0){
         "All bins would have been removed based on min_size. Relaxing min_size to 0."
         min_size = 0
@@ -160,7 +246,11 @@ bin_values_centers = function(n_bins, rng){
                               y_bins = x_bins,
                               bg_color = "gray60",
                               min_size = 1,
-                              extra_vars = character()){
+                              bin_fill_limits = c(NA, NA),
+                              has_symmetrical_limits = NULL,
+                              bin_colors = NULL,
+                              extra_vars = character(),
+                              return_data = FALSE){
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
     }
@@ -192,12 +282,31 @@ bin_values_centers = function(n_bins, rng){
         facet_columns = "."
     }
     facet_str = paste0(facet_rows, "~", facet_columns)
-    plot_binned_aggregates(
+
+    .prep_color_scale(agg_dt[[ct2@value_VAR]])
+
+    bin_dt = bin_signals(
         agg_dt = agg_dt,
         x_bins = x_bins,
         y_bins = y_bins,
         val = ct2@value_VAR,
         extra_vars = extra_vars[-1],
+        facet_ = extra_vars[1],
+        min_size = min_size
+    )
+
+    bin_colors = .prep_color_scale(bin_dt[[ct2@value_VAR]], color_scale = bin_colors)
+    bin_fill_limits = .prep_symmetrical(bin_dt[[ct2@value_VAR]], has_symmetrical_limits = has_symmetrical_limits, scale_limits = bin_fill_limits)
+
+    bin_dt[[ct2@value_VAR]] = .apply_limits(bin_dt[[ct2@value_VAR]], bin_fill_limits)
+
+    if(return_data){
+        return(bin_dt)
+    }
+
+    p_bin = plot_binned_aggregates(
+        bin_dt = bin_dt,
+        val = ct2@value_VAR,
         facet_ = extra_vars[1],
         min_size = min_size
     ) +
@@ -207,6 +316,8 @@ bin_values_centers = function(n_bins, rng){
             panel.grid = element_blank()
         ) +
         labs(caption = paste("Binned to", y_bins, "rows by", x_bins, "columns."))
+    p_bin = .apply_scale(p_bin, bin_colors, bin_fill_limits)
+    p_bin
 }
 
 generic_plotDimReduceBins = function(ct2,
@@ -219,7 +330,11 @@ generic_plotDimReduceBins = function(ct2,
                                      y_bins = x_bins,
                                      bg_color = "gray60",
                                      min_size = 1,
-                                     extra_vars = character()){
+                                     bin_fill_limits = c(NA, NA),
+                                     has_symmetrical_limits = NULL,
+                                     bin_colors = NULL,
+                                     extra_vars = character(),
+                                     return_data = FALSE){
     standardGeneric("plotDimReduceBins")
 }
 

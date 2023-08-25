@@ -4,7 +4,14 @@
 \alias{.plotDimReducePoints}
 \title{plotDimReducePoints}
 \usage{
-.plotDimReducePoints(ct2, color_VAR = NULL, point_size = NULL)
+.plotDimReducePoints(
+  ct2,
+  color_VAR = NULL,
+  point_size = NULL,
+  point_color_limits = c(NA, NA),
+  has_symmetrical_limits = NULL,
+  point_colors = NULL
+)
 }
 \arguments{
 \item{ct2}{valid ChIPtsne2 after dimReduce has been run}

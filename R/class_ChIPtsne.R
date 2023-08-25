@@ -416,3 +416,19 @@ hasDimReduce = function(ct2){
     meta_dt = getRegionMetaData(ct2)
     all(c("tx", "ty") %in% colnames(meta_dt))
 }
+
+.recalculateMax_ct2 = function(ct2){
+    r2rm = ct2@rowToRowMat
+    c2rmc = ct2@colToRowMatCols
+    .recalculateMax(r2rm, c2rmc)
+}
+
+.recalculateMax = function(r2rm, c2rmc){
+    resl = lapply(c2rmc, function(x){
+        apply(r2rm[,x,drop = FALSE], 1, max)
+    })
+    df = as.data.frame(resl)
+    colnames(df) = names(c2rmc)
+    rownames(df) = rownames(r2rm)
+    as.matrix(df)
+}

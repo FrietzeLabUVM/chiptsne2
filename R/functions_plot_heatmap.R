@@ -60,6 +60,8 @@
 #'     ),
 #'     color_key_strategy = "if_not_sorted"
 #' )
+#' ct2_diff = subsetCol(ct2, cell == "MCF10AT1") - subsetCol(ct2, cell == "MCF10A")
+#' plotSignalHeatmap(ct2_diff, group_VARS = c("overlap", "cluster"))
 #'
 #' plotSignalHeatmap(
 #'     ct2,
@@ -152,7 +154,8 @@
                               max_rows = 500,
                               sort_strategy =  c("hclust", "sort", "left", "right")[2],
                               heatmap_fill_limits = c(NA, NA),
-                              heatmap_colors = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF"),
+                              has_symmetrical_limits = NULL,
+                              heatmap_colors = NULL,
                               heatmap_format_FUN = NULL,
                               heatmap_theme = .heatmap_theme.no_y,
                               annotation_colors = NULL,
@@ -179,7 +182,12 @@
     # prof_dt = .getTidyProfile(ct2, unique(c(group_VARS, sort_VAR, balance_VAR)))
     # meta_dt = getRegionMetaData(ct2, unique(c(group_VARS, sort_VAR, balance_VAR)))
     meta_dt = getRegionMetaData(ct2)
-
+    req_vars = unique(c(group_VARS, sort_VAR, balance_VAR))
+    req_vars = setdiff(req_vars, FALSE)
+    if(!all(req_vars %in% colnames(meta_dt))){
+        stop(paste(c("Missing variables from region metadata:",
+                     setdiff(req_vars, colnames(meta_dt))), collapse = "\n"))
+    }
     fake_VAR = "__FAKE_CLUSTER__"
     if(sort_VAR == FALSE){
         sort_VAR = fake_VAR
@@ -214,6 +222,10 @@
     }
     #### Fetch profile ####
     prof_dt = getTidyProfile(ct2[meta_dt[[ct2@region_VAR]],], unique(c(group_VARS, sort_VAR, balance_VAR)))
+
+    heatmap_colors = .prep_color_scale(values = prof_dt[[ct2@value_VAR]], color_scale = heatmap_colors)
+    heatmap_fill_limits = .prep_symmetrical(values = prof_dt[[ct2@value_VAR]], has_symmetrical_limits, heatmap_fill_limits)
+
     if(sort_VAR == "__FAKE_CLUSTER__"){
         prof_dt[[sort_VAR]] = 1
     }
@@ -262,12 +274,7 @@
         heatmap_theme +
         facet_grid(paste0(".~", ct2@name_VAR)) +
         theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
-    p_heat
-    if(is(heatmap_colors, "Scale")){
-        p_heat = p_heat + heatmap_colors
-    }else{
-        p_heat = p_heat + scale_fill_gradientn(colours = heatmap_colors, limits = heatmap_fill_limits)
-    }
+    p_heat = .apply_scale(p_heat, heatmap_colors, heatmap_fill_limits)
     if(!is.null(heatmap_format_FUN)){
         p_heat = heatmap_format_FUN(p_heat)
     }
@@ -382,10 +389,11 @@ setGeneric("plotSignalHeatmap", function(
         max_rows = 500,
         sort_strategy =  c("hclust", "sort", "left", "right")[2],
         heatmap_fill_limits = c(NA, NA),
-        heatmap_colors = scale_fill_viridis_c(option = "magma"),
+        has_symmetrical_limits = NULL,
+        heatmap_colors = NULL,
         heatmap_format_FUN = NULL,
         heatmap_theme = .heatmap_theme.no_y,
-        annotation_colors = seqsetvis::safeBrew(n = 8),
+        annotation_colors = NULL,
         annotation_format_FUN = NULL,
         annotation_theme = .annotation_theme,
         annotation_text_size = 8,

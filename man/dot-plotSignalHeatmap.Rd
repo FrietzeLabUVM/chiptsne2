@@ -12,7 +12,8 @@
   max_rows = 500,
   sort_strategy = c("hclust", "sort", "left", "right")[2],
   heatmap_fill_limits = c(NA, NA),
-  heatmap_colors = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF"),
+  has_symmetrical_limits = NULL,
+  heatmap_colors = NULL,
   heatmap_format_FUN = NULL,
   heatmap_theme = .heatmap_theme.no_y,
   annotation_colors = NULL,
@@ -107,6 +108,7 @@ plotSignalHeatmap(
     ),
     color_key_strategy = "if_not_sorted"
 )
+ct2_diff = subsetCol(ct2, cell == "MCF10AT1") - subsetCol(ct2, cell == "MCF10A")
 
 plotSignalHeatmap(
     ct2,
