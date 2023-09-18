@@ -1,3 +1,8 @@
+# v 0.1.14
+
+bugfixes for colnames order remaining consistent and used in plots
+max changed to abs_max
+
 # v 0.1.13
 
 refactor plot color scales

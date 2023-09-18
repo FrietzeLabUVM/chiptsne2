@@ -22,7 +22,11 @@ COLOR_KEY_STRAT = list(
 )
 
 .prep_names = function(name){
-    name = gsub("_", "\n", name)
+    if(is.factor(name)){
+        levels(name) = gsub("_", "\n", levels(name))
+    }else{
+        name = gsub("_", "\n", name)
+    }
     name
 }
 

@@ -121,6 +121,7 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2"), .normalizeSignalCapValue)
                                  by2 = ct2@name_VAR,
                                  aggFUN2 = function(x)quantile(x, cap_quantile))
     new_meta_dt = merge(getSampleMetaData(ct2), cap_dt, by = ct2@name_VAR)
+    new_meta_dt = new_meta_dt[order(new_meta_dt[[ct2@name_VAR]]), ]
 
     history_item = list(calculateSignalCapValue = list(FUN = .calculateSignalCapValue, ARG = args))
     cloneChIPtsne2_fromTidy(

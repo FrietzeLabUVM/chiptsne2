@@ -159,7 +159,7 @@ assay = SummarizedExperiment::assay
 getSampleMetaData = function(ct2, select_VARS = NULL){
     cd = colData(ct2)
     df = as.data.frame(cd)
-    df[[ct2@name_VAR]] = rownames(cd)
+    df[[ct2@name_VAR]] = factor(rownames(cd), levels = rownames(cd))
     if(!is.null(select_VARS)){
         if(!all(select_VARS %in% colnames(df))){
             stop(
@@ -424,8 +424,11 @@ hasDimReduce = function(ct2){
 }
 
 .recalculateMax = function(r2rm, c2rmc){
+    abs_max = function(x){
+        x[which.max(abs(x))]
+    }
     resl = lapply(c2rmc, function(x){
-        apply(r2rm[,x,drop = FALSE], 1, max)
+        apply(r2rm[,x,drop = FALSE], 1, abs_max)
     })
     df = as.data.frame(resl)
     colnames(df) = names(c2rmc)

@@ -237,6 +237,18 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
 
     fetch_res = fetch_signal_at_features(fetch_config, query_gr)
     prof_dt = fetch_res$prof_dt
+    # name_lev = NULL
+    # if(is.factor(sample_metadata[[name_VAR]])){
+    #     name_lev = levels(sample_metadata[[name_VAR]])
+    # }else if(is.character(sample_metadata[[name_VAR]])){
+    #     name_lev = unique(sample_metadata[[name_VAR]])
+    # }
+    # if(!is.null(name_lev)){
+    #     prof_dt[[name_VAR]] = factor(prof_dt[[name_VAR]], levels = name_lev)
+    # }
+    #
+    # prof_dt[[name_VAR]] = droplevels(prof_dt[[name_VAR]])
+    # sample_metadata[[name_VAR]] = droplevels(sample_metadata[[name_VAR]])
 
     ct2 = ChIPtsne2.from_tidy(prof_dt = prof_dt,
                               name_VAR = name_VAR,
