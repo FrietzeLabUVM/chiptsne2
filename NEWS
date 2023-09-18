@@ -1,6 +1,11 @@
+# v 0.1.13
+
+refactor plot color scales
+
 # v 0.1.12
 
 added arithmetic
+filter and subsetRow/Col
 
 # v 0.1.11
 

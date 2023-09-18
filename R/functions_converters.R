@@ -38,6 +38,7 @@
             dplyr::select(all_of(c(ct2@region_VAR, region_meta_VARS)))
         df = merge(df, reg_df, by = ct2@region_VAR)
     }
+    df[[ct2@name_VAR]] = factor(df[[ct2@name_VAR]], levels = colnames(ct2))
     data.table::as.data.table(df)
 }
 
