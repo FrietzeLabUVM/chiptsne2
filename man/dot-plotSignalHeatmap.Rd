@@ -109,6 +109,7 @@ plotSignalHeatmap(
     color_key_strategy = "if_not_sorted"
 )
 ct2_diff = subsetCol(ct2, cell == "MCF10AT1") - subsetCol(ct2, cell == "MCF10A")
+plotSignalHeatmap(ct2_diff, group_VARS = c("overlap", "cluster"))
 
 plotSignalHeatmap(
     ct2,
