@@ -40,13 +40,16 @@
 #' ct2 = exampleChIPtsne2.with_meta()
 #' ct2 = groupRegionsBySignalCluster(ct2, group_VAR = "cluster")
 #' ct2 = groupRegionsByOverlap(ct2, seqsetvis::CTCF_in_10a_narrowPeak_grs[1:2], group_VAR = "overlap")
+#'
 #' meta_df = getRegionMetaData(ct2)
 #' meta_df = meta_df %>% dplyr::mutate(overlap_num = as.numeric(overlap))
+#' meta_df$chr_num = as.numeric(GenomicRanges::seqnames(rowRanges(ct2)))
 #' ct2 = setRegionMetaData(ct2, meta_df)
 #'
 #' plotSignalHeatmap(ct2)
 #'
-#' plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "overlap_num"))
+#' plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "chr_num"))
+#' plotSignalHeatmap(ct2, group_VARS = c("cluster", "chr_num", "overlap"), sort_VAR = "chr_num")
 #' plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
 #' plotSignalHeatmap(
 #'     ct2,
@@ -226,17 +229,26 @@
     heatmap_colors = .prep_color_scale(values = prof_dt[[ct2@value_VAR]], color_scale = heatmap_colors)
     heatmap_fill_limits = .prep_symmetrical(values = prof_dt[[ct2@value_VAR]], has_symmetrical_limits, heatmap_fill_limits)
 
-    if(sort_VAR == "__FAKE_CLUSTER__"){
+    if(sort_VAR == fake_VAR){
         prof_dt[[sort_VAR]] = 1
     }
-    clust_dt = seqsetvis::within_clust_sort(
-        prof_dt,
-        row_ = ct2@region_VAR,
-        fill_ = ct2@value_VAR,
-        column_ = ct2@position_VAR,
-        facet_ = ct2@name_VAR,
-        cluster_ = sort_VAR, dcast_fill = 0,
-        within_order_strategy = sort_strategy)
+    if(is.numeric(prof_dt[[sort_VAR]])){
+        id_lev = prof_dt[order(prof_dt[[sort_VAR]]),][[ct2@region_VAR]] %>%
+            as.character %>%
+            unique
+        clust_dt = data.table::copy(prof_dt)
+        clust_dt[[ct2@region_VAR]] = factor(clust_dt[[ct2@region_VAR]], levels = id_lev)
+    }else{
+        clust_dt = seqsetvis::within_clust_sort(
+            prof_dt,
+            row_ = ct2@region_VAR,
+            fill_ = ct2@value_VAR,
+            column_ = ct2@position_VAR,
+            facet_ = ct2@name_VAR,
+            cluster_ = sort_VAR, dcast_fill = 0,
+            within_order_strategy = sort_strategy)
+    }
+
 
     x_ = ct2@position_VAR
     x_ = ensym(x_)
@@ -247,7 +259,6 @@
 
     assign_dt = clust_dt %>% dplyr::select(all_of(c(ct2@region_VAR, sort_VAR))) %>%
         unique
-    assign_dt[order(assign_dt$peak_regions)]
 
     clust_dt[[ct2@region_VAR]] = factor(clust_dt[[ct2@region_VAR]], levels = rev(levels(clust_dt[[ct2@region_VAR]])))
     clust_dt[[ct2@name_VAR]] = name_FUN(clust_dt[[ct2@name_VAR]])
@@ -336,12 +347,24 @@
                 text_size = annotation_text_size,
             )
             p_anno = annotation_format_FUN[[i]](p_anno)
+            if(is.numeric(anno_df[[var]])){
+                p_leg = add_cluster_annotation.legend(
+                    anno_df,
+                    row_ = ct2@region_VAR,
+                    cluster_ = var,
+                    rect_colors = annotation_colors[[i]],
+                    plot_format_FUN = annotation_format_FUN[[i]],
+                    annotation_theme = annotation_theme
+                )
+                legend_plots[[length(legend_plots) + 1]] = p_leg
+            }
         }else{
             p_anno = add_group_annotation(
                 anno_df,
                 row_ = ct2@region_VAR,
                 cluster_ = var,
-                rect_colors = annotation_colors[[i]]
+                rect_colors = annotation_colors[[i]],
+                annotation_theme = annotation_theme
             )
             p_anno = annotation_format_FUN[[i]](p_anno)
             p_leg = add_group_annotation.legend(

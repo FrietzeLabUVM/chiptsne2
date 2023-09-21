@@ -1,3 +1,27 @@
+#' plotDimReduceBins
+#'
+#' @param ct2
+#' @param facet_rows
+#' @param facet_columns
+#' @param xmin
+#' @param xmax
+#' @param agg_FUN
+#' @param x_bins
+#' @param y_bins
+#' @param bg_color
+#' @param min_size
+#' @param bin_fill_limits
+#' @param has_symmetrical_limits
+#' @param bin_colors
+#' @param extra_vars
+#' @param return_data
+#'
+#' @return
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = dimReducePCA(ct2)
+#' plotDimReduceBins(ct2)
 .plotDimReduceBins = function(ct2,
                               facet_rows = ct2@name_VAR,
                               facet_columns = NULL,
@@ -17,10 +41,10 @@
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
     }
     if(is.null(x_bins)){
-        x_bins = round(nrow(ct2)^.5)
+        x_bins = min(round(nrow(ct2)^.5), 10)
     }
     if(is.null(y_bins)){
-        y_bins = round(nrow(ct2)^.5)
+        y_bins = x_bins
     }
     meta_VARS = c(facet_rows, facet_columns, "tx", "ty")
     prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
@@ -44,8 +68,6 @@
         facet_columns = "."
     }
     facet_str = paste0(facet_rows, "~", facet_columns)
-
-    .prep_color_scale(agg_dt[[ct2@value_VAR]])
 
     bin_dt = bin_signals(
         agg_dt = agg_dt,
@@ -166,10 +188,11 @@ plot_binned_aggregates = function(bin_dt,
         "All bins would have been removed based on min_size. Relaxing min_size to 0."
         min_size = 0
     }
+    w = min(diff(unique(sort(bin_dt$tx))))
+    h = min(diff(unique(sort(bin_dt$ty))))
     ggplot(bin_dt[N >= min_size], aes(x = tx, y = ty, fill = y)) +
         geom_tile(width = w, height = h) +
         facet_wrap(facet_) +
-        scale_fill_viridis_c() +
         coord_cartesian(xlim = xrng, ylim = yrng)
 }
 
