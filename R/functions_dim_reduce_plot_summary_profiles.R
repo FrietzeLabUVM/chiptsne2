@@ -1,7 +1,36 @@
+#' plotDimReduceSummaryProfiles
+#'
+#' @param ct2
+#' @param color_VAR
+#' @param x_bins
+#' @param y_bins
+#' @param extra_vars
+#' @param xrng
+#' @param yrng
+#' @param value_limits
+#' @param ma_size
+#' @param n_splines
+#' @param p
+#' @param line_color_mapping
+#' @param N_floor
+#' @param N_ceiling
+#' @param min_size
+#' @param return_data
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = dimReducePCA(ct2)
+#' plotDimReduceSummaryProfiles(ct2)
+#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 50))
+#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 200))
+#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 500))
 .plotDimReduceSummaryProfiles = function(
         ct2,
         color_VAR = ct2@name_VAR,
-        x_bins = nrow(ct2)^.5,
+        x_bins = min(nrow(ct2)^.5, 10),
         y_bins = x_bins,
         extra_vars = character(),
         xrng = NULL,
@@ -25,6 +54,29 @@
     profile_dt = profile_dt[order(x)]
     position_dt = data.table::as.data.table(getRegionMetaData(ct2))
     extra_vars = union(extra_vars, cn)
+
+    stopifnot(length(value_limits) == 2)
+    if(is.na(value_limits[1])){
+        value_limits[1] = min(profile_dt[[ct2@value_VAR]])
+    }
+    if(is.na(value_limits[2])){
+        value_limits[2] = max(profile_dt[[ct2@value_VAR]])
+    }
+    n_total = nrow(profile_dt)
+    n_over = sum(profile_dt[[ct2@value_VAR]] > max(value_limits))
+    n_under = sum(profile_dt[[ct2@value_VAR]] < min(value_limits))
+    rng = range(profile_dt[[ct2@value_VAR]])
+    top_wasted = max(max(value_limits) - max(rng), 0)
+    bottom_wasted = min(min(value_limits) - min(rng), 0)
+    limits_total = diff(range(value_limits))
+    if((n_under + n_over) > .2*n_total){
+        msg = paste0(round(100*(n_under + n_over) / n_total, 2), "% of signal values are outside of value_limits. Please verify.")
+        warning(msg)
+    }
+    if((top_wasted + bottom_wasted)/limits_total > .2){
+        msg = paste0(round(100*(top_wasted + bottom_wasted)/limits_total, 2), "% of value_limits spans no signal value. Please verify.")
+        warning(msg)
+    }
 
     plot_summary_profiles(
         profile_dt = profile_dt,
@@ -249,14 +301,6 @@ prep_summary = function (profile_dt,
 #'   t-sne space.
 #' @importFrom GGally glyphs
 #'
-#' @examples
-#' data("profile_dt")
-#' data("tsne_dt")
-#' n_points = 12
-#' summary_dt = prep_summary(profile_dt = profile_dt,
-#'     position_dt = tsne_dt, x_bins = n_points)
-#' plot_summary_glyph(summary_dt,
-#'     x_bins = n_points)
 plot_summary_glyph = function (summary_dt,
                                x_bins,
                                y_bins = x_bins,
@@ -294,6 +338,11 @@ plot_summary_glyph = function (summary_dt,
     summary_dt[, `:=`(tx, xs[bx])]
     summary_dt[, `:=`(ty, ys[by])]
     down_scale = max(summary_dt$group_size)
+
+    #scale height of glyphs based on value_limits
+    limits_size = diff(range(value_limits))
+    values_size = diff(range(summary_dt$y))
+
     glyph_dt = data.table::as.data.table(
         GGally::glyphs(summary_dt,
                        x_major = "tx",
@@ -301,7 +350,7 @@ plot_summary_glyph = function (summary_dt,
                        y_major = "ty",
                        y_minor = value_VAR,
                        width = diff(xrng)/x_bins * 0.95 * down_scale,
-                       height = diff(yrng)/y_bins * 0.95 * down_scale
+                       height = diff(yrng)/y_bins * 0.95 * down_scale*values_size/limits_size
         )
     )
     if (return_data) {

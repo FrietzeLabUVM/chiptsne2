@@ -30,26 +30,24 @@ COLOR_KEY_STRAT = list(
     name
 }
 
-.prep_ids = function(ids, row_, cluster_){
+.prep_ids = function(ids, row_, cluster_, force_factor = TRUE){
     if(is.data.frame(ids)){
         assign_dt = unique(ids[, c(row_, cluster_), drop = FALSE])
         assign_dt = assign_dt[order(assign_dt[[row_]]),]
         ids = assign_dt[[cluster_]]
 
     }
-    if(!is.factor(ids)){
-        ids = factor(ids, levels = unique(ids))
+    if(force_factor){
+        if(!is.factor(ids)){
+            ids = factor(ids, levels = unique(ids))
+        }
+        stopifnot(is.factor(ids))
     }
-    # if(is.numeric(ids)) ids = factor(ids)
-    # if(is.logical(ids)) ids = factor(ids, levels = c("TRUE", "FALSE"))
-
-    stopifnot(is.factor(ids))
-
     ids
 }
 
 
-add_group_annotation = function(group_ids,
+add_group_annotation = function(anno_ids,
                                 xleft = 0,
                                 xright = 1,
                                 rect_colors = NULL,
@@ -60,6 +58,12 @@ add_group_annotation = function(group_ids,
                                 annotation_theme = .annotation_theme,
                                 name_FUN = .prep_names,
                                 show_legend = FALSE){
+    if(is.data.frame(anno_ids)){#yes this could be replaced with S4 method dispatch
+        if(is.numeric(anno_ids[[cluster_]])){
+            argg <- as.list(environment())
+            return(do.call(add_cluster_annotation.numeric, argg))
+        }
+    }
     if(is.null(rect_colors)){
         rect_colors = RColorBrewer::brewer.pal(8, "Dark2")
 
@@ -67,28 +71,28 @@ add_group_annotation = function(group_ids,
     if(is.null(text_colors)){
         text_colors = rep("black", length(rect_colors))
     }
-    group_ids = .prep_ids(group_ids, row_, cluster_)
-    n_grps = length(unique(group_ids))
+    anno_ids = .prep_ids(anno_ids, row_, cluster_)
+    n_grps = length(unique(anno_ids))
     if(n_grps > length(rect_colors)){
-        stop("Not enough rect_colors provided for number of unique group_ids. Defautl supports up to 8 groups.")
+        stop("Not enough rect_colors provided for number of unique anno_ids. Default supports up to 8 groups.")
     }
     if(is.null(names(rect_colors))){
         rect_colors = rect_colors[seq(n_grps)]
-        names(rect_colors) = unique(group_ids)
+        names(rect_colors) = unique(anno_ids)
     }
     if(is.null(names(text_colors))){
         text_colors = text_colors[seq(n_grps)]
-        names(text_colors) = unique(group_ids)
+        names(text_colors) = unique(anno_ids)
     }
-    stopifnot(all(group_ids %in% names(rect_colors)))
-    stopifnot(all(group_ids %in% names(text_colors)))
+    stopifnot(all(anno_ids %in% names(rect_colors)))
+    stopifnot(all(anno_ids %in% names(text_colors)))
 
-    group_ids = rev(group_ids)
+    anno_ids = rev(anno_ids)
 
-    ends = c(which(!(group_ids[-1] == group_ids[-length(group_ids)])), length(group_ids))
-    # ends = cumsum(rev(table(group_ids)))
+    ends = c(which(!(anno_ids[-1] == anno_ids[-length(anno_ids)])), length(anno_ids))
+    # ends = cumsum(rev(table(anno_ids)))
     starts = c(1, ends[-length(ends)] + 1)
-    grps = group_ids[starts]
+    grps = anno_ids[starts]
     starts = starts-.5
     ends = ends+.5
 
@@ -110,7 +114,7 @@ add_group_annotation = function(group_ids,
 
     df_rects[[cluster_]] = name_FUN(cluster_)
     p = ggplot(df_rects) +
-        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(group_ids))+.5, expand = FALSE) +
+        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
         facet_grid(paste0(".~", cluster_)) +
         labs(fill = cluster_)
 
@@ -121,21 +125,21 @@ add_group_annotation = function(group_ids,
     }
     p + annotation_theme
 }
-add_group_annotation.legend = function(group_ids,
+add_group_annotation.legend = function(anno_ids,
                                        rect_colors = NULL,
                                        row_ = "id",
                                        cluster_ = "group_id",
                                        plot_format_FUN = NULL,
                                        annotation_theme = .annotation_theme){
-    if(is.null(rect_colors)){
-        rect_colors = RColorBrewer::brewer.pal(8, "Dark2")
-    }
+    # if(is.null(rect_colors)){
+    #     rect_colors = RColorBrewer::brewer.pal(8, "Dark2")
+    # }
     xleft = 0
     xright = 1
     text_colors = rep("black", length(rect_colors))
     label_angle = 0
     p = add_group_annotation(
-        group_ids = group_ids,
+        anno_ids = anno_ids,
         xleft = xleft,
         xright = xright,
         rect_colors = rect_colors,
@@ -152,7 +156,61 @@ add_group_annotation.legend = function(group_ids,
     cowplot::get_legend(p)
 }
 
-add_cluster_annotation = function(cluster_ids,
+add_cluster_annotation.numeric = function(anno_ids,
+                                          xleft = 0, xright = 1,
+                                          rect_colors = NULL,
+                                          text_colors = NULL,
+                                          text_size = 8,
+                                          show_labels = TRUE,
+                                          label_angle = 0,
+                                          row_ = "id",
+                                          cluster_ = "cluster_id",
+                                          annotation_theme = .annotation_theme,
+                                          name_FUN = .prep_names,
+                                          show_legend = FALSE){
+    if(is.null(rect_colors)){
+        rect_colors = c("#132B43",
+                        "#56B1F7")
+    }
+    anno_ids = .prep_ids(anno_ids, row_, cluster_, force_factor = FALSE)
+
+    anno_rle = rle(anno_ids)
+    ends = cumsum(rev(anno_rle$lengths))
+    starts = c(1, ends[-length(ends)] + 1)
+    starts = starts - .5
+    names(starts) = names(ends)
+    ends = ends + .5
+
+    df_rects = data.frame(xmin = xleft,
+                          xmax = xright,
+                          ymin = starts,
+                          ymax = ends,
+                          grp = cluster_)
+    df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
+    df_rects[[cluster_]] = name_FUN(cluster_)
+    df_rects[["grp"]] = anno_rle$values
+
+    p = ggplot(df_rects) +
+        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
+        facet_grid(.~grp)
+    p = p + geom_rect(aes(
+        xmin = xmin,
+        xmax = xmax,
+        ymin= ymin,
+        ymax = ymax,
+        fill = grp
+    )) +
+        scale_fill_gradientn(colours = rect_colors) +
+        facet_grid(paste0(".~", cluster_)) +
+        labs(fill = cluster_)
+    if(!show_legend){
+        p = p + guides(fill = "none")
+    }
+    p + annotation_theme
+
+}
+
+add_cluster_annotation = function(anno_ids,
                                   xleft = 0, xright = 1,
                                   rect_colors = NULL,
                                   text_colors = NULL,
@@ -164,15 +222,21 @@ add_cluster_annotation = function(cluster_ids,
                                   annotation_theme = .annotation_theme,
                                   name_FUN = .prep_names,
                                   show_legend = FALSE){
+    if(is.data.frame(anno_ids)){#yes this could be replaced with S4 method dispatch
+        if(is.numeric(anno_ids[[cluster_]])){
+            argg <- as.list(environment())
+            return(do.call(add_cluster_annotation.numeric, argg))
+        }
+    }
     if(is.null(rect_colors)){
         rect_colors = c("black", "gray")
     }
     if(is.null(text_colors)){
         text_colors = rev(rect_colors)
     }
-    cluster_ids = .prep_ids(cluster_ids, row_, cluster_)
+    anno_ids = .prep_ids(anno_ids, row_, cluster_)
 
-    ends = cumsum(rev(table(cluster_ids)))
+    ends = cumsum(rev(table(anno_ids)))
     starts = c(1, ends[-length(ends)] + 1)
     starts = starts - .5
     names(starts) = names(ends)
@@ -195,12 +259,12 @@ add_cluster_annotation = function(cluster_ids,
     }
 
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
-    cluster_labels = levels(cluster_ids)
+    cluster_labels = levels(anno_ids)
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = rownames(df_rects)
 
     p = ggplot(df_rects) +
-        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(cluster_ids))+.5, expand = FALSE) +
+        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
         facet_grid(.~grp)
     p = p + geom_rect(aes(
         xmin = xmin,
@@ -229,20 +293,21 @@ add_cluster_annotation = function(cluster_ids,
     p + annotation_theme
 }
 
-add_cluster_annotation.legend = function(cluster_ids,
+add_cluster_annotation.legend = function(anno_ids,
                                          rect_colors = NULL,
                                          row_ = "id",
                                          cluster_ = "cluster_id",
+                                         plot_format_FUN = NULL,
                                          annotation_theme = .annotation_theme){
-    if(is.null(rect_colors)){
-        rect_colors = c("black", "gray")
-    }
+    # if(is.null(rect_colors)){
+    #     rect_colors = c("black", "gray")
+    # }
     xleft = 0
     xright = 1
     text_colors = rep("black", length(rect_colors))
     label_angle = 0
     p = add_cluster_annotation(
-        cluster_ids = cluster_ids,
+        anno_ids = anno_ids,
         xleft = xleft,
         xright = xright,
         rect_colors = rect_colors,
@@ -253,6 +318,9 @@ add_cluster_annotation.legend = function(cluster_ids,
         show_legend = TRUE,
         annotation_theme = annotation_theme
     )
+    if(!is.null(plot_format_FUN)){
+        p = plot_format_FUN(p)
+    }
     cowplot::get_legend(p)
 }
 
