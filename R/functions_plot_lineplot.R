@@ -13,6 +13,9 @@
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
 #' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF")
+#' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", moving_average_window = 5)
+#' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", n_splines = 5)
+#' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", moving_average_window = 5, n_splines = 5)
 #' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", facet_VAR = NULL, color_VAR = "cell")
 #' plotSignalLinePlot(ct2, color_VAR = "cell", facet_VAR = "peak_MCF10AT1_CTCF", group_VAR = "peak_MCF10A_CTCF")
 #'
@@ -27,6 +30,8 @@
                                color_VAR = NULL,
                                facet_VAR = ct2@name_VAR,
                                extra_VARS = character(),
+                               moving_average_window = 1,
+                               n_splines = 1,
                                return_data = FALSE){
     all_VARS = unique(c(group_VAR, color_VAR, facet_VAR, extra_VARS))
     meta_VARS = setdiff(all_VARS, ct2@name_VAR)
@@ -49,6 +54,13 @@
     if(is.null(group_VAR)) group_VAR = "."
     if(is.null(facet_VAR)) facet_VAR = "."
     agg_dt = agg_dt[order(get(ct2@position_VAR))]
+    if(moving_average_window > 1){
+        agg_dt = seqsetvis:::applyMovingAverage(agg_dt, n = moving_average_window, centered = TRUE, x_ = ct2@position_VAR, y_ = ct2@value_VAR, by_ = c(all_VARS, "GROUP_"))
+    }
+    if(n_splines > 1){
+        agg_dt = seqsetvis::applySpline(agg_dt, n = n_splines, x_ = ct2@position_VAR, y_ = ct2@value_VAR, by_ = c(all_VARS, "GROUP_"))
+    }
+
     if(return_data) return(agg_dt)
 
     ggplot(agg_dt,
@@ -65,6 +77,8 @@ setGeneric("plotSignalLinePlot", function(
         color_VAR = NULL,
         facet_VAR = ct2@name_VAR,
         extra_VARS = character(),
+        moving_average_window = 1,
+        n_splines = 1,
         return_data = FALSE)
     standardGeneric("plotSignalLinePlot"),
     signature = "ct2")

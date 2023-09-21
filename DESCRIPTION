@@ -1,7 +1,7 @@
 Package: chiptsne2
 Type: Package
 Title: ChIPseq analysis using tSNE
-Version: 0.1.15
+Version: 0.1.16
 Authors@R: person("Joseph R", "Boyd", email = "jrboyd@uvm.edu",
                   role = c("aut", "cre"))
 Description: chiptsne2 provides support for tSNE and other dimensional 
@@ -26,7 +26,7 @@ Imports:
     RANN,
     reshape2,
     S4Vectors,
-    seqsetvis (>= 1.21.4),
+    seqsetvis (>= 1.21.9),
     SummarizedExperiment
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
