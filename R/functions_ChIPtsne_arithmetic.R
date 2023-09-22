@@ -45,7 +45,7 @@ apply_chiptsne2_operator = function(e1, e2, operator = "-"){
     for(i in seq(nrow(cd1))){
         old_rn = rownames(cd1)[i]
         new_rn = rownames(new_colData)[i]
-        new_colToRowMatCols[[old_rn]] = sub(old_rn, new_rn, new_colToRowMatCols[[old_rn]])
+        new_colToRowMatCols[[old_rn]] = sub(old_rn, new_rn, new_colToRowMatCols[[old_rn]], fixed = TRUE)
         names(new_colToRowMatCols)[names(new_colToRowMatCols) == old_rn] = new_rn
     }
     new_cn = unlist(new_colToRowMatCols)
@@ -96,6 +96,7 @@ apply_chiptsne2_operator.num = function(e1, e2, operator = "-"){
     #locate comparative variables, validate, generate new values
     cd1 = colData(e1)
     new_colData = cd1
+    rownames(new_colData) = paste0("(", rownames(cd1), ") ", operator, " ", e2)
 
     #generate new ChIPtsne2 internal data structures
     new_colToRowMatCols = colToRowMatCols(e1)
@@ -114,7 +115,22 @@ apply_chiptsne2_operator.num = function(e1, e2, operator = "-"){
         }
     }
 
+
+    #update colnames of new_rowToRowMat and names/values in colToRowMatCols
+    for(i in seq(nrow(cd1))){
+        old_rn = rownames(cd1)[i]
+        new_rn = rownames(new_colData)[i]
+        new_colToRowMatCols[[old_rn]] = sub(old_rn, new_rn, new_colToRowMatCols[[old_rn]], fixed = TRUE)
+        names(new_colToRowMatCols)[names(new_colToRowMatCols) == old_rn] = new_rn
+    }
+    new_cn = unlist(new_colToRowMatCols)
+    names(new_cn) = NULL
+    colnames(new_rowToRowMat) = new_cn
+
+
     new_prof_max_mat = .recalculateMax(new_rowToRowMat, new_colToRowMatCols)
+
+
 
     init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne2_version = utils::packageDescription("chiptsne2")$Version)
     ct2_result = ChIPtsne2(assay = list(max = new_prof_max_mat),

@@ -31,7 +31,7 @@
     prof_dt$end = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] + win_size/2
     new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w)
 
-    history_item = list(.centerProfilesAndRefetch = list(FUN = .centerProfilesAndRefetch, ARG = args))
+    history_item = list(centerProfilesAndRefetch = list(FUN = .centerProfilesAndRefetch, ARG = args))
 
     ChIPtsne2.from_FetchConfig(ct2@fetch_config,
                                new_query_gr,

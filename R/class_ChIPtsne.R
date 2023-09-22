@@ -295,7 +295,7 @@ setRegionMetaData = function(ct2, new_meta){
                           setdiff(colnames(new_meta), ct2@region_VAR)
     )
     new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@region_VAR)
-    new_gr = .add_region_metadata(rowRanges(ct2), region_metadata = new_cd, region_VAR = ct2@region_VAR)
+    new_gr = .add_region_metadata(rowRanges(ct2), region_metadata = new_cd, region_VAR = ct2@region_VAR, overwrite = TRUE)
     ct2@rowRanges = new_gr
     ct2
 }

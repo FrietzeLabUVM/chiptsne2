@@ -1,4 +1,18 @@
 #### signal clustering ####
+#' groupRegionsBySignalCluster
+#'
+#' @param ct2
+#' @param group_VAR
+#' @param n_clusters
+#'
+#' @return
+#' @export
+#' @rdname groupRegionsBySignalCluster
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = groupRegionsBySignalCluster(ct2)
+#' ct2 = groupRegionsBySignalCluster(ct2)
 .groupRegionsBySignalCluster = function(ct2, group_VAR = "cluster_id", n_clusters = 6){
     args = get_args()
     prof_dt = getTidyProfile(ct2)

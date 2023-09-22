@@ -363,19 +363,24 @@ get_args = function(env = parent.frame(), to_ignore = "ct2", ...){
     args[order(names(args))]
 }
 
-.add_region_metadata = function(query_gr, region_metadata, region_VAR){
+.add_region_metadata = function(query_gr, region_metadata, region_VAR, overwrite = FALSE){
     stopifnot(setequal(
         names(query_gr),
         region_metadata[[region_VAR]]
     ))
     region_metadata[[region_VAR]] = factor(region_metadata[[region_VAR]], levels = names(query_gr))
     region_metadata = region_metadata %>% dplyr::arrange(get(region_VAR))
-    # new_mcols = cbind(
-    #     GenomicRanges::mcols(query_gr[region_metadata[[region_VAR]]]),
-    #     as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
-    # )
+    conflicting_cn = intersect(colnames(region_metadata), colnames(mcols(query_gr)))
+    old_mcols = GenomicRanges::mcols(query_gr)
+    if(length(conflicting_cn) > 0){
+     if(overwrite){
+         old_mcols = old_mcols[, setdiff(colnames(old_mcols), conflicting_cn)]
+     }else{
+         stop(paste(c("Conflicting colnames in region_metadata already present in query_gr:", conflicting_cn), collapse = "\n"))
+     }
+    }
     new_mcols = cbind(
-        GenomicRanges::mcols(query_gr),
+        old_mcols,
         as.data.frame(region_metadata %>% dplyr::select(!dplyr::all_of(c(region_VAR))))
     )
     GenomicRanges::mcols(query_gr) = NULL
