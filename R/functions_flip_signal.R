@@ -1,10 +1,17 @@
 #### flipProfilesToMatch ####
 
-#' .centerSignal
+#' flipProfilesToMatch
+#'
+#' For unstranded data, a peak with higher signal on one side is not
+#' meaningfully different from its mirror image. This procedure identifies
+#' "tilted" peaks and flips those with more signal right-of-center. By flipping,
+#' rowRanges becomes stranded, flipped regions get assigned (-) strand with
+#' uaffected regions getting (+) strand
 #'
 #' @param ct2 A ChIPtsne2 object
 #'
-#' @return A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.
+#' @return A chiptsne2 object updated such that signal "tilts" in the same way.
+#'   When signal is flipped, strand of rowRanges is set to negative.
 #'
 #' @importFrom seqsetvis centerGRangesAtMax
 #'
@@ -43,6 +50,7 @@
             most_flipped$needs_flip = !most_flipped$needs_flip
         }
         most_flipped$fraction_flipped = NULL
+        browser()
         GenomicRanges::strand(new_query_gr) = "+"
         GenomicRanges::strand(new_query_gr)[most_flipped$needs_flip] = "-"
         prof_dt = merge(prof_dt, most_flipped, by = c(ct2@region_VAR))
