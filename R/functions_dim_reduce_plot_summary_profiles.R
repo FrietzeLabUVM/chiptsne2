@@ -11,7 +11,6 @@
 #' @param ma_size
 #' @param n_splines
 #' @param p
-#' @param line_color_mapping
 #' @param N_floor
 #' @param N_ceiling
 #' @param min_size
@@ -39,7 +38,6 @@
         ma_size = 2,
         n_splines = 10,
         p = NULL,
-        line_color_mapping = NULL,
         N_floor = 0,
         N_ceiling = NULL,
         min_size = 0.3,
@@ -94,7 +92,6 @@
         ma_size = ma_size,
         n_splines = n_splines,
         p = p,
-        line_color_mapping = line_color_mapping,
         N_floor = N_floor,
         N_ceiling = N_ceiling,
         min_size = min_size,
@@ -114,7 +111,6 @@
 #' @param ma_size
 #' @param n_splines
 #' @param p
-#' @param line_color_mapping
 #' @param N_floor
 #' @param N_ceiling
 #' @param min_size
@@ -136,7 +132,6 @@ setGeneric("plotDimReduceSummaryProfiles", function(
         ma_size = 2,
         n_splines = 10,
         p = NULL,
-        line_color_mapping = NULL,
         N_floor = 0,
         N_ceiling = NULL,
         min_size = 0.3,
@@ -162,7 +157,6 @@ plot_summary_profiles = function (profile_dt,
                                   ma_size = 2,
                                   n_splines = 10,
                                   p = NULL,
-                                  line_color_mapping = NULL,
                                   N_floor = 0,
                                   N_ceiling = NULL,
                                   min_size = 0.3,
@@ -170,10 +164,6 @@ plot_summary_profiles = function (profile_dt,
 
 
 
-    if (is.null(line_color_mapping)) {
-        line_color_mapping = seqsetvis::safeBrew(length(unique(profile_dt[[color_VAR]])))
-        names(line_color_mapping) = unique(profile_dt[[color_VAR]])
-    }
     if(is.null(xrng)){
         xrng = range(position_dt$tx)
     }
@@ -205,7 +195,6 @@ plot_summary_profiles = function (profile_dt,
         N_floor = N_floor,
         N_ceiling = N_ceiling,
         min_size = min_size,
-        color_mapping = line_color_mapping,
         return_data = return_data,
         position_VAR = position_VAR,
         value_VAR = value_VAR,
@@ -295,7 +284,6 @@ prep_summary = function (profile_dt,
 #'   N_floor to N_ceiling.
 #' @param return_data if TRUE, data.table that would have been used to create
 #'   ggplot is returned instead.
-#' @param color_mapping mapping for scale_color_manual
 #'
 #' @return a ggplot containing glyphs of local profile summaries arranged in
 #'   t-sne space.
@@ -312,7 +300,6 @@ plot_summary_glyph = function (summary_dt,
                                N_ceiling = NULL,
                                min_size = 0.3,
                                return_data = FALSE,
-                               color_mapping = NULL,
                                position_VAR = "x",
                                value_VAR = "y",
                                color_VAR = "name",
@@ -356,15 +343,6 @@ plot_summary_glyph = function (summary_dt,
     if (return_data) {
         return(glyph_dt)
     }
-    if (is.null(color_mapping)) {
-        if (is.factor(summary_dt[[color_VAR]])) {
-            ucolor_VARs = levels(summary_dt[[color_VAR]])
-        }
-        else if (is.character(summary_dt[[color_VAR]])) {
-            ucolor_VARs = unique(summary_dt[[color_VAR]])
-        }
-        color_mapping = seqsetvis::safeBrew(length(ucolor_VARs))
-    }
     if (is.null(p)) {
         p = ggplot()
     }
@@ -384,7 +362,6 @@ plot_summary_glyph = function (summary_dt,
                           group = glyph_group,
                           color = !!color_VAR)) +
         labs(x = "tx", y = "ty") +
-        scale_color_manual(values = color_mapping) +
         coord_cartesian(xlim = xrng, ylim = yrng)
     p
 }
