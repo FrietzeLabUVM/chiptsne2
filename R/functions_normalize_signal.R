@@ -24,6 +24,7 @@
 
 #### RPM ####
 .normalizeSignalRPM = function(ct2, mapped_reads_data = NULL, mapped_reads_VAR = "mapped_reads"){
+    message("normalizeSignalRPM ...")
     args = get_args()
     mapped_reads_data = .form_merge_df(ct2, mapped_reads_data, "mapped_reads_data", mapped_reads_VAR, "mapped_reads_VAR")
     #merge mapped_reads_data to tidy profile
@@ -54,6 +55,7 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
 
 #### cap normalizeSignalCapValue #####
 .normalizeSignalCapValue = function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, minimum_ceiling = NULL){
+    message("normalizeSignalCapValue ...")
     args = get_args()
     if(is.null(signal_cap_data)){
         signal_cap_data = .form_merge_df(ct2, signal_cap_data, "signal_cap_data", signal_cap_VAR, "signal_cap_VAR")
@@ -112,6 +114,7 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2"), .normalizeSignalCapValue)
 #### calculateSignalCapValue ####
 
 .calculateSignalCapValue = function(ct2, signal_cap_VAR = "cap_value", cap_quantile = .95){
+    messge("calculateSignalCapValue ...")
     args = get_args()
     prof_dt = getTidyProfile(ct2)
     cap_dt = seqsetvis::calc_norm_factors(prof_dt,
