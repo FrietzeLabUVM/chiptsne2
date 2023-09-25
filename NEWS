@@ -1,3 +1,7 @@
+# v 0.1.18
+
+bugfix where sample_meta_data could be out of order in ChIPtsne2.from_tidy
+
 # v 0.1.17
 
 arithmetic operator bugfix, bad sub

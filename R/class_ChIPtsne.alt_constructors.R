@@ -191,6 +191,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
     query_gr = query_gr[rn]
     prof_mat = prof_mat[rn, ]
     map_list = map_list[cn]
+    sample_metadata = sample_metadata[cn,]
 
     ChIPtsne2(assay = list(max = prof_max_mat),
               rowRanges = query_gr,
@@ -256,8 +257,8 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
                               sample_metadata = sample_metadata,
                               region_metadata = region_metadata,
                               obj_history = obj_history,
+                              fetch_config = fetch_config,
                               init = init)
-    ct2@fetch_config = fetch_config
     ct2
 }
 
