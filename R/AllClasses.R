@@ -38,3 +38,8 @@
                        contains="RangedSummarizedExperiment"
 )
 
+#' @export
+#' @importClassesFrom S4Vectors List
+.ChIPtsne2List = setClass("ChIPtsne2List",
+                          contains="SimpleList")
+

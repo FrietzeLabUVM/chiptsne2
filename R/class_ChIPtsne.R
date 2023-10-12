@@ -378,11 +378,32 @@ setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
     }else{
         x.split = lapply(f, function(split_val)x[split_val, ])
     }
-    x.split
+    ChIPtsne2List(x.split)
 })
 
-#### cbind ####
+.validate_names_match = function(args, dim_FUN, str){
+    ref = args[[1]]
+    for(test in args[-1]){
+        is_match = dim_FUN(ref) == dim_FUN(test)
+        if(!all(is_match)){
+            a = dim_FUN(ref)[!is_match]
+            b = dim_FUN(test)[!is_match]
+            stop(paste(c(paste0(str, " names must be identical for all ChIPtsne2 objects. Example mismatches: "), head(paste(a, b, sep = " != "))), collapse = "\n"))
+        }
+    }
+}
 
+.validate_names_unique = function(args, dim_FUN, str){
+    cns = unname(unlist(lapply(args, dim_FUN)))
+    cn_dupes = duplicated(cns)
+    if(any(cn_dupes)){
+        stop(paste0("Duplicated ", str, " names are not allowed when combining ChIPtsne2 objects. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n"),
+             paste(head(unique(cns[cn_dupes])), collapse = "\n"))
+    }
+}
+
+#### cbind ####
+cbind = SummarizedExperiment::cbind
 # rowToRowMat = rowToRowMat,
 # colToRowMatCols = colToRowMatCols,
 # name_VAR = name_VAR,
@@ -391,25 +412,43 @@ setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
 # region_VAR = region_VAR,
 # fetch_config = fetch_config
 
+#' @param ChIPtsne2
+#'
+#' @return
+#' @export
+#'
+#' @examples
 setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
     args <- list(...)
-    all.cv <- lapply(args, colVec, withDimnames=FALSE)
-    all.ccm <- lapply(args, colToColMat, withDimnames=FALSE)
-    all.rcm <- lapply(args, rowToColMat, withDimnames=FALSE)
+    # cns = unname(unlist(lapply(args, colnames)))
+    # cn_dupes = duplicated(cns)
+    # if(any(cn_dupes)){
+    #     stop("Duplicated colnames are not allowed when combining ChIPtsne2 objects. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n",
+    #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
+    # }
+    .validate_names_unique(args, colnames, "Column")
+    .validate_names_match(args, rownames, "Row")
 
-    all.cv <- do.call(c, all.cv)
-    all.ccm <- do.call(cbind, all.ccm)
-    all.rcm <- do.call(rbind, all.rcm)
+
+    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
+    all.c2rrm <- lapply(args, colToRowMatCols, withDimnames=FALSE)
+
+    # cns = unlist(lapply(all.rrm, colnames))
+    # cn_dupes = duplicated(cns)
+    # if(any(cn_dupes)){
+    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n",
+    #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
+    # }
+
+    all.rrm <- do.call(cbind, all.rrm)
+    names(all.c2rrm) = NULL
+    all.c2rrm <- do.call(c, all.c2rrm)
 
     # Checks for identical column state.
     ref <- args[[1]]
-    ref.rv <- rowVec(ref, withDimnames=FALSE)
     ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
-    ref.crm <- colToRowMat(ref, withDimnames=FALSE)
     for (x in args[-1]) {
-        if (!identical(ref.rv, rowVec(x, withDimnames=FALSE))
-            || !identical(ref.rrm, rowToRowMat(x, withDimnames=FALSE))
-            || !identical(ref.crm, colToRowMat(x, withDimnames=FALSE)))
+        if (!identical(rownames(ref.rrm), rownames(rowToRowMat(x, withDimnames=FALSE))))
         {
             stop("per-row values are not compatible")
         }
@@ -420,36 +459,55 @@ setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
     on.exit(S4Vectors:::disableValidity(old.validity))
 
     out <- callNextMethod()
-    BiocGenerics:::replaceSlots(out, colVec=all.cv,
-                                colToColMat=all.ccm, rowToColMat=all.rcm,
-                                check=FALSE)
+    BiocGenerics:::replaceSlots(
+        out,
+        rowToRowMat=all.rrm,
+        colToRowMatCols=all.c2rrm,
+        check=FALSE)
 })
 
+
 #### rbind ####
-
-
-
+#' @export
+rbind = SummarizedExperiment::rbind
+#' @param ChIPtsne2
+#'
+#' @return
+#' @export
+#'
+#' @examples
 setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
     args <- list(...)
-    all.rv <- lapply(args, rowVec, withDimnames=FALSE)
-    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
-    all.crm <- lapply(args, colToRowMat, withDimnames=FALSE)
+    .validate_names_unique(args, rownames, "Row")
+    .validate_names_match(args, colnames, "Column")
+    # ref = args[[1]]
+    # for(test in args[-1]){
+    #     is_match = colnames(ref) == colnames(test)
+    #     if(!all(is_match)){
+    #         a = colnames(ref)[!is_match]
+    #         b = colnames(test)[!is_match]
+    #         stop(paste(c("Column names must be identical for all ChIPtsne2 objects. Example mismatches: ", head(paste(a, b, sep = " != "))), collapse = "\n"))
+    #     }
+    # }
 
-    all.rv <- do.call(c, all.rv)
+    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
+
+    # cns = unlist(lapply(all.rrm, colnames))
+    # cn_dupes = duplicated(cns)
+    # if(any(cn_dupes)){
+    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n",
+    #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
+    # }
+
     all.rrm <- do.call(rbind, all.rrm)
-    all.crm <- do.call(cbind, all.crm)
 
     # Checks for identical column state.
     ref <- args[[1]]
-    ref.cv <- colVec(ref, withDimnames=FALSE)
-    ref.ccm <- colToColMat(ref, withDimnames=FALSE)
-    ref.rcm <- rowToColMat(ref, withDimnames=FALSE)
+    ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
     for (x in args[-1]) {
-        if (!identical(ref.cv, colVec(x, withDimnames=FALSE))
-            || !identical(ref.ccm, colToColMat(x, withDimnames=FALSE))
-            || !identical(ref.rcm, rowToColMat(x, withDimnames=FALSE)))
+        if (!identical(colnames(ref.rrm), colnames(rowToRowMat(x, withDimnames=FALSE))))
         {
-            stop("per-column values are not compatible")
+            stop("per-row values are not compatible")
         }
     }
 
@@ -458,8 +516,8 @@ setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
     on.exit(S4Vectors:::disableValidity(old.validity))
 
     out <- callNextMethod()
-    BiocGenerics:::replaceSlots(out, rowVec=all.rv,
-                                rowToRowMat=all.rrm, colToRowMat=all.crm,
-                                check=FALSE)
+    BiocGenerics:::replaceSlots(
+        out,
+        rowToRowMat=all.rrm,
+        check=FALSE)
 })
-
