@@ -50,7 +50,6 @@
             most_flipped$needs_flip = !most_flipped$needs_flip
         }
         most_flipped$fraction_flipped = NULL
-        browser()
         GenomicRanges::strand(new_query_gr) = "+"
         GenomicRanges::strand(new_query_gr)[most_flipped$needs_flip] = "-"
         prof_dt = merge(prof_dt, most_flipped, by = c(ct2@region_VAR))

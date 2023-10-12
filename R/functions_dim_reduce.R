@@ -32,6 +32,7 @@
 }
 
 .dimReduceTSNE = function(ct2, perplexity = 50, ...){
+    message("dimReduceTSNE ...")
     args = get_args()
     xy_df = .tsne_from_profile_mat(rowToRowMat(ct2), perplexity = perplexity, ...)
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
@@ -80,6 +81,7 @@ setMethod("dimReduceTSNE", c("ChIPtsne2"), .dimReduceTSNE)
 }
 
 .dimReduceUMAP = function(ct2, config = umap::umap.defaults, ...){
+    message("dimReduceUMAP ...")
     args = get_args()
     xy_df = .umap_from_profile_mat(rowToRowMat(ct2), config = config, ...)
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
@@ -125,6 +127,7 @@ setMethod("dimReduceUMAP", c("ChIPtsne2"), .dimReduceUMAP)
 }
 
 .dimReducePCA = function(ct2){
+    message("dimReducePCA ...")
     args = get_args()
     xy_df = .pca_from_profile_mat(rowToRowMat(ct2))
     xy_df[[ct2@region_VAR]] = rownames(xy_df)

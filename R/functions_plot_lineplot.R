@@ -29,6 +29,7 @@
                                group_VAR = NULL,
                                color_VAR = NULL,
                                facet_VAR = ct2@name_VAR,
+                               linewidth = 1.5,
                                extra_VARS = character(),
                                moving_average_window = 1,
                                n_splines = 1,
@@ -65,7 +66,7 @@
 
     ggplot(agg_dt,
            aes(x = !!x_, y = !!y_, color = !!color_VAR, group = !!group_)) +
-        geom_path() +
+        geom_path(linewidth = linewidth) +
         facet_grid(paste0(group_VAR, "~", facet_VAR), labeller = label_both) +
         labs(subtitle = plot_subtitle)
 }
@@ -76,6 +77,7 @@ setGeneric("plotSignalLinePlot", function(
         group_VAR = NULL,
         color_VAR = NULL,
         facet_VAR = ct2@name_VAR,
+        linewidth = 1.5,
         extra_VARS = character(),
         moving_average_window = 1,
         n_splines = 1,

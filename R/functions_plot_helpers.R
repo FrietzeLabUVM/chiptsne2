@@ -1,11 +1,16 @@
 .prep_color_scale = function(values, color_scale){
-    if(is.null(color_scale)){
-        if(any(values < 0)){
-            #for negative values, default to different colors and symmetrical limits
-            color_scale = c("orange", "white", "purple")
-        }else{
-            color_scale = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF")
+    if(is.numeric(values)){
+        if(is.null(color_scale)){
+            if(any(values < 0)){
+                #for negative values, default to different colors and symmetrical limits
+                color_scale = c("orange", "white", "purple")
+            }else{
+                color_scale = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF")
+            }
         }
+    }else{
+        auto_point_colors = seqsetvis::safeBrew(setdiff(values, names(color_scale)))
+        color_scale = c(auto_point_colors, color_scale)
     }
     color_scale
 }

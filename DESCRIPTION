@@ -1,7 +1,7 @@
 Package: chiptsne2
 Type: Package
 Title: ChIPseq analysis using tSNE
-Version: 0.1.18
+Version: 0.1.21
 Authors@R: person("Joseph R", "Boyd", email = "jrboyd@uvm.edu",
                   role = c("aut", "cre"))
 Description: chiptsne2 provides support for tSNE and other dimensional 
@@ -11,7 +11,8 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Depends:
-    ggplot2
+    ggplot2,
+    shiny
 Imports: 
     BiocFileCache,
     BiocGenerics, 

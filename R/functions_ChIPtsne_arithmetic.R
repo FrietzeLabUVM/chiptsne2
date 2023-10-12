@@ -35,7 +35,10 @@ apply_chiptsne2_operator = function(e1, e2, operator = "-"){
         }
         new_colData[, i] = paste(cd1[, i], operator, cd2[,i])
     }
-    rownames(new_colData) = paste(rownames(cd1), operator, rownames(cd2))
+    if(!all(rownames(cd1) == rownames(cd2))){
+        rownames(new_colData) = paste(rownames(cd1), operator, rownames(cd2))
+    }
+
 
     #generate new ChIPtsne2 internal data structures
     new_rowToRowMat = get(operator)(rowToRowMat(e1), rowToRowMat(e2))

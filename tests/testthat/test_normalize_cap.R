@@ -73,3 +73,4 @@ test_that("calculateSignalCapValue", {
                        normalizeSignalCapValue(trim_values_to_cap = FALSE, norm_to_1 = FALSE),
                    regexp = "With do_not_cap and do_not_scaleTo1, only cap_value will be appended")
 })
+

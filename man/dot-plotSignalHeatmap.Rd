@@ -88,13 +88,16 @@ plotSignalHeatmap
 ct2 = exampleChIPtsne2.with_meta()
 ct2 = groupRegionsBySignalCluster(ct2, group_VAR = "cluster")
 ct2 = groupRegionsByOverlap(ct2, seqsetvis::CTCF_in_10a_narrowPeak_grs[1:2], group_VAR = "overlap")
+
 meta_df = getRegionMetaData(ct2)
 meta_df = meta_df \%>\% dplyr::mutate(overlap_num = as.numeric(overlap))
+meta_df$chr_num = as.numeric(GenomicRanges::seqnames(rowRanges(ct2)))
 ct2 = setRegionMetaData(ct2, meta_df)
 
 plotSignalHeatmap(ct2)
 
-plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "overlap_num"))
+plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "chr_num"))
+plotSignalHeatmap(ct2, group_VARS = c("cluster", "chr_num", "overlap"), sort_VAR = "chr_num")
 plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
 plotSignalHeatmap(
     ct2,

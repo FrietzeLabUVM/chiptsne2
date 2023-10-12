@@ -17,6 +17,7 @@
 #' @param return_data
 #'
 #' @return
+#' @rdname plotDimReduceBins
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()

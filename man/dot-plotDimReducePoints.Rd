@@ -10,7 +10,10 @@
   point_size = NULL,
   point_color_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
-  point_colors = NULL
+  point_colors = NULL,
+  extra_VARS = NULL,
+  background_annotation_color = NULL,
+  underlayer_FUN = function(p) p
 )
 }
 \arguments{
@@ -39,4 +42,10 @@ plotDimReducePoints(ct2_diff)
 plotDimReducePoints(ct2, "umap_cluster")
 plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
+
+plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
+  background_annotation_color = "gray50",
+  underlayer_FUN = function(p){p + annotate("rect", xmin = 0, xmax = .3, ymin = -.05, ymax = .13, fill = "gray80", color = "red")}) +
+  facet_grid(peak_MCF10CA1_CTCF~sample) +
+  labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
 }

@@ -16,7 +16,6 @@ plot_summary_glyph(
   N_ceiling = NULL,
   min_size = 0.3,
   return_data = FALSE,
-  color_mapping = NULL,
   position_VAR = "x",
   value_VAR = "y",
   color_VAR = "name",
@@ -51,8 +50,6 @@ N_floor to N_ceiling.}
 
 \item{return_data}{if TRUE, data.table that would have been used to create
 ggplot is returned instead.}
-
-\item{color_mapping}{mapping for scale_color_manual}
 }
 \value{
 a ggplot containing glyphs of local profile summaries arranged in
@@ -60,13 +57,4 @@ a ggplot containing glyphs of local profile summaries arranged in
 }
 \description{
 plot_summary_glyph
-}
-\examples{
-data("profile_dt")
-data("tsne_dt")
-n_points = 12
-summary_dt = prep_summary(profile_dt = profile_dt,
-    position_dt = tsne_dt, x_bins = n_points)
-plot_summary_glyph(summary_dt,
-    x_bins = n_points)
 }

@@ -16,7 +16,6 @@ plotDimReduceSummaryProfiles(
   ma_size = 2,
   n_splines = 10,
   p = NULL,
-  line_color_mapping = NULL,
   N_floor = 0,
   N_ceiling = NULL,
   min_size = 0.3,

@@ -9,7 +9,10 @@
   group_VAR = NULL,
   color_VAR = NULL,
   facet_VAR = ct2@name_VAR,
+  linewidth = 1.5,
   extra_VARS = character(),
+  moving_average_window = 1,
+  n_splines = 1,
   return_data = FALSE
 )
 }
@@ -35,6 +38,9 @@ plotSignalLinePlot
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF")
+plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", moving_average_window = 5)
+plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", n_splines = 5)
+plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", moving_average_window = 5, n_splines = 5)
 plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", facet_VAR = NULL, color_VAR = "cell")
 plotSignalLinePlot(ct2, color_VAR = "cell", facet_VAR = "peak_MCF10AT1_CTCF", group_VAR = "peak_MCF10A_CTCF")
 

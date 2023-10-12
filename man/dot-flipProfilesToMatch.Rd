@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions_flip_signal.R
 \name{.flipProfilesToMatch}
 \alias{.flipProfilesToMatch}
-\title{.centerSignal}
+\title{flipProfilesToMatch}
 \usage{
 .flipProfilesToMatch(ct2, highest_on_right = FALSE)
 }
@@ -10,10 +10,15 @@
 \item{ct2}{A ChIPtsne2 object}
 }
 \value{
-A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.
+A chiptsne2 object updated such that signal "tilts" in the same way.
+  When signal is flipped, strand of rowRanges is set to negative.
 }
 \description{
-.centerSignal
+For unstranded data, a peak with higher signal on one side is not
+meaningfully different from its mirror image. This procedure identifies
+"tilted" peaks and flips those with more signal right-of-center. By flipping,
+rowRanges becomes stranded, flipped regions get assigned (-) strand with
+uaffected regions getting (+) strand
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()

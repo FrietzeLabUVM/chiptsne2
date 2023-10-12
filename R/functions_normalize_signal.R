@@ -114,7 +114,7 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2"), .normalizeSignalCapValue)
 #### calculateSignalCapValue ####
 
 .calculateSignalCapValue = function(ct2, signal_cap_VAR = "cap_value", cap_quantile = .95){
-    messge("calculateSignalCapValue ...")
+    message("calculateSignalCapValue ...")
     args = get_args()
     prof_dt = getTidyProfile(ct2)
     cap_dt = seqsetvis::calc_norm_factors(prof_dt,

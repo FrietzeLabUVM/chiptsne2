@@ -141,167 +141,6 @@ colData = SummarizedExperiment::colData
 #' @export
 assay = SummarizedExperiment::assay
 
-#' getSampleMetaData
-#'
-#' @param ct2 A ChIPtsne object
-#' @param select_VARS character vector of variables to select from sample
-#'   metadata. Default of NULL will select all available sample metadata
-#'   variables.
-#'
-#' @return data.frame with sample meta data, similar to colData but suitable for
-#'   tidyverse operations.
-#' @export
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2()
-#' getSampleMetaData(ct2)
-#' getSampleMetaData(ct2, "sample")
-getSampleMetaData = function(ct2, select_VARS = NULL){
-    cd = colData(ct2)
-    df = as.data.frame(cd)
-    df[[ct2@name_VAR]] = factor(rownames(cd), levels = rownames(cd))
-    if(!is.null(select_VARS)){
-        if(!all(select_VARS %in% colnames(df))){
-            stop(
-                paste(collapse = "\n",
-                      c(
-                          "select_VARS not found in region metadata:",
-                          setdiff(select_VARS, colnames(df))
-                      )
-                )
-            )
-        }
-        df = df[, union(ct2@name_VAR, select_VARS), drop = FALSE]
-    }
-    df
-}
-
-#' setSampleMetaData
-#'
-#' @param ct2 A ChIPtsne object
-#' @param new_meta A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.
-#'
-#' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
-#' @export
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' getSampleMetaData(ct2)
-#' new_meta = data.frame(sample = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"), id = seq(3))
-#' ct2 = setSampleMetaData(ct2, new_meta)
-#' getSampleMetaData(ct2)
-#'
-#' #metadata may be overriden
-#' new_meta2 = data.frame(id = LETTERS[seq(3)], id2 = LETTERS[seq(3)])
-#' rownames(new_meta2) = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF")
-#' ct2 = setSampleMetaData(ct2, new_meta2)
-#' getSampleMetaData(ct2)
-setSampleMetaData = function(ct2, new_meta){
-    cd = getSampleMetaData(ct2)
-    if(!ct2@name_VAR %in% colnames(new_meta)){
-        if(is.null(rownames(new_meta))){
-            stop("new_meta must contain name_VAR or have rownames.")
-        }else{
-            new_meta[[ct2@name_VAR]] = rownames(new_meta)
-        }
-    }
-
-    if(!setequal(new_meta[[ct2@name_VAR]], rownames(cd))){
-        stop(paste(sep = "\n",
-                   "name_VAR is not equivalent in new metadata.",
-                   paste(c("Extra entries in new_meta:", setdiff(new_meta[[ct2@name_VAR]], rownames(cd))), collapse = "\n"),
-                   paste(c("Missing entries from new_meta:", setdiff(rownames(cd), new_meta[[ct2@name_VAR]])), collapse = "\n")
-        ))
-    }
-    retained_cn = setdiff(colnames(cd),
-                          setdiff(colnames(new_meta), ct2@name_VAR)
-    )
-    new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@name_VAR)
-    rownames(new_cd) = new_cd[[ct2@name_VAR]]
-    new_cd[[ct2@name_VAR]] = NULL
-    new_cd = S4Vectors::DataFrame(new_cd)
-
-    ct2@colData = new_cd
-    ct2
-}
-
-#' getRegionMetaData
-#'
-#' @param ct2 A ChIPtsne object
-#' @param select_VARS character vector of variables to select from region
-#'   metadata. Default of NULL will select all available region metadata
-#'   variables.
-#'
-#' @return data.frame with region meta data, similar to rowRanges but suitable
-#'   for tidyverse operations.
-#' @export
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2()
-#' getRegionMetaData(ct2)
-#' getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
-getRegionMetaData = function(ct2, select_VARS = NULL){
-    gr = rowRanges(ct2)
-    df = GenomicRanges::mcols(gr) %>% as.data.frame
-    df[[ct2@region_VAR]] = names(gr)
-    if(!is.null(select_VARS)){
-        if(!all(select_VARS %in% colnames(df))){
-            stop(
-                paste(collapse = "\n",
-                      c(
-                          "select_VARS not found in region metadata:",
-                          setdiff(select_VARS, colnames(df))
-                      )
-                )
-            )
-        }
-        df = df[, union(ct2@region_VAR, select_VARS), drop = FALSE]
-    }
-    df
-}
-
-#' setRegionMetaData
-#'
-#' @param ct2 A ChIPtsne object
-#' @param new_meta A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.
-#'
-#' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
-#' @export
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' new_meta = getRegionMetaData(ct2)
-#' new_meta[["10A_and_AT1"]] = ifelse(new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF, "yes", "no")
-#' ct2 = setRegionMetaData(ct2, new_meta)
-#' getRegionMetaData(ct2)
-setRegionMetaData = function(ct2, new_meta){
-    cd = getRegionMetaData(ct2)
-    if(!ct2@region_VAR %in% colnames(new_meta)){
-        if(is.null(rownames(new_meta))){
-            stop("new_meta must contain region_VAR or have rownames.")
-        }else{
-            new_meta[[ct2@region_VAR]] = rownames(new_meta)
-        }
-    }
-
-    if(!setequal(new_meta[[ct2@region_VAR]], rownames(cd))){
-        stop(paste(sep = "\n",
-                   "region_VAR is not equivalent in new metadata.",
-                   paste(c("Extra entries in new_meta:", setdiff(new_meta[[ct2@region_VAR]], rownames(cd))), collapse = "\n"),
-                   paste(c("Missing entries from new_meta:", setdiff(rownames(cd), new_meta[[ct2@region_VAR]])), collapse = "\n")
-        ))
-    }
-    retained_cn = setdiff(colnames(cd),
-                          setdiff(colnames(new_meta), ct2@region_VAR)
-    )
-    new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@region_VAR)
-    new_gr = .add_region_metadata(rowRanges(ct2), region_metadata = new_cd, region_VAR = ct2@region_VAR, overwrite = TRUE)
-    ct2@rowRanges = new_gr
-    ct2
-}
-
-
-
 #' exampleQueryGR
 #'
 #' @return GRanges example
@@ -360,20 +199,6 @@ exampleChIPtsne2.with_meta = function(){
 
     ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 }
-
-# For SummarizedExperiment slots
-# Again, we can use the setter methods defined in SummarizedExperiment to modify slots in the base class. These should generally not require any re-defining. However, if it is necessary, the methods should use callNextMethod internally:
-#
-#     #' @export
-#     #' @importMethodsFrom SummarizedExperiment "rowData<-"
-#     setReplaceMethod("rowData", "ChIPtsne2", function(x, ..., value) {
-#         y <- callNextMethod() # returns a modified ChIPtsne2
-#
-#         # Do something extra here.
-#         message("hi!\n")
-#
-#         y
-#     })
 
 #### Subsetting by index ####
 
@@ -435,3 +260,206 @@ hasDimReduce = function(ct2){
     rownames(df) = rownames(r2rm)
     as.matrix(df)
 }
+
+#' addRegionAnnotation
+#'
+#' An alternative to setRegionMetaData that adds region metadata information based on overlaps with supplied anno_gr.
+#'
+#' @param ct2 A ChIPtsne object
+#' @param anno_gr A GenomicRanges object to annotate ct2 based on overlap with rowRanges of ct2.
+#' @param anno_VAR Attribute in mcols of anno_gr to pull values from.
+#' @param anno_VAR_renames Matched vector to anno_VAR specificying final names in rowRanges of ct2. Essentially renames anno_VAR.
+#' @param no_overlap_value Value for when there is no overlap with anno_gr. Default is "no_hit".
+#' @param overlap_value Value for when there is an overlap, only relevant if anno_VAR is not in mcols of anno_gr. I.e. adding a single "hit" "no hit" annotation.
+#'
+#' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' anno_gr = rowRanges(ct2)
+#' anno_gr = subset(anno_gr, seqnames == "chr1")
+#' anno_gr$start_pos = start(anno_gr)
+#' anno_gr$end_pos = end(anno_gr)
+#' anno_gr$chr_name = as.character(seqnames(anno_gr))
+#' ct2.anno = addRegionAnnotation(ct2, anno_gr, anno_VAR = c("start_pos", "end_pos", "chr_name"))
+#' rowRanges(ct2.anno)
+addRegionAnnotation = function(ct2,
+                               anno_gr,
+                               anno_VAR = "annotation",
+                               anno_VAR_renames = anno_VAR,
+                               no_overlap_value = "no_hit",
+                               overlap_value = "hit"){
+    message("addRegionAnnotation ...")
+    args = get_args()
+    valid_anno_names = colnames(GenomicRanges::mcols(anno_gr))
+    if(length(anno_VAR) != length(anno_VAR_renames)){
+        stop("Length of anno_VAR and anno_VAR_renames must be identical")
+    }
+    if(length(anno_VAR) > 1){
+        if(!all(anno_VAR %in% valid_anno_names)){
+            stop("Supplied anno_VARS must present in mcols of anno_gr. Missing: ", paste(setdiff(anno_VAR, valid_anno_names), collapse = ", "))
+        }
+    }else{
+        if(!anno_VAR %in% valid_anno_names){
+            GenomicRanges::mcols(anno_gr)[[anno_VAR]] = overlap_value
+        }
+    }
+    if(length(no_overlap_value) != 1 | length(no_overlap_value) != length(anno_VAR)){
+        stop("length(no_overlap_value) must be 1 or match anno_VAR length. Was: ", length(no_overlap_value), ".")
+    }
+    if(length(no_overlap_value) == 1){
+        no_overlap_value = rep(no_overlap_value, length(anno_VAR))
+    }
+
+    olaps = GenomicRanges::findOverlaps(query = ct2, subject = anno_gr)
+    new_gr = rowRanges(ct2)
+    for(i in seq_along(anno_VAR)){
+        av = anno_VAR[i]
+        av_new = anno_VAR_renames[i]
+        anno_vals = GenomicRanges::mcols(anno_gr)[[av]][S4Vectors::subjectHits(olaps)]
+        GenomicRanges::mcols(new_gr)[[av_new]] = no_overlap_value[i]
+        GenomicRanges::mcols(new_gr)[[av_new]][S4Vectors::queryHits(olaps)] = anno_vals
+    }
+
+    ct2@rowRanges = new_gr
+    history_item = list(addRegionAnnotation = list(FUN = addRegionAnnotation, ARG = args))
+    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+    ct2
+}
+
+#### split ####
+
+#' @param ChIPtsne2
+#'
+#' @export
+#' @examples
+#' split(ct2, "sample")
+#' split(ct2, colnames(ct2))
+#' split(ct2, "cell")
+#' split(ct2, "peak_MCF10CA1_CTCF")
+#' split(ct2, ct2$cell)
+#'
+#' sample_meta_data = getSampleMetaData(ct2)
+#' region_meta_data = getRegionMetaData(ct2)
+#'
+#' split(ct2, sample_meta_data$mark)
+#' split(ct2, region_meta_data$peak_MCF10A_CTCF)
+#'
+setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
+    mode = "by_column"
+    sample_meta_data = getSampleMetaData(x)
+    region_meta_data = getRegionMetaData(x)
+    if(is.null(f)){
+        f = colnames(x)
+        names(f) = f
+    }
+    if(length(f) == 1){
+        if(f %in% colnames(sample_meta_data)){
+            f = split(rownames(sample_meta_data), sample_meta_data[[f]])
+        }else if(f %in% colnames(region_meta_data)){
+            f = split(region_meta_data[[x@region_VAR]], region_meta_data[[f]])
+            mode = "by_row"
+        }
+    }else{
+        if(ncol(x) == nrow(x)){
+            stop("Cannot unambiguously split ChIPtsne2 using a vector when ncol == nrow. Try using a row or column attribute name.")
+        }
+        if(length(f) == ncol(x)){
+            f = split(colnames(x), f)
+        }else if(length(f) == nrow(x)){
+            f = split(rownames(x), f)
+            mode = "by_row"
+        }
+    }
+
+    if(mode == "by_column"){
+        x.split = lapply(f, function(split_val)x[, split_val])
+    }else{
+        x.split = lapply(f, function(split_val)x[split_val, ])
+    }
+    x.split
+})
+
+#### cbind ####
+
+# rowToRowMat = rowToRowMat,
+# colToRowMatCols = colToRowMatCols,
+# name_VAR = name_VAR,
+# position_VAR = position_VAR,
+# value_VAR = value_VAR,
+# region_VAR = region_VAR,
+# fetch_config = fetch_config
+
+setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
+    args <- list(...)
+    all.cv <- lapply(args, colVec, withDimnames=FALSE)
+    all.ccm <- lapply(args, colToColMat, withDimnames=FALSE)
+    all.rcm <- lapply(args, rowToColMat, withDimnames=FALSE)
+
+    all.cv <- do.call(c, all.cv)
+    all.ccm <- do.call(cbind, all.ccm)
+    all.rcm <- do.call(rbind, all.rcm)
+
+    # Checks for identical column state.
+    ref <- args[[1]]
+    ref.rv <- rowVec(ref, withDimnames=FALSE)
+    ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
+    ref.crm <- colToRowMat(ref, withDimnames=FALSE)
+    for (x in args[-1]) {
+        if (!identical(ref.rv, rowVec(x, withDimnames=FALSE))
+            || !identical(ref.rrm, rowToRowMat(x, withDimnames=FALSE))
+            || !identical(ref.crm, colToRowMat(x, withDimnames=FALSE)))
+        {
+            stop("per-row values are not compatible")
+        }
+    }
+
+    old.validity <- S4Vectors:::disableValidity()
+    S4Vectors:::disableValidity(TRUE)
+    on.exit(S4Vectors:::disableValidity(old.validity))
+
+    out <- callNextMethod()
+    BiocGenerics:::replaceSlots(out, colVec=all.cv,
+                                colToColMat=all.ccm, rowToColMat=all.rcm,
+                                check=FALSE)
+})
+
+#### rbind ####
+
+
+
+setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
+    args <- list(...)
+    all.rv <- lapply(args, rowVec, withDimnames=FALSE)
+    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
+    all.crm <- lapply(args, colToRowMat, withDimnames=FALSE)
+
+    all.rv <- do.call(c, all.rv)
+    all.rrm <- do.call(rbind, all.rrm)
+    all.crm <- do.call(cbind, all.crm)
+
+    # Checks for identical column state.
+    ref <- args[[1]]
+    ref.cv <- colVec(ref, withDimnames=FALSE)
+    ref.ccm <- colToColMat(ref, withDimnames=FALSE)
+    ref.rcm <- rowToColMat(ref, withDimnames=FALSE)
+    for (x in args[-1]) {
+        if (!identical(ref.cv, colVec(x, withDimnames=FALSE))
+            || !identical(ref.ccm, colToColMat(x, withDimnames=FALSE))
+            || !identical(ref.rcm, rowToColMat(x, withDimnames=FALSE)))
+        {
+            stop("per-column values are not compatible")
+        }
+    }
+
+    old.validity <- S4Vectors:::disableValidity()
+    S4Vectors:::disableValidity(TRUE)
+    on.exit(S4Vectors:::disableValidity(old.validity))
+
+    out <- callNextMethod()
+    BiocGenerics:::replaceSlots(out, rowVec=all.rv,
+                                rowToRowMat=all.rrm, colToRowMat=all.crm,
+                                check=FALSE)
+})
+
