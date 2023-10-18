@@ -136,7 +136,7 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2"), .groupRegionsByDimRe
     args = get_args()
     gr = rowRanges(ct2)
     GenomicRanges::mcols(gr) = NULL
-    memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), gr_list))
+    memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), as.list(gr_list)))
     memb_gr$TMP__ = NULL
     memb_df = as.data.frame(GenomicRanges::mcols(memb_gr))
     group_df = seqsetvis::ssvFactorizeMembTable(memb_df)

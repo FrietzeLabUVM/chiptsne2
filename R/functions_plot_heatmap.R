@@ -226,7 +226,7 @@
     #### Fetch profile ####
     prof_dt = getTidyProfile(ct2[meta_dt[[ct2@region_VAR]],], unique(c(group_VARS, sort_VAR, balance_VAR)))
 
-    heatmap_colors = .prep_color_scale(values = prof_dt[[ct2@value_VAR]], color_scale = heatmap_colors)
+    heatmap_colors = .prep_color_scale(values = prof_dt[[ct2@value_VAR]], has_symmetrical_limits = has_symmetrical_limits, color_scale = heatmap_colors)
     heatmap_fill_limits = .prep_symmetrical(values = prof_dt[[ct2@value_VAR]], has_symmetrical_limits, heatmap_fill_limits)
 
     if(sort_VAR == fake_VAR){

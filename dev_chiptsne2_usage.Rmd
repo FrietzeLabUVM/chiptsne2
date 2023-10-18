@@ -41,13 +41,11 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 First, load *chiptsne2* and supporting packages.
 
-```{r libs}
-suppressPackageStartupMessages({
-    library(chiptsne2)
-    library(tidyverse)
-    library(GenomicRanges)    
-    library(SummarizedExperiment)
-})
+```{r libs, message=FALSE}
+library(chiptsne2)
+library(tidyverse)
+library(GenomicRanges)    
+library(SummarizedExperiment)
 options(mc.cores = 20)
 ```
 
@@ -81,9 +79,11 @@ plotDimReducePoints(ct2_quick, color_VAR = "tsne_group")+
 
 ```
 
+This is just a brief example using data that comes as part *chiptsne2*. There are many more interesting things we can do once we get to the details.
+
 ## Rerunning
 
-The history of any ChIPtsne2 object can be used to rerun complete workflows for convenience and reprodcibility.
+The history of any ChIPtsne2 object can be used to rerun complete workflows for convenience and reproducibility.
 
 ```{r}
 ct2_rerun = ChIPtsne2.from_tidy(
@@ -145,7 +145,7 @@ bam_file_dt = data.BRCAprogression::chip.setup_bam_files(pooled = TRUE)
 bam_file_dt = bam_file_dt %>% 
     filter(cell %in% c("MCF10A", "MCF10AT1") & mark %in% c("H3K4me3", "H3K27ac", "H3K4me1", "input"))
 bam_file_dt$fragLens = 200
-DT::datatable(bam_file_dt)
+DT::datatable(bam_file_dt, options = list(scrollX = TRUE))
 ```
 
 We have a nice data.frame with sample metadata, but we could also just use file paths to create a FetchConfig. This is the simplest way to create a FetchConfig.
@@ -173,19 +173,95 @@ DT::datatable(as.data.frame(colData(ct2_full)))
 
 ### from_tidy
 
-```{r}
-prof_gr = seqsetvis::ssvFetchBam(bam_file_dt[1:2], query_gr, fragLens = 200)
-ct2_tidy = ChIPtsne2.from_tidy(prof_gr, query_gr, name_VAR = "group")
-# you could also do any normalization or other transformations before
-prof_df = prof_gr %>% 
-    as.data.frame %>%
-    mutate(RPM = y / mapped_reads * 1e6)
-# undebug(ChIPtsne2.from_tidy)
-ct2_tidy2 = ChIPtsne2.from_tidy(prof_df, query_gr, value_VAR = "RPM", name_VAR = "group")
+If you're familiar with using *seqsetvis*, this can be a powerful way to use *chiptsne2*. You can take full control of all details of fetching signal profiles and their normalization.
+
+```{r manual fetch}
+prof_dt = seqsetvis::ssvFetchBam(bam_file_dt[1:2], query_gr, fragLens = 200, return_data.table = TRUE)
+#apply an RPM normalization based on read depth
+prof_dt[, RPM := y / mapped_reads * 1e6]
+#tell ChIPtsne2 about our normalization by specifying value_VAR
+ct2_tidy = ChIPtsne2.from_tidy(prof_dt, query_gr, name_VAR = "group", value_VAR = "RPM")
 ```
 
 
 ## Normalization
+
+
+
+```{r normalization}
+colData(ct2_full)$mapped_reads
+ct2_rpm = ct2_full %>% 
+    normalizeSignalRPM()
+
+ct2_cap = ct2_full %>% 
+    calculateSignalCapValue() %>%
+    normalizeSignalCapValue()
+
+ct2_cap$cap_value
+cap_df = getSampleMetaData(ct2_cap)
+cap_df = cap_df %>% 
+    as.data.frame() %>%
+    select(group, mark, cap_value) %>%
+    mutate(cap_value = ifelse(mark == "H3K4me1", cap_value * 2, cap_value))
+
+ct2_manual_cap = ct2_full %>% 
+    normalizeSignalCapValue(signal_cap_data = cap_df)
+```
+
+```{r, fig.height=9, fig.width=6}
+theme_update(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
+p_rpm = plotSignalLinePlot(ct2_rpm, 
+                   color_VAR = "cell", facet_VAR = "mark", 
+                   moving_average_window = 5, n_splines = 5)
+
+p_cap = plotSignalLinePlot(ct2_cap, 
+                   color_VAR = "cell", facet_VAR = "mark", 
+                   moving_average_window = 5, n_splines = 5)
+
+p_manual_cap = plotSignalLinePlot(ct2_manual_cap, 
+                   color_VAR = "cell", facet_VAR = "mark", 
+                   moving_average_window = 5, n_splines = 5)
+
+cowplot::plot_grid(p_rpm, p_cap, p_manual_cap, ncol = 1)
+```
+
+```{r, fig.height=9, fig.width=6}
+ct2_rpm = setPositionVariable(ct2_rpm, "bp")
+ct2_rpm = setValueVariable(ct2_rpm, "RPM")
+ct2_cap = setPositionVariable(ct2_cap, "bp")
+ct2_cap = setValueVariable(ct2_cap, "normalized reads")
+ct2_manual_cap = setPositionVariable(ct2_manual_cap, "bp")
+ct2_manual_cap = setValueVariable(ct2_manual_cap, "normalized reads\ndeflated H3K4me1")
+
+p_rpm = plotSignalLinePlot(ct2_rpm, 
+                   color_VAR = "cell", facet_VAR = "mark", 
+                   moving_average_window = 5, n_splines = 5)
+
+p_cap = plotSignalLinePlot(ct2_cap, 
+                   color_VAR = "cell", facet_VAR = "mark", 
+                   moving_average_window = 5, n_splines = 5)
+
+p_manual_cap = plotSignalLinePlot(ct2_manual_cap, 
+                   color_VAR = "cell", facet_VAR = "mark", 
+                   moving_average_window = 5, n_splines = 5)
+
+cowplot::plot_grid(p_rpm, p_cap, p_manual_cap, ncol = 1)
+```
+
+```{r, fig.height=9, fig.width=6}
+my_cluster_and_plot = function(ct2){
+    ct2 %>% 
+        groupRegionsBySignalCluster(group_VAR = "cluster") %>%
+    plotSignalHeatmap(group_VARS = "cluster", relative_heatmap_width = .8, relative_heatmap_height = .8)
+}
+p_rpm = my_cluster_and_plot(ct2_rpm)
+
+p_cap = my_cluster_and_plot(ct2_cap)
+
+p_manual_cap = my_cluster_and_plot(ct2_manual_cap)
+
+cowplot::plot_grid(p_rpm, p_cap, p_manual_cap, ncol = 1)
+```
 
 ### RPM 
 
@@ -245,8 +321,9 @@ cbind(
 # Plotting Details
 
 ```{r dim}
+theme_update(axis.text.x = element_text())
 plotDimReducePoints(ct2_quick) +
-  coord_fixed()
+    coord_fixed()
 ```
 
 
@@ -267,11 +344,11 @@ plotSignalHeatmap(ct2_quick,
                                  "tsne_group", 
                                  "cluster"), 
                   annotation_colors = list(
-                    peak_colors,
-                    peak_colors, 
-                    peak_colors,
-                    NULL,
-                    NULL
+                      peak_colors,
+                      peak_colors, 
+                      peak_colors,
+                      NULL,
+                      NULL
                   ),
                   relative_heatmap_width = .5)
 ```

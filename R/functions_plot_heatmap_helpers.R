@@ -101,12 +101,12 @@ add_group_annotation = function(anno_ids,
                           ymin = starts,
                           ymax = ends,
                           grp = grps)
-    if(setequal(names(rect_colors), df_rects$grp)){
+    if(!all(unique(df_rects$grp) %in% names(rect_colors))){
         df_rects$fill = rect_colors[df_rects$grp]
     }else{
         stop("invalid rect_colors, check names match group ids.")
     }
-    if(setequal(names(text_colors), df_rects$grp)){
+    if(!all(unique(df_rects$grp) %in% names(text_colors))){
         df_rects$color = text_colors[df_rects$grp]
     }else{
         stop("invalid text_colors, check names match group ids")

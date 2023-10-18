@@ -17,36 +17,38 @@ setMethod("setNameVariable", c("ChIPtsne2"), function(ct2, new_name_VAR){
             stop("New name variable is already present in colData(ct2). This is only allowed when all values are unique. Offending values: ", paste(bad_cn, collapse = ", "))
         }else{
             #swap old and new
-            old_name_VAR = ct2@name_VAR
-            old_names = rownames(colData(ct2))
-            ct2@colData[[old_name_VAR]] = rownames(colData(ct2))
-            rownames(ct2@colData) = colData(ct2)[[new_name_VAR]]
-            new_names = rownames(ct2@colData)
-            names(new_names) = old_names
-            ct2@colData[[new_name_VAR]] = NULL
-            #updating internal data
-            r2rm = rowToRowMat(ct2)
-            c2rmc = colToRowMatCols(ct2)
-            all_old_cn = unlist(c2rmc)
-            for(nam in names(c2rmc)){
-                message(nam)
-                match_names = c2rmc[[nam]]
-                i = which(old_names == nam)
-                new_nam = new_names[i]
-                c2rmc[[nam]] = sub(nam, new_nam, match_names)
-            }
-            all_new_cn = unlist(c2rmc)
-            names(all_new_cn) = all_old_cn
-            #assigning named vector seems problematic so go through tmp and remove names
-            tmp = all_new_cn[colnames(r2rm)]
-            names(tmp) = NULL
-            colnames(r2rm) = tmp
-            tmp = new_names[names(c2rmc)]
-            names(tmp) = NULL
-            names(c2rmc) = tmp
 
-            rowToRowMat(ct2) = r2rm
-            colToRowMatCols(ct2) = c2rmc
+            # old_names = rownames(colData(ct2))
+            # ct2@colData[[old_name_VAR]] = rownames(colData(ct2))
+            # rownames(ct2@colData) = colData(ct2)[[new_name_VAR]]
+            # new_names = rownames(ct2@colData)
+            # names(new_names) = old_names
+            # ct2@colData[[new_name_VAR]] = NULL
+            # #updating internal data
+            # r2rm = rowToRowMat(ct2)
+            # c2rmc = colToRowMatCols(ct2)
+            # all_old_cn = unlist(c2rmc)
+            # for(nam in names(c2rmc)){
+            #     message(nam)
+            #     match_names = c2rmc[[nam]]
+            #     i = which(old_names == nam)
+            #     new_nam = new_names[i]
+            #     c2rmc[[nam]] = sub(nam, new_nam, match_names)
+            # }
+            # all_new_cn = unlist(c2rmc)
+            # names(all_new_cn) = all_old_cn
+            # #assigning named vector seems problematic so go through tmp and remove names
+            # tmp = all_new_cn[colnames(r2rm)]
+            # names(tmp) = NULL
+            # colnames(r2rm) = tmp
+            # tmp = new_names[names(c2rmc)]
+            # names(tmp) = NULL
+            # names(c2rmc) = tmp
+            #
+            # rowToRowMat(ct2) = r2rm
+            # colToRowMatCols(ct2) = c2rmc
+            old_name_VAR = ct2@name_VAR
+            ct2 = .update_ct2_colnames(ct2, old_name_VAR = old_name_VAR, new_name_VAR = new_name_VAR)
         }
     }else{
         #no special considerations if name_VAR isn't otherwise present.
@@ -55,7 +57,47 @@ setMethod("setNameVariable", c("ChIPtsne2"), function(ct2, new_name_VAR){
     ct2
 })
 
+.update_ct2_colnames = function(ct2, new_names = NULL, old_name_VAR = NULL, new_name_VAR = NULL){
+    old_names = rownames(colData(ct2))
+    if(is.null(new_names) & is.null(new_name_VAR)){
+        stop("One of new_names or new_name_VAR required.")
+    }
+    if(!is.null(new_names) & !is.null(new_name_VAR)){
+        stop("Only one of new_names or new_name_VAR is allowed.")
+    }
+    if(!is.null(old_name_VAR)){
+        ct2@colData[[old_name_VAR]] = rownames(colData(ct2))
+    }
+    if(!is.null(new_name_VAR)){
+        rownames(ct2@colData) = colData(ct2)[[new_name_VAR]]
+        new_names = rownames(ct2@colData)
+        ct2@colData[[new_name_VAR]] = NULL
+    }
+    names(new_names) = old_names
+    #updating internal data
+    r2rm = rowToRowMat(ct2)
+    c2rmc = colToRowMatCols(ct2)
+    all_old_cn = unlist(c2rmc)
+    for(nam in names(c2rmc)){
+        match_names = c2rmc[[nam]]
+        i = which(old_names == nam)
+        new_nam = new_names[i]
+        c2rmc[[nam]] = sub(nam, new_nam, match_names)
+    }
+    all_new_cn = unlist(c2rmc)
+    names(all_new_cn) = all_old_cn
+    #assigning named vector seems problematic so go through tmp and remove names
+    tmp = all_new_cn[colnames(r2rm)]
+    names(tmp) = NULL
+    colnames(r2rm) = tmp
+    tmp = new_names[names(c2rmc)]
+    names(tmp) = NULL
+    names(c2rmc) = tmp
 
+    rowToRowMat(ct2) = r2rm
+    colToRowMatCols(ct2) = c2rmc
+    ct2
+}
 
 #' @export
 setGeneric("getNameVariable",

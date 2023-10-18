@@ -17,6 +17,7 @@
 #' ct2.c = centerProfilesAndRefetch(ct2)
 #' ct2.c
 .centerProfilesAndRefetch = function(ct2){
+    message("centerProfilesAndRefetch ...")
     args = get_args()
     if(isFetchConfigNull(ct2@fetch_config)){
         stop("FetchConfig must valid and not NULL. Use centerProfilesAndTrim or create ChIPtsne2 with ChIPtsne2.from_FetchConfig.")
@@ -29,7 +30,7 @@
     prof_dt$seqnames = as.character(GenomicRanges::seqnames(center_gr[prof_dt[[ct2@region_VAR]]]))
     prof_dt$start = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] - win_size/2
     prof_dt$end = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] + win_size/2
-    new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w)
+    new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w, x_ = ct2@position_VAR, y_ = ct2@value_VAR, by_ = ct2@region_VAR)
 
     history_item = list(centerProfilesAndRefetch = list(FUN = .centerProfilesAndRefetch, ARG = args))
 
@@ -67,11 +68,11 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 #' ct2.c = centerProfilesAndTrim(ct2, view_size = 500)
 .centerProfilesAndTrim = function(ct2, view_size){
+    message("centerProfilesAndTrim ...")
     args = get_args()
-
     w = rowRanges(ct2) %>% GenomicRanges::width() %>% unique
     prof_dt = getTidyProfile(ct2)
-    new_prof_dt = seqsetvis::centerAtMax(prof_dt, trim_to_valid = TRUE, view_size = view_size, check_by_dupes = FALSE, x_ = ct2@position_VAR, y_ = ct2@value_VAR)
+    new_prof_dt = seqsetvis::centerAtMax(prof_dt, trim_to_valid = TRUE, view_size = view_size, check_by_dupes = FALSE, x_ = ct2@position_VAR, y_ = ct2@value_VAR, by_ = ct2@region_VAR)
     rng = new_prof_dt[[ct2@position_VAR]] %>% range
     rng_min = min(abs(rng))
     new_prof_dt = dplyr::filter(new_prof_dt, get(ct2@position_VAR) <= rng_min & get(ct2@position_VAR) >= -rng_min)

@@ -95,7 +95,7 @@
             dplyr::select(all_of(c("tx", "ty", ct2@region_VAR, color_VAR)))
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = "group")
         xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
-        point_colors = .prep_color_scale(xy_df$value, point_colors)
+        point_colors = .prep_color_scale(xy_df$value, color_scale = point_colors)
         p = ggplot(xy_df, aes(x = tx, y = ty, color = value)) +
             scale_color_manual(values = point_colors)
         p = underlayer_FUN(p)
@@ -110,7 +110,7 @@
         signal_df[[ct2@region_VAR]] = rownames(signal_df)
         xy_df = merge(xy_df, signal_df, by = ct2@region_VAR)
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = ct2@name_VAR, values_to = "max")
-        point_colors = .prep_color_scale(xy_df$max, point_colors)
+        point_colors = .prep_color_scale(xy_df$max, has_symmetrical_limits, point_colors)
         point_color_limits = .prep_symmetrical(xy_df$max, has_symmetrical_limits, point_color_limits)
         xy_df$max = .apply_limits(xy_df$max, point_color_limits)
         xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)

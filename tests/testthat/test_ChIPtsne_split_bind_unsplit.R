@@ -2,7 +2,10 @@ testthat::context("split unsplit cbind rbind List")
 library(chiptsne2)
 library(testthat)
 ct2 = exampleChIPtsne2.with_meta()
-ct2 = dimReduceTSNE(ct2)
+suppressWarnings({
+    ct2 = dimReduceTSNE(ct2)
+})
+
 
 ct2.by_cell = split(ct2, "cell")
 ct2.by_peak = split(ct2, "peak_MCF10CA1_CTCF")

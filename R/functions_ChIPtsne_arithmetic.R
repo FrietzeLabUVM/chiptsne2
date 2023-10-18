@@ -21,24 +21,46 @@ apply_chiptsne2_operator = function(e1, e2, operator = "-"){
     #locate comparative variables, validate, generate new values
     cd1 = colData(e1)
     cd2 = colData(e2)
+    common_cn = intersect(colnames(cd1), colnames(cd2))
+    cd1 = cd1[, common_cn, drop = FALSE]
+    cd2 = cd2[, common_cn, drop = FALSE]
+    is_numeric = sapply(cd1, is.numeric) & sapply(cd2, is.numeric)
+    cd1 = cd1[, !is_numeric, drop = FALSE]
+    cd2 = cd2[, !is_numeric, drop = FALSE]
+
     is_diff = sapply(seq(ncol(cd1)), function(i){
         cd1[,i] != cd2[,i]
     })
     new_colData = cd1
-    subtract_names = colnames(cd1)[is_diff]
-    for(i in which(is_diff)){
-        if(length(unique(cd1[, i])) != 1){
-            stop("Error in e1, too many values. Use subset to select single value.")
+    # arithmetic operators make sense to apply in 2 modes
+    if(all(colnames(e1) == colnames(e2))){
+        # 1) when all name_VAR values are equal
+        if(!all(c(
+            all(colnames(e1@rowToRowMat) == colnames(e2@rowToRowMat)),
+            all(names(e1@colToRowMatCols) == names(e2@colToRowMatCols)),
+            all(unlist(e1@colToRowMatCols) == unlist(e2@colToRowMatCols)),
+            all(rownames(cd1) == rownames(cd2))
+        ))){
+            stop("There is an internal issue with column names. Unless you've manipulated slots directly, this is a bug and should be reported.")
         }
-        if(length(unique(cd2[, i])) != 1){
-            stop("Error in e2, too many values. Use subset to select single value.")
+        for(i in which(is_diff)){
+            new_colData[, i] = paste(cd1[, i], operator, cd2[,i])
         }
-        new_colData[, i] = paste(cd1[, i], operator, cd2[,i])
+    }else{
+        # 2) when only unique values are present in colData for both
+        for(i in which(is_diff)){
+            if(length(unique(cd1[, i])) != 1){
+                stop("Error in e1, too many values. Use subset to select single value.")
+            }
+            if(length(unique(cd2[, i])) != 1){
+                stop("Error in e2, too many values. Use subset to select single value.")
+            }
+            new_colData[, i] = paste(cd1[, i], operator, cd2[,i])
+        }
+        if(!all(rownames(cd1) == rownames(cd2))){
+            rownames(new_colData) = paste(rownames(cd1), operator, rownames(cd2))
+        }
     }
-    if(!all(rownames(cd1) == rownames(cd2))){
-        rownames(new_colData) = paste(rownames(cd1), operator, rownames(cd2))
-    }
-
 
     #generate new ChIPtsne2 internal data structures
     new_rowToRowMat = get(operator)(rowToRowMat(e1), rowToRowMat(e2))

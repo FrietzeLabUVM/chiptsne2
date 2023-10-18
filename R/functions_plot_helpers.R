@@ -1,16 +1,24 @@
-.prep_color_scale = function(values, color_scale){
+.prep_color_scale = function(values, has_symmetrical_limits = NULL, color_scale = NULL){
     if(is.numeric(values)){
         if(is.null(color_scale)){
-            if(any(values < 0)){
+            apply_symm = any(values < 0)
+            if(!is.null(has_symmetrical_limits)){
+                apply_symm = has_symmetrical_limits
+            }
+            if(apply_symm){
                 #for negative values, default to different colors and symmetrical limits
-                color_scale = c("orange", "white", "purple")
+                color_scale = c("orange", "gray80", "purple")
             }else{
-                color_scale = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF")
+                # this does not show up well on light color background
+                # color_scale = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF")
+                color_scale = c("gray80", "yellow", "orange", "red")
             }
         }
     }else{
-        auto_point_colors = seqsetvis::safeBrew(setdiff(values, names(color_scale)))
-        color_scale = c(auto_point_colors, color_scale)
+        if(!all(unique(values) %in% names(color_scale))){
+            auto_point_colors = seqsetvis::safeBrew(setdiff(values, names(color_scale)))
+            color_scale = c(auto_point_colors, color_scale)
+        }
     }
     color_scale
 }

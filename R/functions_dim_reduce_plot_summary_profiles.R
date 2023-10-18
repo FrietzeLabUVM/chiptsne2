@@ -328,7 +328,7 @@ plot_summary_glyph = function (summary_dt,
 
     #scale height of glyphs based on value_limits
     limits_size = diff(range(value_limits))
-    values_size = diff(range(summary_dt$y))
+    values_size = diff(range(summary_dt[[value_VAR]]))
 
     glyph_dt = data.table::as.data.table(
         GGally::glyphs(summary_dt,

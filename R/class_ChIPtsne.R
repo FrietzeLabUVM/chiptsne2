@@ -305,7 +305,7 @@ addRegionAnnotation = function(ct2,
             GenomicRanges::mcols(anno_gr)[[anno_VAR]] = overlap_value
         }
     }
-    if(length(no_overlap_value) != 1 | length(no_overlap_value) != length(anno_VAR)){
+    if(length(no_overlap_value) != 1 & length(no_overlap_value) != length(anno_VAR)){
         stop("length(no_overlap_value) must be 1 or match anno_VAR length. Was: ", length(no_overlap_value), ".")
     }
     if(length(no_overlap_value) == 1){
@@ -520,4 +520,26 @@ setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
         out,
         rowToRowMat=all.rrm,
         check=FALSE)
+})
+
+# getMethod("colnames", "SummarizedExperiment")
+# getMethod("rownames", "SummarizedExperiment")
+# getMethod(`rownames<-`, "SummarizedExperiment")
+# showMethods(`rownames<-`)
+# getMethod(`rownames<-`, "DFrame")
+setMethod("colnames", "ChIPtsne2", function(x, do.NULL = TRUE, prefix = "col") {
+    callNextMethod()
+})
+setMethod("rownames", "ChIPtsne2", function(x, do.NULL = TRUE, prefix = "row") {
+    callNextMethod()
+})
+setMethod("colnames<-", "ChIPtsne2", function(x, value) {
+    out = callNextMethod()
+    .update_ct2_colnames(x, new_names = colnames(out))
+})
+setMethod("rownames<-", "ChIPtsne2", function(x, value) {
+    stop("NYI")
+    out = callNextMethod()
+    # head(x@rowToRowMat)
+    browser()
 })

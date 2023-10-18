@@ -1,0 +1,425 @@
+---
+title: "ChIPtsne2 workflow"
+author: "Joe Boyd"
+date: "2023-10-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+To identify a set of sites where ERG is changing with IK induction.
+
+We're going to use chipstne2 to help us understand different ways of defining differential sites and change our strategy accordingly.
+
+
+## Setup
+
+```{r}
+suppressPackageStartupMessages({
+    library(IKdata)
+    library(chiptsne2)
+    library(seqsetvis)
+    library(GenomicRanges)
+    library(data.table)
+})
+
+options(mc.cores = 20)
+treatment_colors = c("IK" = "purple", GFP = "green")
+```
+
+IKdata provides convenient shortcuts to setup bam and peak files with metadata.
+
+```{r IKdata}
+bam_cfg_dt = cutnrun.setup_bam_files()
+bam_cfg_dt = bam_cfg_dt[mark == "ERG"]
+bam_cfg_dt = bam_cfg_dt[order(treatment)]
+bam_cfg_dt$name = factor(bam_cfg_dt$name, levels = unique(bam_cfg_dt$name))
+bam_cfg_dt$name = droplevels(bam_cfg_dt$name)
+
+np_cfg_dt = cutnrun.setup_peak_files()
+np_cfg_dt = np_cfg_dt[mark == "ERG"]
+```
+
+## Peak Overlap Method
+
+### Peaks
+
+Load peaks.
+
+```{r peak load}
+peak_grs = easyLoad_narrowPeak(np_cfg_dt$file, file_names = np_cfg_dt$name)
+ssvFeatureBars(peak_grs)
+ssvFeatureEuler(peak_grs)
+```
+
+Overlap peaks. 
+
+```{r peak overlap}
+olap_grs = ssvConsensusIntervalSets(peak_grs, min_number = 2, min_fraction = 0)
+olap_grs = prepare_fetch_GRanges_names(olap_grs)
+```
+
+Define "differential" peaks such that peaks are in both cell lines in one condition and neither cell line in the other condition.
+
+```{r peaks}
+gr_peaks_GFP_only = subset(olap_grs, (PDX2_ERG_GFP_rep1 & MXP5_ERG_GFP_rep1) &  !(PDX2_ERG_IK_rep1 | MXP5_ERG_IK_rep1))
+gr_peaks_GFP_only$peak_group = "GFP"
+gr_peaks_IK_only = subset(olap_grs, !(PDX2_ERG_GFP_rep1 | MXP5_ERG_GFP_rep1) &  (PDX2_ERG_IK_rep1 & MXP5_ERG_IK_rep1))
+gr_peaks_IK_only$peak_group = "IK"
+
+diff_gr = c(
+    gr_peaks_GFP_only,
+    gr_peaks_IK_only
+)
+
+#invert selects regions NOT overlapping
+notDiff_gr = subsetByOverlaps(olap_grs, diff_gr, invert = TRUE)
+set.seed(0)
+notDiff_gr = sample(notDiff_gr, length(diff_gr)/2)
+notDiff_gr$peak_group = "not_diff"
+
+query_gr = c(diff_gr, notDiff_gr)
+```
+
+### Signal
+
+Creating a FetchConfig to define how to fetch signal allows us to easily create a ChIPtsne2 object.
+
+```{r config and fetch peaks, include=FALSE}
+cfg = FetchConfig(bam_cfg_dt, read_mode = "bam_PE")
+cache_dir = "workflow_rmd_cache"
+cache_file = function(f){
+    out_f = file.path(cache_dir, f)
+    dir.create(dirname(out_f), showWarnings = FALSE, recursive = TRUE)
+    out_f
+}
+raw_cache = cache_file("ct2.raw.Rds")
+if(file.exists(raw_cache)){
+    ct2.raw = readRDS(raw_cache)
+}else{
+    ct2.raw = ChIPtsne2.from_FetchConfig(cfg, query_gr)
+    ct2.raw = setPositionVariable(ct2.raw, "bp")
+    ct2.raw = setRegionVariable(ct2.raw, "ERG peak")  
+    saveRDS(ct2.raw, raw_cache)
+}
+
+tsne_cache = cache_file("ct2.Rds")
+if(file.exists(tsne_cache)){
+    ct2 = readRDS(tsne_cache)
+}else{
+    ct2 = ct2.raw %>% 
+        setSeed(0) %>%
+        normalizeSignalRPM() %>% 
+        calculateSignalCapValue() %>%
+        normalizeSignalCapValue() %>% 
+        centerProfilesAndRefetch() %>%
+        normalizeSignalRPM() %>% 
+        calculateSignalCapValue() %>%
+        normalizeSignalCapValue() %>%
+        flipProfilesToMatch() %>%
+        groupRegionsBySignalCluster() %>%
+        dimReduceTSNE() %>% 
+        groupRegionsByDimReduceCluster()
+    ct2 = setValueVariable(ct2, "normalized reads")
+    saveRDS(ct2, tsne_cache)
+}
+```
+
+```{r config and fetch csaw, eval=FALSE}
+cfg = FetchConfig(bam_cfg_dt, read_mode = "bam_PE")
+ct2.raw = ChIPtsne2.from_FetchConfig(cfg, query_gr)
+setPositionVariable(ct2.raw, "bp")
+setRegionVariable(ct2.raw, "ERG peak")
+```
+
+So far, ct2.raw only has fetched raw signal, no normalization has been applied, let alone t-SNE.
+
+A standard workflow looks like this:
+
+```{r tsne workflow, eval=FALSE}
+ct2 = ct2.raw %>% 
+    setSeed(0) %>%
+    normalizeSignalRPM() %>% 
+    calculateSignalCapValue() %>%
+    normalizeSignalCapValue() %>% 
+    centerProfilesAndRefetch() %>%
+    normalizeSignalRPM() %>% 
+    calculateSignalCapValue() %>%
+    normalizeSignalCapValue() %>%
+    flipProfilesToMatch() %>%
+    groupRegionsBySignalCluster() %>%
+    dimReduceTSNE() %>% 
+    groupRegionsByDimReduceCluster()
+setValueVariable(ct2, "normalized reads")
+```
+
+```{r heatmap}
+plotSignalHeatmap(ct2, group_VAR = "peak_group", name_FUN = function(x)x, relative_heatmap_width = .8)
+```
+
+```{r line}
+plotSignalLinePlot(ct2, 
+                   group_VAR = "peak_group", 
+                   facet_VAR = "cell", 
+                   color_VAR = "treatment") +
+    scale_color_manual(values = treatment_colors)
+```
+
+```{r line spline}
+plotSignalLinePlot(ct2, 
+                   group_VAR = "peak_group",
+                   facet_VAR = "cell", 
+                   color_VAR = "treatment",
+                   n_splines = 5)+
+    scale_color_manual(values = treatment_colors)
+```
+
+Treatment differences
+
+```{r}
+plotDimReduceSummaryProfiles(ct2, x_bins = 10, color_VAR = "treatment") +
+    scale_color_manual(values = treatment_colors) +
+    facet_wrap(~cell) +
+    theme(panel.background = element_rect(fill = "gray65"), 
+          panel.grid = element_line(color = "gray60"))
+
+```
+
+Cell to cell differences
+
+```{r}
+plotDimReduceSummaryProfiles(ct2, x_bins = 10, color_VAR = "cell") +
+    facet_wrap(~treatment)
+```
+
+t-SNE arithmetic
+
+```{r}
+cn = colnames(ct2)
+names(cn) = cn
+ct2.split = lapply(cn, function(x)ct2[, x])
+lapply(ct2.split, dim)
+ct2.gfp = (ct2.split$MXP5_ERG_GFP_rep1 + ct2.split$PDX2_ERG_GFP_rep1)/2
+ct2.ik = (ct2.split$MXP5_ERG_IK_rep1 + ct2.split$PDX2_ERG_IK_rep1)/2
+ct2.diff = ct2.ik - ct2.gfp
+```
+
+
+```{r, fig.height=6, fig.width=8}
+p.gfp = plotDimReducePoints(ct2.gfp, has_symmetrical_limits = FALSE)+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.ik = plotDimReducePoints(ct2.ik, has_symmetrical_limits = FALSE)+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.diff = plotDimReducePoints(ct2.diff, 
+                             has_symmetrical_limits = TRUE, point_color_limits = c(-.5, .5),
+                             point_colors = c("green", "gray45", "gray35", "gray45", "purple"))+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.peaks = plotDimReducePoints(ct2, color_VAR = "peak_group") +
+    guides(color = guide_legend(override.aes = list(size = 3))) +
+    scale_color_manual(values = c(GFP = "green", IK = "purple", mixed = "gray"))
+
+
+cowplot::plot_grid(
+    p.gfp, p.ik, p.diff, p.peaks, nrow = 2
+)
+```
+
+Peak group is not doing a good job capture areas where ERG differs between cell lines.
+
+## CSAW
+
+```{r}
+csaw_file = "~/R_workspace.combined/preB_IK_induction/output_csaw.091923/ERG_cutnrun/IK_vs_GFP_in_all.csaw_regions.csv"
+dt = fread(csaw_file)
+dt = dt[PValue < .05]
+dt = dt[direction != "mixed"]
+# split(dt, dt$direction)
+table(dt$direction)
+csaw_gr = GRanges(dt)
+csaw_gr$up_treatment = ifelse(csaw_gr$direction == "up", "IK", "GFP")
+csaw_gr$original_width = width(csaw_gr)
+```
+
+```{r}
+ct_gr = rowRanges(ct2)
+olap = findOverlaps(query = ct_gr, subject = csaw_gr)
+ct_gr$csaw_group = "ns"
+ct_gr$csaw_group[queryHits(olap)] = csaw_gr$up_treatment[subjectHits(olap)]
+ct_gr$csaw_width = NA
+ct_gr$csaw_width[queryHits(olap)] = csaw_gr$original_width[subjectHits(olap)]
+table(ct_gr$csaw_group)
+
+ct2.csaw1 = setRegionMetaData(ct2, as.data.frame(ct_gr))
+```
+
+```{r}
+plotSignalHeatmap(ct2.csaw1, group_VARS = c("peak_group", "csaw_group"), name_FUN = function(x)x, relative_heatmap_width = .8)
+plotSignalLinePlot(ct2.csaw1, 
+                   group_VAR = "csaw_group",
+                   facet_VAR = "cell", 
+                   color_VAR = "treatment",
+                   n_splines = 5)+
+    scale_color_manual(values = treatment_colors)
+```
+
+```{r}
+cn = colnames(ct2.csaw1)
+names(cn) = cn
+ct2.csaw1.split = lapply(cn, function(x)ct2.csaw1[, x])
+lapply(ct2.csaw1.split, dim)
+ct2.csaw1.gfp = (ct2.csaw1.split$MXP5_ERG_GFP_rep1 + ct2.csaw1.split$PDX2_ERG_GFP_rep1)/2
+ct2.csaw1.ik = (ct2.csaw1.split$MXP5_ERG_IK_rep1 + ct2.csaw1.split$PDX2_ERG_IK_rep1)/2
+ct2.csaw1.diff = ct2.csaw1.ik - ct2.csaw1.gfp
+```
+
+```{r, fig.width=8, fig.height=6}
+colnames(ct2.csaw1.gfp) = "mean GFP"
+colnames(ct2.csaw1.ik) = "mean IK induced"
+colnames(ct2.csaw1.diff) = "mean IK induced - GFP"
+
+p.gfp = plotDimReducePoints(ct2.csaw1.gfp, has_symmetrical_limits = FALSE)+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.ik = plotDimReducePoints(ct2.csaw1.ik, has_symmetrical_limits = FALSE)+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.diff = plotDimReducePoints(ct2.csaw1.diff, 
+                             has_symmetrical_limits = TRUE, point_color_limits = c(-.5, .5),
+                             point_colors = c("green", "gray45", "gray35", "gray45", "purple"))+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.peaks = plotDimReducePoints(ct2.csaw1, color_VAR = "csaw_group") +
+    guides(color = guide_legend(override.aes = list(size = 3))) +
+    scale_color_manual(values = c(GFP = "green", IK = "purple", mixed = "gray"))
+
+cowplot::plot_grid(
+    p.gfp, p.ik, p.diff, p.peaks, nrow = 2
+)
+```
+
+Still not good!
+
+```{r}
+plotDimReducePoints(subsetRow(ct2.csaw1, !is.na(csaw_width)), color_VAR = "csaw_width", point_size = 1) +
+    scale_color_gradientn(colours = c("blue", "red"))
+```
+
+Low width of csaw results (few diff windows in a row)
+
+## Csaw with min width
+
+```{r}
+csaw_file = "~/R_workspace.combined/preB_IK_induction/output_csaw.091923/ERG_cutnrun/IK_vs_GFP_in_all.csaw_regions.csv"
+dt = fread(csaw_file)
+dt = dt[PValue < .05]
+dt = dt[direction != "mixed"]
+# split(dt, dt$direction)
+table(dt$direction)
+csaw_gr = GRanges(dt)
+csaw_gr = subset(csaw_gr, width >= 1e3)
+csaw_gr$up_treatment = ifelse(csaw_gr$direction == "up", "IK", "GFP")
+csaw_gr$original_width = width(csaw_gr)
+```
+
+```{r}
+if(FALSE){
+    ct_gr = rowRanges(ct2)
+    olap = findOverlaps(query = ct_gr, subject = csaw_gr)
+    ct_gr$csaw_group = "ns"
+    ct_gr$csaw_group[queryHits(olap)] = csaw_gr$up_treatment[subjectHits(olap)]
+    ct_gr$csaw_width = NA
+    ct_gr$csaw_width[queryHits(olap)] = csaw_gr$original_width[subjectHits(olap)]
+    table(ct_gr$csaw_group)
+    
+    ct2.csaw2 = setRegionMetaData(ct2, as.data.frame(ct_gr))
+}
+
+
+#adding annotation is now easy with GRanges
+ct2.csaw2 = ct2 %>%
+    addRegionAnnotation(csaw_gr, anno_VAR = "up_treatment", anno_VAR_renames = "csaw_group", no_overlap_value = "ns") %>%
+    addRegionAnnotation(csaw_gr, anno_VAR = "original_width", anno_VAR_renames = "csaw_width", no_overlap_value = NA)
+
+ct2.csaw3 = ct2 %>%
+    addRegionAnnotation(csaw_gr, 
+                        anno_VAR = c("up_treatment", "original_width"), 
+                        anno_VAR_renames = c("csaw_group", "csaw_width"), 
+                        no_overlap_value = c("ns", NA))
+
+```
+
+```{r}
+plotSignalHeatmap(ct2.csaw2, group_VARS = c("peak_group", "csaw_group"), name_FUN = function(x)x, relative_heatmap_width = .8)
+plotSignalLinePlot(ct2.csaw2, 
+                   group_VAR = "csaw_group",
+                   facet_VAR = "cell", 
+                   color_VAR = "treatment",
+                   n_splines = 5)+
+    scale_color_manual(values = treatment_colors)
+```
+
+```{r}
+cn = colnames(ct2.csaw2)
+names(cn) = cn
+ct2.csaw2.split = lapply(cn, function(x)ct2.csaw2[, x])
+lapply(ct2.csaw2.split, dim)
+ct2.csaw2.gfp = (ct2.csaw2.split$MXP5_ERG_GFP_rep1 + ct2.csaw2.split$PDX2_ERG_GFP_rep1)/2
+ct2.csaw2.ik = (ct2.csaw2.split$MXP5_ERG_IK_rep1 + ct2.csaw2.split$PDX2_ERG_IK_rep1)/2
+ct2.csaw2.diff = ct2.csaw2.ik - ct2.csaw2.gfp
+```
+
+```{r}
+p.gfp = plotDimReducePoints(ct2.csaw2.gfp, has_symmetrical_limits = FALSE)+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.ik = plotDimReducePoints(ct2.csaw2.ik, has_symmetrical_limits = FALSE)+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.diff = plotDimReducePoints(ct2.csaw2.diff, 
+                             has_symmetrical_limits = TRUE, point_color_limits = c(-.5, .5),
+                             point_colors = c("green", "gray35", "purple"))+
+    theme(panel.background = element_rect(fill = "gray30"), panel.grid = element_line(color = "gray40"))
+p.peaks = plotDimReducePoints(subsetRow(ct2.csaw2, expr = csaw_group != "ns"), color_VAR = "csaw_group") +
+    guides(color = guide_legend(override.aes = list(size = 3))) +
+    scale_color_manual(values = c(GFP = "green", IK = "purple", mixed = "gray"))
+
+cowplot::plot_grid(
+    p.gfp, p.ik, p.diff, p.peaks, nrow = 2
+)
+```
+
+## CSAW method
+
+Define "differential" peaks such that peaks are in both cell lines in one condition and neither cell line in the other condition.
+
+```{r peaks}
+csaw_file = "~/R_workspace.combined/preB_IK_induction/output_csaw.091923/ERG_cutnrun/IK_vs_GFP_in_all.csaw_regions.csv"
+dt = fread(csaw_file)
+dt = dt[PValue < .05]
+dt = dt[direction != "mixed"]
+# split(dt, dt$direction)
+table(dt$direction)
+csaw_gr = GRanges(dt)
+csaw_gr = subset(csaw_gr, width >= 1e3)
+csaw_gr$up_treatment = ifelse(csaw_gr$direction == "up", "IK", "GFP")
+csaw_gr$original_width = width(csaw_gr)
+
+olap_grs.csaw_ik = subsetByOverlaps(olap_grs, subset(csaw_gr, up_treatment == "IK"))
+olap_grs.csaw_gfp = subsetByOverlaps(olap_grs, subset(csaw_gr, up_treatment == "GFP"))
+
+olap_grs.csaw_ik$csaw_group = "IK"
+olap_grs.csaw_gfp$csaw_group = "GFP"
+
+diff_gr = c(
+    olap_grs.csaw_ik,
+    olap_grs.csaw_gfp
+)
+
+#invert selects regions NOT overlapping
+notDiff_gr = subsetByOverlaps(olap_grs, diff_gr, invert = TRUE)
+set.seed(0)
+notDiff_gr = sample(notDiff_gr, length(diff_gr)/2)
+notDiff_gr$csaw_group = "not_diff"
+
+query_gr = c(diff_gr, notDiff_gr)
+```
+

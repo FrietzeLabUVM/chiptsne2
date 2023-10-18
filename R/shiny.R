@@ -1,18 +1,20 @@
-.shiny_primary_plot = function(tx_df, plotType, selAttribute, selIds, plotBrush){
+.shiny_primary_plot = function(plot_ct2, tx_df, plotType, selAttribute, selIds, plotBrush){
+    plot_ct2 = setRegionMetaData(plot_ct2, tx_df)
+    theme_update(panel.background = element_blank(), panel.grid = element_blank())
     switch(plotType,
            signal_max = {
-               p = plotDimReducePoints(ct2)
+               p = plotDimReducePoints(plot_ct2, point_size = .8)
            },
            annotation = {
-               p = plotDimReducePoints(ct2, color_VAR = selAttribute)
+               p = plotDimReducePoints(plot_ct2, color_VAR = selAttribute, point_size = .8)
            },
            signal_max_vs_annotation = {
-               p = plotDimReducePoints(ct2, extra_VARS = selAttribute) +
-                   facet_wrap(paste0("~", selAttribute))
+               p = plotDimReducePoints(plot_ct2, extra_VARS = selAttribute, point_size = .8) +
+                   facet_grid(paste0(getNameVariable(plot_ct2), "~", selAttribute))
            }, {
                stop("bad plotType: ", plotType)
            })
-
+    p = p + guides(color = guide_legend(override.aes = list(size = 2.5)))
     if(!is.null(plotBrush)){
         p = p + annotate("rect",
                          xmin = plotBrush$xmin,
@@ -71,13 +73,14 @@
 }
 
 .shiny_secondary_plot.no_selection = function(plot_ct2, tx_df, plotType, selAttribute, selIds){
+    plot_ct2 = setRegionMetaData(plot_ct2, tx_df)
     switch(plotType,
            line_color_selection = {
-               p = plotSignalLinePlot(plot_ct2, group_VAR = selAttribute)
+               p = plotSignalLinePlot(plot_ct2, group_VAR = selAttribute, n_splines = 5, moving_average_window = 1)
            },
            line_color_annotation = {
                line_colors = seqsetvis::safeBrew(as.character(tx_df[[selAttribute]]))
-               p = plotSignalLinePlot(plot_ct2, color_VAR = selAttribute) +
+               p = plotSignalLinePlot(plot_ct2, color_VAR = selAttribute, n_splines = 5, moving_average_window = 1) +
                    scale_color_manual(values = line_colors)
            },
            heatmap_cluster_selection = {
@@ -99,12 +102,12 @@
     plot_ct2 = setRegionMetaData(plot_ct2, tx_df)
     switch(plotType,
            line_color_selection = {
-               p = plotSignalLinePlot(plot_ct2, group_VAR = selAttribute, color_VAR = "is_selected") +
+               p = plotSignalLinePlot(plot_ct2, group_VAR = selAttribute, color_VAR = "is_selected", n_splines = 5, moving_average_window = 1) +
                    scale_color_manual(values = c("not selected" = 'gray60', "selected" = "pink"))
            },
            line_color_annotation = {
                line_colors = seqsetvis::safeBrew(as.character(tx_df[[selAttribute]]))
-               p = plotSignalLinePlot(plot_ct2, color_VAR = selAttribute, group_VAR = "is_selected") +
+               p = plotSignalLinePlot(plot_ct2, color_VAR = selAttribute, group_VAR = "is_selected", n_splines = 5, moving_average_window = 1) +
                    scale_color_manual(values = line_colors)
            },
            heatmap_cluster_selection = {
@@ -191,7 +194,7 @@ run_ChIPtsne2_shiny = function(ct2){
 
     server = function(input, output){
         output$plot <- renderPlot({
-            .shiny_primary_plot(tx_df = r_meta_df(), input$txt_plotType, input$txt_selAttribute,  r_sel_ids(), isolate(input$plot_brush))
+            .shiny_primary_plot(plot_ct2 = ct2, tx_df = r_meta_df(), input$txt_plotType, input$txt_selAttribute,  r_sel_ids(), isolate(input$plot_brush))
         })
         output$plot2 = renderPlot({
             .shiny_secondary_plot(plot_ct2 = ct2, tx_df = r_meta_df(), input$txt_plot2Type, input$txt_selAttribute,  r_sel_ids())
