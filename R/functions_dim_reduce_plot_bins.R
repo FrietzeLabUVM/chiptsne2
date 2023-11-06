@@ -13,7 +13,7 @@
 #' @param bin_fill_limits
 #' @param has_symmetrical_limits
 #' @param bin_colors
-#' @param extra_vars
+#' @param extra_VARS
 #' @param return_data
 #'
 #' @return
@@ -36,7 +36,7 @@
                               bin_fill_limits = c(NA, NA),
                               has_symmetrical_limits = NULL,
                               bin_colors = NULL,
-                              extra_vars = character(),
+                              extra_VARS = character(),
                               return_data = FALSE){
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
@@ -52,7 +52,7 @@
     #aggregate_signals is retrieves a single representative value for a genomic region per sample
     #by default this is the maximum anywhere in the region but this can be
     #overridden using xmin/xmax and agg_FUN
-    extra_vars = c(facet_rows, facet_columns)
+    extra_VARS = c(facet_rows, facet_columns)
     agg_dt = aggregate_signals(
         prof_dt,
         y_ = ct2@value_VAR,
@@ -75,8 +75,8 @@
         x_bins = x_bins,
         y_bins = y_bins,
         val = ct2@value_VAR,
-        extra_vars = extra_vars[-1],
-        facet_ = extra_vars[1],
+        extra_VARS = extra_VARS[-1],
+        facet_ = extra_VARS[1],
         min_size = min_size
     )
 
@@ -92,7 +92,7 @@
     p_bin = plot_binned_aggregates(
         bin_dt = bin_dt,
         val = ct2@value_VAR,
-        facet_ = extra_vars[1],
+        facet_ = extra_VARS[1],
         min_size = min_size
     ) +
         facet_grid(facet_str) +
@@ -118,7 +118,7 @@ generic_plotDimReduceBins = function(ct2,
                                      bin_fill_limits = c(NA, NA),
                                      has_symmetrical_limits = NULL,
                                      bin_colors = NULL,
-                                     extra_vars = character(),
+                                     extra_VARS = character(),
                                      return_data = FALSE){
     standardGeneric("plotDimReduceBins")
 }
@@ -154,7 +154,7 @@ bin_signals = function(agg_dt,
                        bxval = "tx",
                        byval = "ty",
                        facet_ = "wide_var",
-                       extra_vars = character(),
+                       extra_VARS = character(),
                        bin_met = mean,
                        min_size = 1, return_data = FALSE){
     if(is.null(xrng)) xrng = range(agg_dt[[bxval]])
@@ -164,7 +164,7 @@ bin_signals = function(agg_dt,
     agg_dt[, bx := bin_values(get(bxval), n_bins = x_bins, xrng = xrng)]
     agg_dt[, by := bin_values(get(byval), n_bins = y_bins, xrng = yrng)]
 
-    bin_dt = agg_dt[, .(y = bin_met(get(val)), N = .N), c(unique(c(facet_, extra_vars, "bx", "by")))]
+    bin_dt = agg_dt[, .(y = bin_met(get(val)), N = .N), c(unique(c(facet_, extra_VARS, "bx", "by")))]
     bxvc = bin_values_centers(n_bins = x_bins, xrng)
     w = diff(bxvc[1:2])
     byvc = bin_values_centers(n_bins = y_bins, yrng)

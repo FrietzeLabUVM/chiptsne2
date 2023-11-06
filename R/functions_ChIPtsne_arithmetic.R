@@ -29,7 +29,7 @@ apply_chiptsne2_operator = function(e1, e2, operator = "-"){
     cd2 = cd2[, !is_numeric, drop = FALSE]
 
     is_diff = sapply(seq(ncol(cd1)), function(i){
-        cd1[,i] != cd2[,i]
+        !(all(cd1[,i] == cd2[,i]))
     })
     new_colData = cd1
     # arithmetic operators make sense to apply in 2 modes

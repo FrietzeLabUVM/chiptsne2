@@ -19,7 +19,7 @@ plot_summary_glyph(
   position_VAR = "x",
   value_VAR = "y",
   color_VAR = "name",
-  extra_vars = character()
+  extra_VARS = character()
 )
 }
 \arguments{

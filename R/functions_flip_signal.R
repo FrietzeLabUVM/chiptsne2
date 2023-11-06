@@ -34,30 +34,40 @@
 #' ggplot(prof_dt, aes(x = x, y = y, color = group)) + geom_path()
 .flipProfilesToMatch = function(ct2, highest_on_right = FALSE){
     args = get_args()
+    message("flipProfilesToMatch ...")
     prof_dt = getTidyProfile(ct2)
     new_query_gr = rowRanges(ct2)
 
-        balance_dt = prof_dt[, list(right_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) > 0]),
-                                    left_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) < 0])),
-                             by = c(ct2@region_VAR, ct2@name_VAR)]
-        balance_dt = balance_dt[, list(needs_flip = left_sum > right_sum),
-                                       c(ct2@region_VAR, ct2@name_VAR)]
-        most_flipped = balance_dt[,
-                                  list(fraction_flipped = sum(needs_flip) / .N),
-                                  by = c(ct2@region_VAR)]
-        most_flipped[, needs_flip := fraction_flipped > .5]
-        if(!highest_on_right){
-            most_flipped$needs_flip = !most_flipped$needs_flip
-        }
-        most_flipped$fraction_flipped = NULL
-        GenomicRanges::strand(new_query_gr) = "+"
-        GenomicRanges::strand(new_query_gr)[most_flipped$needs_flip] = "-"
-        prof_dt = merge(prof_dt, most_flipped, by = c(ct2@region_VAR))
-        remove(balance_dt)
-        # prof_dt[needs_flip == TRUE, x := -x]
-        flip_i = which(prof_dt$needs_flip)
-        data.table::set(prof_dt, i = flip_i, j = ct2@position_VAR, value = -prof_dt[[ct2@position_VAR]][flip_i])
-        prof_dt$needs_flip = NULL
+    balance_dt = prof_dt[, list(right_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) > 0]),
+                                left_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) < 0])),
+                         by = c(ct2@region_VAR, ct2@name_VAR)]
+    balance_dt = balance_dt[, list(needs_flip = left_sum > right_sum),
+                            c(ct2@region_VAR, ct2@name_VAR)]
+    most_flipped = balance_dt[,
+                              list(fraction_flipped = sum(needs_flip) / .N),
+                              by = c(ct2@region_VAR)]
+    most_flipped[, needs_flip := fraction_flipped > .5]
+    if(!highest_on_right){
+        most_flipped$needs_flip = !most_flipped$needs_flip
+    }
+    most_flipped$fraction_flipped = NULL
+    GenomicRanges::strand(new_query_gr) = "+"
+    GenomicRanges::strand(new_query_gr)[most_flipped$needs_flip] = "-"
+    prof_dt = merge(prof_dt, most_flipped, by = c(ct2@region_VAR))
+    prof_dt = prof_dt[order(get(ct2@position_VAR))]
+    x_vals = unique(prof_dt[[ct2@position_VAR]])
+    remove(balance_dt)
+    flip_i = which(prof_dt$needs_flip)
+    #it is not enough to simply negate position values when win_size is odd
+    # data.table::set(prof_dt, i = flip_i, j = ct2@position_VAR, value = -prof_dt[[ct2@position_VAR]][flip_i])
+    prof_dt[, TMP_POS_I__ := seq(.N), c(ct2@region_VAR, ct2@name_VAR)]
+    prof_dt[needs_flip == TRUE, TMP_POS_I__ := seq(.N, 1), c(ct2@region_VAR, ct2@name_VAR)]
+    prof_dt[, NEW_POS_X__ := x_vals[TMP_POS_I__]]
+    prof_dt[[ct2@position_VAR]] = NULL
+    prof_dt$TMP_POS_I__ = NULL
+    prof_dt$needs_flip = NULL
+    data.table::setnames(prof_dt, "NEW_POS_X__", ct2@position_VAR)
+    prof_dt = prof_dt[order(get(ct2@position_VAR))]
 
     history_item = list(.flipProfilesToMatch = list(FUN = .flipProfilesToMatch, ARG = args))
     cloneChIPtsne2_fromTidy(ct2,

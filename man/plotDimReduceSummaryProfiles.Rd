@@ -9,7 +9,7 @@ plotDimReduceSummaryProfiles(
   color_VAR = ct2@name_VAR,
   x_bins = nrow(ct2)^0.5,
   y_bins = x_bins,
-  extra_vars = character(),
+  extra_VARS = character(),
   xrng = NULL,
   yrng = NULL,
   value_limits = c(0, 1),

@@ -1,4 +1,5 @@
 .setSeed = function(ct2, seed = NULL){
+    message("setSeed ...")
     if(is.null(seed)){
         seed = as.numeric(Sys.time())
     }

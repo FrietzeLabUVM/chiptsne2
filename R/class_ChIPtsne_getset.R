@@ -297,7 +297,7 @@ setSampleMetaData = function(ct2, new_meta){
 #' getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
 getRegionMetaData = function(ct2, select_VARS = NULL){
     gr = rowRanges(ct2)
-    df = GenomicRanges::mcols(gr) %>% as.data.frame
+    df = GenomicRanges::mcols(gr) %>% data.frame(check.names = FALSE)
     df[[ct2@region_VAR]] = names(gr)
     if(!is.null(select_VARS)){
         if(!all(select_VARS %in% colnames(df))){

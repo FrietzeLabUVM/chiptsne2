@@ -14,17 +14,21 @@
 #' ct2 = groupRegionsBySignalCluster(ct2)
 #' ct2 = groupRegionsBySignalCluster(ct2)
 .groupRegionsBySignalCluster = function(ct2, group_VAR = "cluster_id", n_clusters = 6){
+    message("groupRegionsBySignalCluster ...")
     args = get_args()
     prof_dt = getTidyProfile(ct2)
-    clust_dt = seqsetvis::ssvSignalClustering(prof_dt,
-                                              cluster_ = group_VAR,
-                                              nclust = n_clusters,
-                                              fill_ =ct2@value_VAR,
-                                              facet_ = ct2@name_VAR,
-                                              column_ = ct2@position_VAR,
-                                              row_ = ct2@region_VAR,
-                                              max_rows = Inf,
-                                              max_cols = Inf)
+    clust_dt = suppressMessages({
+        seqsetvis::ssvSignalClustering(
+            prof_dt,
+            cluster_ = group_VAR,
+            nclust = n_clusters,
+            fill_ =ct2@value_VAR,
+            facet_ = ct2@name_VAR,
+            column_ = ct2@position_VAR,
+            row_ = ct2@region_VAR,
+            max_rows = Inf,
+            max_cols = Inf)
+    })
     assign_dt = clust_dt %>%
         dplyr::select(all_of(c(group_VAR, ct2@region_VAR))) %>%
         unique
@@ -100,6 +104,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2"), .groupRegionsBySignalCl
 }
 
 .groupRegionsByDimReduceCluster = function(ct2, group_VAR = "knn_id", nearest_neighbors = 100){
+    message("groupRegionsByDimReduceCluster ...")
     args = get_args()
     xy_df = GenomicRanges::mcols(rowRanges(ct2)) %>%
         as.data.frame() %>%
@@ -133,6 +138,7 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2"), .groupRegionsByDimRe
 #### region overlap ####
 
 .groupRegionsByOverlap = function(ct2, gr_list, group_VAR = "overlap_id"){
+    message("groupRegionsByOverlap ...")
     args = get_args()
     gr = rowRanges(ct2)
     GenomicRanges::mcols(gr) = NULL
@@ -162,6 +168,7 @@ setMethod("groupRegionsByOverlap", c("ChIPtsne2"), .groupRegionsByOverlap)
 #### memb table grouping ####
 
 .groupRegionsByMembershipTable = function(ct2, membership, group_VAR = "membership_id"){
+    message("groupRegionsByMembershipTable ...")
     args = get_args()
     memb_df = seqsetvis::ssvMakeMembTable(membership)
     group_df = seqsetvis::ssvFactorizeMembTable(memb_df)
@@ -186,6 +193,7 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2"), .groupRegionsByMember
 
 #### manual grouping ####
 .groupRegionsManually = function(ct2, assignment, group_VAR = "group_id"){
+    message("groupRegionsManually ...")
     args = get_args()
     if(is.data.frame(assignment)){
         if(!ct2@region_VAR %in% colnames(assignment)){
@@ -227,6 +235,7 @@ setMethod("groupRegionsManually", c("ChIPtsne2"), .groupRegionsManually)
 
 #### sort regions ####
 .sortRegions = function(ct2, group_VAR = NULL){
+    message("sortRegions ...")
     args = get_args()
     prof_dt = getTidyProfile(ct2, meta_VARS = group_VAR)
     clust_dt = seqsetvis::within_clust_sort(

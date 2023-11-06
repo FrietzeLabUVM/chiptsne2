@@ -18,7 +18,7 @@
   bin_fill_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
   bin_colors = NULL,
-  extra_vars = character(),
+  extra_VARS = character(),
   return_data = FALSE
 )
 }

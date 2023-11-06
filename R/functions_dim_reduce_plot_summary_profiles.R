@@ -4,7 +4,7 @@
 #' @param color_VAR
 #' @param x_bins
 #' @param y_bins
-#' @param extra_vars
+#' @param extra_VARS
 #' @param xrng
 #' @param yrng
 #' @param value_limits
@@ -31,7 +31,7 @@
         color_VAR = ct2@name_VAR,
         x_bins = min(nrow(ct2)^.5, 10),
         y_bins = x_bins,
-        extra_vars = character(),
+        extra_VARS = character(),
         xrng = NULL,
         yrng = NULL,
         value_limits = c(0, 1),
@@ -51,7 +51,7 @@
     cn = colnames(getSampleMetaData(ct2))
     profile_dt = profile_dt[order(x)]
     position_dt = data.table::as.data.table(getRegionMetaData(ct2))
-    extra_vars = union(extra_vars, cn)
+    extra_VARS = union(extra_VARS, cn)
 
     stopifnot(length(value_limits) == 2)
     if(is.na(value_limits[1])){
@@ -85,7 +85,7 @@
         color_VAR = color_VAR,
         x_bins = x_bins,
         y_bins = x_bins,
-        extra_vars = extra_vars,
+        extra_VARS = extra_VARS,
         xrng = xrng,
         yrng = yrng,
         value_limits = value_limits,
@@ -104,7 +104,7 @@
 #' @param color_VAR
 #' @param x_bins
 #' @param y_bins
-#' @param extra_vars
+#' @param extra_VARS
 #' @param xrng
 #' @param yrng
 #' @param value_limits
@@ -125,7 +125,7 @@ setGeneric("plotDimReduceSummaryProfiles", function(
         color_VAR = ct2@name_VAR,
         x_bins = nrow(ct2)^.5,
         y_bins = x_bins,
-        extra_vars = character(),
+        extra_VARS = character(),
         xrng = NULL,
         yrng = NULL,
         value_limits = c(0, 1),
@@ -150,7 +150,7 @@ plot_summary_profiles = function (profile_dt,
                                   color_VAR,
                                   x_bins = 8,
                                   y_bins = x_bins,
-                                  extra_vars = character(),
+                                  extra_VARS = character(),
                                   xrng = NULL,
                                   yrng = NULL,
                                   value_limits = c(0, 1),
@@ -183,7 +183,7 @@ plot_summary_profiles = function (profile_dt,
                               value_VAR = value_VAR,
                               region_VAR = region_VAR,
                               color_VAR = color_VAR,
-                              extra_vars = extra_vars)
+                              extra_VARS = extra_VARS)
     plot_summary_glyph(
         summary_dt = summary_dt,
         p = p,
@@ -214,7 +214,7 @@ prep_summary = function (profile_dt,
                          value_VAR = "y",
                          region_VAR = "id",
                          color_VAR = "name",
-                         extra_vars = character()){
+                         extra_VARS = character()){
     position_dt = data.table::copy(position_dt[tx >= min(xrng) & tx <= max(xrng) &
                                                    ty >= min(yrng) & ty <= max(yrng)])
     position_dt = position_dt[get(region_VAR) %in% unique(profile_dt[[region_VAR]])]
@@ -230,14 +230,14 @@ prep_summary = function (profile_dt,
     if (is.null(summary_dt[[color_VAR]]))
         summary_dt[[color_VAR]] = "signal"
     if (is.null(facet_by)) {
-        summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, extra_vars)))]
+        summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, extra_VARS)))]
     }
     else {
-        summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, facet_by, extra_vars)))]
+        summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, facet_by, extra_VARS)))]
     }
     data.table::setnames(summary_dt, "y_tmp_", value_VAR)
 
-    merge_var_names = c(unique(c("bx", "by", intersect(extra_vars, colnames(position_dt)))))
+    merge_var_names = c(unique(c("bx", "by", intersect(extra_VARS, colnames(position_dt)))))
     N_dt = position_dt[, .(.N), by = merge_var_names]
     summary_dt = merge(summary_dt, N_dt, by = merge_var_names)
     summary_dt[, `:=`(plot_id, paste(bx, by, sep = "_"))]
@@ -303,7 +303,7 @@ plot_summary_glyph = function (summary_dt,
                                position_VAR = "x",
                                value_VAR = "y",
                                color_VAR = "name",
-                               extra_vars = character())
+                               extra_VARS = character())
 {
     group_size = gx = gy = gid = NULL
     summary_dt = set_size(summary_dt, N_floor, N_ceiling, size.name = "group_size")
@@ -346,7 +346,7 @@ plot_summary_glyph = function (summary_dt,
     if (is.null(p)) {
         p = ggplot()
     }
-    glyph_groups = apply(glyph_dt[, c(unique(c("gid", color_VAR, extra_vars))), with = FALSE],
+    glyph_groups = apply(glyph_dt[, c(unique(c("gid", color_VAR, extra_VARS))), with = FALSE],
                          1,
                          function(x){
                              paste(x, collapse = " ")
