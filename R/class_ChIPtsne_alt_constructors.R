@@ -52,11 +52,13 @@ ChIPtsne2.from_tidy = function(prof_dt,
                            c(name_VAR, position_VAR, value_VAR, region_VAR)[missed], sep = ": ")
         stop(paste(c("Missing required VAR in prof_dt:", missed_msg), collapse = "\n"))
     }
-    if(is.null(names(query_gr))){
-        stop("names() must be set on query_gr. Maybe call seqsetvis::prepare_fetch_GRanges_names on query_gr before fetching prof_dt?")
-    }
-    if(!all(unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr))){
-        stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
+    if(!is.null(query_gr)){
+        if(is.null(names(query_gr))){
+            stop("names() must be set on query_gr. Maybe call seqsetvis::prepare_fetch_GRanges_names on query_gr before fetching prof_dt?")
+        }
+        if(!all(unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr))){
+            stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
+        }
     }
     if(!is.null(sample_metadata)){
         if(is.null(rownames(sample_metadata))){
@@ -111,8 +113,10 @@ ChIPtsne2.from_tidy = function(prof_dt,
     if(is.null(rn)){
         stop("Could not determine row order from prof_dt from region_VAR: ", region_VAR, "\nIs ", region_VAR, " present and a character or factor?")
     }
-    if(!setequal(names(query_gr), rn)){
-        stop("names(query_gr) is not consistent with region_VAR: ", region_VAR, " in prof_dt")
+    if(!is.null(query_gr)){
+        if(!setequal(names(query_gr), rn)){
+            stop("names(query_gr) is not consistent with region_VAR: ", region_VAR, " in prof_dt")
+        }
     }
 
     #create wide profile matrix
@@ -124,7 +128,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
     )
     prof_mat = as.matrix(tmp_wide[, -1])
     rownames(prof_mat) = tmp_wide[[region_VAR]]
-    prof_mat = prof_mat[names(query_gr),]
+    prof_mat = prof_mat[rn,]
 
     tmp = c("value_VAR")
     names(tmp) = value_VAR
@@ -141,7 +145,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
         )
     prof_max_mat = as.matrix(prof_max[, -1])
     rownames(prof_max_mat) = prof_max[[region_VAR]]
-    prof_max_mat = prof_max_mat[names(query_gr),]
+    prof_max_mat = prof_max_mat[rn,]
 
     if(is.null(sample_metadata)){
         if(auto_sample_metadata){
@@ -164,18 +168,21 @@ ChIPtsne2.from_tidy = function(prof_dt,
                 stop("Something has gone wrong attempting to automatically derive sample_metadata. Either supply explicitly or disable with auto_sample_metadata = FALSE")
             }
         }else{
-            sample_metadata = data.frame(V1 = cn)
+            sample_metadata = data.frame(V1 = cn, check.names = FALSE)
             colnames(sample_metadata) = name_VAR
         }
     }
-    sample_metadata = as.data.frame(sample_metadata)
+    sample_metadata = data.frame(sample_metadata, check.names = FALSE)
     rownames(sample_metadata) = sample_metadata[[name_VAR]]
     sample_metadata[[name_VAR]] = NULL
 
-    if(!is.null(region_metadata)){
-        #merge region_metadata into query_gr
-        #region_metadata is not used after
-        query_gr = .add_region_metadata(query_gr, region_metadata, region_VAR, overwrite = TRUE)
+    if(!is.null(query_gr)){
+        if(!is.null(region_metadata)){
+            #merge region_metadata into query_gr
+            #region_metadata is not used after
+            query_gr = .add_region_metadata(query_gr, region_metadata, region_VAR, overwrite = TRUE)
+            query_gr = query_gr[rn]
+        }
     }
 
     map_dt = prof_dt %>%
@@ -188,22 +195,36 @@ ChIPtsne2.from_tidy = function(prof_dt,
 
     #impose cn and rn
     prof_max_mat = prof_max_mat[rn, cn, drop = FALSE]
-    query_gr = query_gr[rn]
     prof_mat = prof_mat[rn, , drop = FALSE]
     map_list = map_list[cn]
     sample_metadata = sample_metadata[cn, , drop = FALSE]
 
-    ChIPtsne2(assay = list(max = prof_max_mat),
-              rowRanges = query_gr,
-              rowToRowMat = prof_mat,
-              colToRowMatCols = map_list,
-              colData = sample_metadata,
-              name_VAR = name_VAR,
-              position_VAR = position_VAR,
-              value_VAR = value_VAR,
-              region_VAR = region_VAR,
-              fetch_config = fetch_config,
-              metadata = obj_history)
+    if(is.null(query_gr)){
+        ChIPtsne2_no_rowRanges(
+            assay = list(max = prof_max_mat),
+            rowToRowMat = prof_mat,
+            colToRowMatCols = map_list,
+            colData = sample_metadata,
+            name_VAR = name_VAR,
+            position_VAR = position_VAR,
+            value_VAR = value_VAR,
+            region_VAR = region_VAR,
+            fetch_config = fetch_config,
+            metadata = obj_history)
+    }else{
+        ChIPtsne2(
+            assay = list(max = prof_max_mat),
+            rowRanges = query_gr,
+            rowToRowMat = prof_mat,
+            colToRowMatCols = map_list,
+            colData = sample_metadata,
+            name_VAR = name_VAR,
+            position_VAR = position_VAR,
+            value_VAR = value_VAR,
+            region_VAR = region_VAR,
+            fetch_config = fetch_config,
+            metadata = obj_history)
+    }
 }
 
 #' ChIPtsne2.from_FetchConfig

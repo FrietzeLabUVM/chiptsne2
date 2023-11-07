@@ -25,7 +25,7 @@
 #' @export
 #' @import methods
 #' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
-.ChIPtsne2 <- setClass("ChIPtsne2",
+.ChIPtsne2_no_rowRanges <- setClass("ChIPtsne2_no_rowRanges",
                        slots= representation(
                            rowToRowMat="matrix",
                            colToRowMatCols="list",
@@ -35,7 +35,14 @@
                            region_VAR = "character",
                            fetch_config = "FetchConfig"
                        ),
-                       contains="RangedSummarizedExperiment"
+                       contains="SummarizedExperiment"
+)
+
+#' @export
+#' @import methods
+#' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
+.ChIPtsne2 <- setClass("ChIPtsne2",
+                       contains= c("RangedSummarizedExperiment", "ChIPtsne2_no_rowRanges")
 )
 
 #' @export

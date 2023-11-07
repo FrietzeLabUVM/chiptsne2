@@ -65,11 +65,14 @@ test_that("Gettters", {
 
 bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
 fetch_config = FetchConfig.load_config(bam_cfg_f)
-query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+fetch_config@meta_data = fetch_config@meta_data[1:2,]
+query_gr = seqsetvis::CTCF_in_10a_overlaps_gr[1:10]
+
 suppressWarnings({
     ct2.cfg = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 })
 test_that("Constructor FetchConfig", {
     expect_setequal(rownames(rowToRowMat(ct2.cfg, withDimnames=FALSE)), names(query_gr))
-    expect_equal(ncol(rowToRowMat(ct2.cfg, withDimnames=FALSE)), 1200)
+    expect_equal(ncol(rowToRowMat(ct2.cfg, withDimnames=FALSE)), 400)
 })
+

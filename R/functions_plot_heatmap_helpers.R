@@ -101,12 +101,12 @@ add_group_annotation = function(anno_ids,
                           ymin = starts,
                           ymax = ends,
                           grp = grps)
-    if(!all(unique(df_rects$grp) %in% names(rect_colors))){
+    if(all(unique(df_rects$grp) %in% names(rect_colors))){
         df_rects$fill = rect_colors[df_rects$grp]
     }else{
         stop("invalid rect_colors, check names match group ids.")
     }
-    if(!all(unique(df_rects$grp) %in% names(text_colors))){
+    if(all(unique(df_rects$grp) %in% names(text_colors))){
         df_rects$color = text_colors[df_rects$grp]
     }else{
         stop("invalid text_colors, check names match group ids")
@@ -189,7 +189,7 @@ add_cluster_annotation.numeric = function(anno_ids,
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = anno_rle$values
-
+browser()
     p = ggplot(df_rects) +
         coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
         facet_grid(.~grp)

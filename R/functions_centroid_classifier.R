@@ -1,10 +1,6 @@
 
 calculate_centroid_per_group = function(ct2, group_VAR){
     ct2.r_sp = split(ct2, group_VAR)
-
-    x = ct2.r_sp[[1]]
-
-
     centroids = t(sapply(ct2.r_sp, function(x){
         colMeans(rowToRowMat(x))
     }))

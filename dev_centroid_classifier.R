@@ -10,14 +10,36 @@ head(meta_df)
 meta_df$peak_MCF10A_CTCF
 rowToRowMat(ct2)
 
-cent = calculate_centroid_per_group(ct2, "cluster_id")
-cent_dist = calculate_distance_to_centroids(ct2, cent)
-classify_by_centroid_distances(cent_dist, cent)
+# cent = calculate_centroid_per_group(ct2, "cluster_id")
+# cent_dist = calculate_distance_to_centroids(ct2, cent)
+# classify_by_centroid_distances(cent_dist, cent)
 
 
+group_VAR = "cluster_id"
+centroid = calculateGroupCentroid(ct2, group_VAR)
+getTidyProfile
+chiptsne2:::.getTidyProfile.with_meta
 
-centroid = calculateGroupCentroid(ct2, "cluster_id")
-
+df = do.call(rbind,
+             lapply(names(ct2@colToRowMatCols), function(nam){
+                 i = ct2@colToRowMatCols[[nam]]
+                 df = reshape2::melt(centroid[, i])
+                 df$Var2 = factor(df$Var2)
+                 levels(df$Var2) = as.numeric(sub(paste0(nam, "_"), "", levels(df$Var2), fixed = TRUE))
+                 df[[ct2@name_VAR]] = nam
+                 df
+             })
+)
+colnames(df) = c(group_VAR, ct2@position_VAR, ct2@value_VAR, ct2@name_VAR)
+df[[group_VAR]] = factor(df[[group_VAR]], levels = rownames(centroid))
+head
+undebug(ChIPtsne2.from_tidy)
+ChIPtsne2.from_tidy(df, query_gr = NULL, sample_metadata = colData(ct2),
+                    position_VAR = ct2@position_VAR,
+                    name_VAR = ct2@name_VAR,
+                    value_VAR = ct2@value_VAR,
+                    region_VAR = group_VAR)
+df
 group_VAR = "cent_class"
 
 

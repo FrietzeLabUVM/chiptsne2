@@ -7,7 +7,7 @@
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom GenomicRanges mcols
-ChIPtsne2 <- function(
+ChIPtsne2_no_rowRanges <- function(
         rowToRowMat=matrix(0,0,0),
         colToRowMatCols=list(),
         name_VAR = "sample",
@@ -18,18 +18,7 @@ ChIPtsne2 <- function(
         ...)
 {
     se <- SummarizedExperiment(...)
-    if(!is.null(rowRanges(se))){
-        k = colnames(GenomicRanges::mcols(rowRanges(se))) %in% colnames(se)
-        if(any(k)){
-            old_names = colnames(GenomicRanges::mcols(se@rowRanges))[k]
-            new_names = paste0("region_", colnames(GenomicRanges::mcols(rowRanges(se)))[k])
-            warning("Modifying region metadata column names to prevent collision with ChIPtsne2 colnames.\n",
-                    paste(paste(old_names, "->", new_names), collapse = "\n"))
-            colnames(GenomicRanges::mcols(se@rowRanges))[k] =
-                new_names
-        }
-    }
-    .ChIPtsne2(se,
+    .ChIPtsne2_no_rowRanges(se,
                rowToRowMat = rowToRowMat,
                colToRowMatCols = colToRowMatCols,
                name_VAR = name_VAR,
@@ -45,7 +34,7 @@ ChIPtsne2 <- function(
 setGeneric("rowToRowMat", function(x, ...) standardGeneric("rowToRowMat"))
 
 #' @export
-setMethod("rowToRowMat", "ChIPtsne2", function(x, withDimnames=TRUE) {
+setMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", function(x, withDimnames=TRUE) {
     out <- x@rowToRowMat
     if (withDimnames)
         rownames(out) <- rownames(x)
@@ -56,7 +45,7 @@ setMethod("rowToRowMat", "ChIPtsne2", function(x, withDimnames=TRUE) {
 setGeneric("colToRowMatCols", function(x, ...) standardGeneric("colToRowMatCols"))
 
 #' @export
-setMethod("colToRowMatCols", "ChIPtsne2", function(x, withDimnames=TRUE) {
+setMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", function(x, withDimnames=TRUE) {
     out <- x@colToRowMatCols
     out
 })
@@ -64,7 +53,7 @@ setMethod("colToRowMatCols", "ChIPtsne2", function(x, withDimnames=TRUE) {
 #### Validity ####
 #' @importFrom S4Vectors setValidity2
 #' @importFrom BiocGenerics NCOL NROW
-S4Vectors::setValidity2("ChIPtsne2", function(object) {
+S4Vectors::setValidity2("ChIPtsne2_no_rowRanges", function(object) {
     NR <- NROW(object)
     NC <- NCOL(object)
     msg <- NULL
@@ -81,13 +70,6 @@ S4Vectors::setValidity2("ChIPtsne2", function(object) {
             msg, "'length(colToRowMatCols)' should be equal to the number of columns"
         )
     }
-    #rowRanges mcols cannot include colnames
-    if(any(colnames(GenomicRanges::mcols(rowRanges(object))) %in% colnames(object))){
-        msg <- c(
-            msg, "'mcols(rowRanges(object))' may not have entries equal to colnames of ChIPtsne2 object."
-        )
-    }
-
     if (length(msg)) {
         msg
     } else TRUE
@@ -97,7 +79,7 @@ S4Vectors::setValidity2("ChIPtsne2", function(object) {
 
 #' @export
 #' @importMethodsFrom SummarizedExperiment show
-setMethod("show", "ChIPtsne2", function(object) {
+setMethod("show", "ChIPtsne2_no_rowRanges", function(object) {
     callNextMethod()
     cat(
         "rowToRowMat has ", ncol(rowToRowMat(object)), " columns\n",
@@ -108,34 +90,32 @@ setMethod("show", "ChIPtsne2", function(object) {
 
 #### Setter ####
 
-#' #' @export
-#' setGeneric("rowToRowMat<-", function(x, ..., value)
-#'     standardGeneric("rowToRowMat<-")
-#' )
-#'
-#' #' @export
-#' setReplaceMethod("rowToRowMat", "ChIPtsne2", function(x, value) {
-#'     x@rowToRowMat <- value
-#'     validObject(x)
-#'     x
-#' })
-#'
-#' #' @export
-#' setGeneric("colToRowMatCols<-", function(x, ..., value)
-#'     standardGeneric("colToRowMatCols<-")
-#' )
-#'
-#' #' @export
-#' setReplaceMethod("colToRowMatCols", "ChIPtsne2", function(x, value) {
-#'     x@colToRowMatCols <- value
-#'     validObject(x)
-#'     x
-#' })
+#' @export
+setGeneric("rowToRowMat<-", function(x, ..., value)
+    standardGeneric("rowToRowMat<-")
+)
+
+#' @export
+setReplaceMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", function(x, value) {
+    x@rowToRowMat <- value
+    validObject(x)
+    x
+})
+
+#' @export
+setGeneric("colToRowMatCols<-", function(x, ..., value)
+    standardGeneric("colToRowMatCols<-")
+)
+
+#' @export
+setReplaceMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", function(x, value) {
+    x@colToRowMatCols <- value
+    validObject(x)
+    x
+})
 
 #' @export
 rowData = SummarizedExperiment::rowData
-#' @export
-rowRanges = SummarizedExperiment::rowRanges
 #' @export
 colData = SummarizedExperiment::colData
 #' @export
@@ -179,7 +159,7 @@ exampleChIPtsne2 = function(){
     query_gr = exampleQueryGR()
     prof_dt = exampleProfDT()
 
-    ChIPtsne2.from_tidy(prof_dt, query_gr)
+    ChIPtsne2_no_rowRanges.from_tidy(prof_dt, query_gr)
 }
 
 #' exampleChIPtsne2.with_meta
@@ -197,13 +177,13 @@ exampleChIPtsne2.with_meta = function(){
         unique %>%
         tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
 
-    ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
+    ChIPtsne2_no_rowRanges.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 }
 
 #### Subsetting by index ####
 
 #' @export
-setMethod("[", "ChIPtsne2", function(x, i, j, drop=TRUE) {
+setMethod("[", "ChIPtsne2_no_rowRanges", function(x, i, j, drop=TRUE) {
     rrm <- rowToRowMat(x, withDimnames=FALSE)
     c2rrm = colToRowMatCols(x)
 
@@ -261,76 +241,9 @@ hasDimReduce = function(ct2){
     as.matrix(df)
 }
 
-#' addRegionAnnotation
-#'
-#' An alternative to setRegionMetaData that adds region metadata information based on overlaps with supplied anno_gr.
-#'
-#' @param ct2 A ChIPtsne object
-#' @param anno_gr A GenomicRanges object to annotate ct2 based on overlap with rowRanges of ct2.
-#' @param anno_VAR Attribute in mcols of anno_gr to pull values from.
-#' @param anno_VAR_renames Matched vector to anno_VAR specificying final names in rowRanges of ct2. Essentially renames anno_VAR.
-#' @param no_overlap_value Value for when there is no overlap with anno_gr. Default is "no_hit".
-#' @param overlap_value Value for when there is an overlap, only relevant if anno_VAR is not in mcols of anno_gr. I.e. adding a single "hit" "no hit" annotation.
-#'
-#' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
-#' @export
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' anno_gr = rowRanges(ct2)
-#' anno_gr = subset(anno_gr, seqnames == "chr1")
-#' anno_gr$start_pos = start(anno_gr)
-#' anno_gr$end_pos = end(anno_gr)
-#' anno_gr$chr_name = as.character(seqnames(anno_gr))
-#' ct2.anno = addRegionAnnotation(ct2, anno_gr, anno_VAR = c("start_pos", "end_pos", "chr_name"))
-#' rowRanges(ct2.anno)
-addRegionAnnotation = function(ct2,
-                               anno_gr,
-                               anno_VAR = "annotation",
-                               anno_VAR_renames = anno_VAR,
-                               no_overlap_value = "no_hit",
-                               overlap_value = "hit"){
-    message("addRegionAnnotation ...")
-    args = get_args()
-    valid_anno_names = colnames(GenomicRanges::mcols(anno_gr))
-    if(length(anno_VAR) != length(anno_VAR_renames)){
-        stop("Length of anno_VAR and anno_VAR_renames must be identical")
-    }
-    if(length(anno_VAR) > 1){
-        if(!all(anno_VAR %in% valid_anno_names)){
-            stop("Supplied anno_VARS must present in mcols of anno_gr. Missing: ", paste(setdiff(anno_VAR, valid_anno_names), collapse = ", "))
-        }
-    }else{
-        if(!anno_VAR %in% valid_anno_names){
-            GenomicRanges::mcols(anno_gr)[[anno_VAR]] = overlap_value
-        }
-    }
-    if(length(no_overlap_value) != 1 & length(no_overlap_value) != length(anno_VAR)){
-        stop("length(no_overlap_value) must be 1 or match anno_VAR length. Was: ", length(no_overlap_value), ".")
-    }
-    if(length(no_overlap_value) == 1){
-        no_overlap_value = rep(no_overlap_value, length(anno_VAR))
-    }
-
-    olaps = GenomicRanges::findOverlaps(query = ct2, subject = anno_gr)
-    new_gr = rowRanges(ct2)
-    for(i in seq_along(anno_VAR)){
-        av = anno_VAR[i]
-        av_new = anno_VAR_renames[i]
-        anno_vals = GenomicRanges::mcols(anno_gr)[[av]][S4Vectors::subjectHits(olaps)]
-        GenomicRanges::mcols(new_gr)[[av_new]] = no_overlap_value[i]
-        GenomicRanges::mcols(new_gr)[[av_new]][S4Vectors::queryHits(olaps)] = anno_vals
-    }
-
-    ct2@rowRanges = new_gr
-    history_item = list(addRegionAnnotation = list(FUN = addRegionAnnotation, ARG = args))
-    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
-    ct2
-}
-
 #### split ####
 
-#' @param ChIPtsne2
+#' @param ChIPtsne2_no_rowRanges
 #'
 #' @export
 #' @examples
@@ -346,7 +259,7 @@ addRegionAnnotation = function(ct2,
 #' split(ct2, sample_meta_data$mark)
 #' split(ct2, region_meta_data$peak_MCF10A_CTCF)
 #'
-setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
+setMethod("split", "ChIPtsne2_no_rowRanges", function(x, f = NULL, drop=FALSE, ...){
     mode = "by_column"
     sample_meta_data = getSampleMetaData(x)
     region_meta_data = getRegionMetaData(x)
@@ -363,7 +276,7 @@ setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
         }
     }else{
         if(ncol(x) == nrow(x)){
-            stop("Cannot unambiguously split ChIPtsne2 using a vector when ncol == nrow. Try using a row or column attribute name.")
+            stop("Cannot unambiguously split ChIPtsne2_no_rowRanges using a vector when ncol == nrow. Try using a row or column attribute name.")
         }
         if(length(f) == ncol(x)){
             f = split(colnames(x), f)
@@ -388,7 +301,7 @@ setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
         if(!all(is_match)){
             a = dim_FUN(ref)[!is_match]
             b = dim_FUN(test)[!is_match]
-            stop(paste(c(paste0(str, " names must be identical for all ChIPtsne2 objects. Example mismatches: "), head(paste(a, b, sep = " != "))), collapse = "\n"))
+            stop(paste(c(paste0(str, " names must be identical for all ChIPtsne2_no_rowRanges objects. Example mismatches: "), head(paste(a, b, sep = " != "))), collapse = "\n"))
         }
     }
 }
@@ -397,7 +310,7 @@ setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
     cns = unname(unlist(lapply(args, dim_FUN)))
     cn_dupes = duplicated(cns)
     if(any(cn_dupes)){
-        stop(paste0("Duplicated ", str, " names are not allowed when combining ChIPtsne2 objects. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n"),
+        stop(paste0("Duplicated ", str, " names are not allowed when combining ChIPtsne2_no_rowRanges objects. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n"),
              paste(head(unique(cns[cn_dupes])), collapse = "\n"))
     }
 }
@@ -412,18 +325,18 @@ cbind = SummarizedExperiment::cbind
 # region_VAR = region_VAR,
 # fetch_config = fetch_config
 
-#' @param ChIPtsne2
+#' @param ChIPtsne2_no_rowRanges
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
+setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
     args <- list(...)
     # cns = unname(unlist(lapply(args, colnames)))
     # cn_dupes = duplicated(cns)
     # if(any(cn_dupes)){
-    #     stop("Duplicated colnames are not allowed when combining ChIPtsne2 objects. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n",
+    #     stop("Duplicated colnames are not allowed when combining ChIPtsne2_no_rowRanges objects. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n",
     #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
     # }
     .validate_names_unique(args, colnames, "Column")
@@ -436,7 +349,7 @@ setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
     # cns = unlist(lapply(all.rrm, colnames))
     # cn_dupes = duplicated(cns)
     # if(any(cn_dupes)){
-    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n",
+    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n",
     #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
     # }
 
@@ -470,13 +383,13 @@ setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
 #### rbind ####
 #' @export
 rbind = SummarizedExperiment::rbind
-#' @param ChIPtsne2
+#' @param ChIPtsne2_no_rowRanges
 #'
 #' @return
 #' @export
 #'
 #' @examples
-setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
+setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, rownames, "Row")
     .validate_names_match(args, colnames, "Column")
@@ -486,7 +399,7 @@ setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
     #     if(!all(is_match)){
     #         a = colnames(ref)[!is_match]
     #         b = colnames(test)[!is_match]
-    #         stop(paste(c("Column names must be identical for all ChIPtsne2 objects. Example mismatches: ", head(paste(a, b, sep = " != "))), collapse = "\n"))
+    #         stop(paste(c("Column names must be identical for all ChIPtsne2_no_rowRanges objects. Example mismatches: ", head(paste(a, b, sep = " != "))), collapse = "\n"))
     #     }
     # }
 
@@ -495,7 +408,7 @@ setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
     # cns = unlist(lapply(all.rrm, colnames))
     # cn_dupes = duplicated(cns)
     # if(any(cn_dupes)){
-    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n",
+    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n",
     #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
     # }
 
@@ -527,17 +440,17 @@ setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
 # getMethod(`rownames<-`, "SummarizedExperiment")
 # showMethods(`rownames<-`)
 # getMethod(`rownames<-`, "DFrame")
-setMethod("colnames", "ChIPtsne2", function(x, do.NULL = TRUE, prefix = "col") {
+setMethod("colnames", "ChIPtsne2_no_rowRanges", function(x, do.NULL = TRUE, prefix = "col") {
     callNextMethod()
 })
-setMethod("rownames", "ChIPtsne2", function(x, do.NULL = TRUE, prefix = "row") {
+setMethod("rownames", "ChIPtsne2_no_rowRanges", function(x, do.NULL = TRUE, prefix = "row") {
     callNextMethod()
 })
-setMethod("colnames<-", "ChIPtsne2", function(x, value) {
+setMethod("colnames<-", "ChIPtsne2_no_rowRanges", function(x, value) {
     out = callNextMethod()
     .update_ct2_colnames(x, new_names = colnames(out))
 })
-setMethod("rownames<-", "ChIPtsne2", function(x, value) {
+setMethod("rownames<-", "ChIPtsne2_no_rowRanges", function(x, value) {
     stop("NYI")
     out = callNextMethod()
     # head(x@rowToRowMat)

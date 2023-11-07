@@ -137,11 +137,25 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2"), .groupRegionsByDimRe
 
 #### region overlap ####
 
+#' Title
+#'
+#' @param ct2
+#' @param gr_list
+#' @param group_VAR
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' peak_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+#' ct2.olap = groupRegionsByOverlap(ct2, peak_grs[1:2], group_VAR = "10A_AT1_overlap")
 .groupRegionsByOverlap = function(ct2, gr_list, group_VAR = "overlap_id"){
     message("groupRegionsByOverlap ...")
     args = get_args()
     gr = rowRanges(ct2)
     GenomicRanges::mcols(gr) = NULL
+    browser()
     memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), as.list(gr_list)))
     memb_gr$TMP__ = NULL
     memb_df = as.data.frame(GenomicRanges::mcols(memb_gr))
