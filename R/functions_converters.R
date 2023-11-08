@@ -17,7 +17,7 @@
                  })
     )
     colnames(df) = c(ct2@region_VAR, ct2@position_VAR, ct2@value_VAR, ct2@name_VAR)
-    df[[ct2@region_VAR]] = factor(df[[ct2@region_VAR]], levels = names(rowRanges(ct2)))
+    df[[ct2@region_VAR]] = factor(df[[ct2@region_VAR]], levels = rownames(ct2))
     df[[ct2@position_VAR]] = as.numeric(as.character(df[[ct2@position_VAR]]))
     df[[ct2@name_VAR]] = factor(df[[ct2@name_VAR]], levels = colnames(ct2))
     if(!is.null(sample_meta_VARS)){
@@ -44,7 +44,7 @@
 
 setGeneric("getTidyProfile.with_meta", function(ct2, sample_meta_VARS = NULL, region_meta_VARS = NULL) standardGeneric("getTidyProfile.with_meta"), signature = "ct2")
 
-setMethod("getTidyProfile.with_meta", c("ChIPtsne2"), .getTidyProfile.with_meta)
+setMethod("getTidyProfile.with_meta", c("ChIPtsne2_no_rowRanges"), .getTidyProfile.with_meta)
 
 .getTidyProfile = function(ct2, meta_VARS = NULL){
     if(length(meta_VARS) == 1 && meta_VARS == TRUE){
@@ -68,5 +68,5 @@ setMethod("getTidyProfile.with_meta", c("ChIPtsne2"), .getTidyProfile.with_meta)
 setGeneric("getTidyProfile", function(ct2, meta_VARS = NULL) standardGeneric("getTidyProfile"), signature = "ct2")
 
 #' @export
-setMethod("getTidyProfile", c("ChIPtsne2"), .getTidyProfile)
+setMethod("getTidyProfile", c("ChIPtsne2_no_rowRanges"), .getTidyProfile)
 

@@ -17,36 +17,6 @@ setMethod("setNameVariable", c("ChIPtsne2"), function(ct2, new_name_VAR){
             stop("New name variable is already present in colData(ct2). This is only allowed when all values are unique. Offending values: ", paste(bad_cn, collapse = ", "))
         }else{
             #swap old and new
-
-            # old_names = rownames(colData(ct2))
-            # ct2@colData[[old_name_VAR]] = rownames(colData(ct2))
-            # rownames(ct2@colData) = colData(ct2)[[new_name_VAR]]
-            # new_names = rownames(ct2@colData)
-            # names(new_names) = old_names
-            # ct2@colData[[new_name_VAR]] = NULL
-            # #updating internal data
-            # r2rm = rowToRowMat(ct2)
-            # c2rmc = colToRowMatCols(ct2)
-            # all_old_cn = unlist(c2rmc)
-            # for(nam in names(c2rmc)){
-            #     message(nam)
-            #     match_names = c2rmc[[nam]]
-            #     i = which(old_names == nam)
-            #     new_nam = new_names[i]
-            #     c2rmc[[nam]] = sub(nam, new_nam, match_names)
-            # }
-            # all_new_cn = unlist(c2rmc)
-            # names(all_new_cn) = all_old_cn
-            # #assigning named vector seems problematic so go through tmp and remove names
-            # tmp = all_new_cn[colnames(r2rm)]
-            # names(tmp) = NULL
-            # colnames(r2rm) = tmp
-            # tmp = new_names[names(c2rmc)]
-            # names(tmp) = NULL
-            # names(c2rmc) = tmp
-            #
-            # rowToRowMat(ct2) = r2rm
-            # colToRowMatCols(ct2) = c2rmc
             old_name_VAR = ct2@name_VAR
             ct2 = .update_ct2_colnames(ct2, old_name_VAR = old_name_VAR, new_name_VAR = new_name_VAR)
         }
@@ -208,7 +178,7 @@ setMethod("getPositionVariable", c("ChIPtsne2"), function(ct2){ct2@position_VAR}
 getSampleMetaData = function(ct2, select_VARS = NULL){
     cd = colData(ct2)
     df = as.data.frame(cd)
-    df[[ct2@name_VAR]] = factor(rownames(cd), levels = rownames(cd))
+    df[[ct2@name_VAR]] = factor(rownames(cd), levels = colnames(ct2))
     if(!is.null(select_VARS)){
         if(!all(select_VARS %in% colnames(df))){
             stop(
@@ -280,6 +250,30 @@ setSampleMetaData = function(ct2, new_meta){
 
 #### RegionMetaData ####
 
+#### Getters ####
+#' @export
+setGeneric("getRegionMetaData", function(ct2, select_VARS = NULL) standardGeneric("getRegionMetaData"))
+
+#' @export
+setMethod("getRegionMetaData", "ChIPtsne2_no_rowRanges", function(ct2, select_VARS = NULL) {
+    df = rowData(ct2) %>% data.frame(check.names = FALSE)
+    df[[ct2@region_VAR]] = factor(rownames(df), levels = rownames(ct2))
+    if(!is.null(select_VARS)){
+        if(!all(select_VARS %in% colnames(df))){
+            stop(
+                paste(collapse = "\n",
+                      c(
+                          "select_VARS not found in region metadata:",
+                          setdiff(select_VARS, colnames(df))
+                      )
+                )
+            )
+        }
+        df = df[, union(ct2@region_VAR, select_VARS), drop = FALSE]
+    }
+    df
+})
+
 #' getRegionMetaData
 #'
 #' @param ct2 A ChIPtsne object
@@ -295,7 +289,7 @@ setSampleMetaData = function(ct2, new_meta){
 #' ct2 = exampleChIPtsne2()
 #' getRegionMetaData(ct2)
 #' getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
-getRegionMetaData = function(ct2, select_VARS = NULL){
+.getRegionMetaData = function(ct2, select_VARS = NULL){
     gr = rowRanges(ct2)
     df = GenomicRanges::mcols(gr) %>% data.frame(check.names = FALSE)
     df[[ct2@region_VAR]] = names(gr)
@@ -314,6 +308,11 @@ getRegionMetaData = function(ct2, select_VARS = NULL){
     }
     df
 }
+
+
+#' @export
+setMethod("getRegionMetaData", "ChIPtsne2", .getRegionMetaData)
+
 
 # internals of setRegionMetaData
 # does not impact history

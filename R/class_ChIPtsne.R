@@ -40,27 +40,6 @@ ChIPtsne2 <- function(
     )
 }
 
-#### Getters ####
-#' @export
-setGeneric("rowToRowMat", function(x, ...) standardGeneric("rowToRowMat"))
-
-#' @export
-setMethod("rowToRowMat", "ChIPtsne2", function(x, withDimnames=TRUE) {
-    out <- x@rowToRowMat
-    if (withDimnames)
-        rownames(out) <- rownames(x)
-    out
-})
-
-#' @export
-setGeneric("colToRowMatCols", function(x, ...) standardGeneric("colToRowMatCols"))
-
-#' @export
-setMethod("colToRowMatCols", "ChIPtsne2", function(x, withDimnames=TRUE) {
-    out <- x@colToRowMatCols
-    out
-})
-
 #### Validity ####
 #' @importFrom S4Vectors setValidity2
 #' @importFrom BiocGenerics NCOL NROW
@@ -108,38 +87,8 @@ setMethod("show", "ChIPtsne2", function(object) {
 
 #### Setter ####
 
-#' #' @export
-#' setGeneric("rowToRowMat<-", function(x, ..., value)
-#'     standardGeneric("rowToRowMat<-")
-#' )
-#'
-#' #' @export
-#' setReplaceMethod("rowToRowMat", "ChIPtsne2", function(x, value) {
-#'     x@rowToRowMat <- value
-#'     validObject(x)
-#'     x
-#' })
-#'
-#' #' @export
-#' setGeneric("colToRowMatCols<-", function(x, ..., value)
-#'     standardGeneric("colToRowMatCols<-")
-#' )
-#'
-#' #' @export
-#' setReplaceMethod("colToRowMatCols", "ChIPtsne2", function(x, value) {
-#'     x@colToRowMatCols <- value
-#'     validObject(x)
-#'     x
-#' })
-
-#' @export
-rowData = SummarizedExperiment::rowData
 #' @export
 rowRanges = SummarizedExperiment::rowRanges
-#' @export
-colData = SummarizedExperiment::colData
-#' @export
-assay = SummarizedExperiment::assay
 
 #' exampleQueryGR
 #'
@@ -522,11 +471,6 @@ setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
         check=FALSE)
 })
 
-# getMethod("colnames", "SummarizedExperiment")
-# getMethod("rownames", "SummarizedExperiment")
-# getMethod(`rownames<-`, "SummarizedExperiment")
-# showMethods(`rownames<-`)
-# getMethod(`rownames<-`, "DFrame")
 setMethod("colnames", "ChIPtsne2", function(x, do.NULL = TRUE, prefix = "col") {
     callNextMethod()
 })

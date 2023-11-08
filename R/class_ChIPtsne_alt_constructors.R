@@ -1,7 +1,3 @@
-ChIPtsne2.from_config = function(){
-
-}
-
 #' ChIPtsne2.from_tidy
 #'
 #' @param prof_dt Profile data.table, as returned from seqsetvis::ssvFetch* functions

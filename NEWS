@@ -1,3 +1,8 @@
+# v 0.1.26
+
+ChIPtsne2_no_rowRanges class added as a meta/centroid per group variant of ChIPtsne2.
+plotSignalLinePlot supports ChIPtsne2_no_rowRanges
+
 # v 0.1.23
 
 flipProfilesToMatch does not just reverse x but preserves x values

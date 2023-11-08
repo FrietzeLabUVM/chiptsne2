@@ -121,65 +121,6 @@ colData = SummarizedExperiment::colData
 #' @export
 assay = SummarizedExperiment::assay
 
-#' exampleQueryGR
-#'
-#' @return GRanges example
-#' @export
-#'
-#' @importFrom GenomicRanges mcols
-#' @examples
-#' exampleQueryGR()
-exampleQueryGR = function(){
-    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-    colnames(GenomicRanges::mcols(query_gr)) = paste0(
-        "peak_",
-        colnames(GenomicRanges::mcols(query_gr))
-    )
-    query_gr
-}
-#' exampleProfDT
-#'
-#' @return data.table example
-#' @export
-#'
-#' @examples
-#' exampleProfDT()
-exampleProfDT = function(){
-    seqsetvis::CTCF_in_10a_profiles_dt
-}
-
-#' query_gr
-#'
-#' @return ChIPtsne object for testing
-#' @export
-#'
-#' @examples
-#' exampleChIPtsne2()
-exampleChIPtsne2 = function(){
-    query_gr = exampleQueryGR()
-    prof_dt = exampleProfDT()
-
-    ChIPtsne2_no_rowRanges.from_tidy(prof_dt, query_gr)
-}
-
-#' exampleChIPtsne2.with_meta
-#'
-#' @return ChIPtsne object for testing, includes meta data
-#' @export
-#'
-#' @examples
-#' exampleChIPtsne2.with_meta()
-exampleChIPtsne2.with_meta = function(){
-    query_gr = exampleQueryGR()
-    prof_dt = exampleProfDT()
-    meta_dt = prof_dt %>%
-        dplyr::select(sample) %>%
-        unique %>%
-        tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
-
-    ChIPtsne2_no_rowRanges.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
-}
-
 #### Subsetting by index ####
 
 #' @export

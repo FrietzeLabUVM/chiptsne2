@@ -71,6 +71,19 @@
         labs(subtitle = plot_subtitle)
 }
 
+.plotSignalLinePlot_meta = function(ct2,
+                               group_VAR = ct2@region_VAR,
+                               color_VAR = NULL,
+                               facet_VAR = ct2@name_VAR,
+                               linewidth = 1.5,
+                               extra_VARS = character(),
+                               moving_average_window = 1,
+                               n_splines = 1,
+                               return_data = FALSE){
+    args = get_args(to_ignore = NULL)
+    do.call(.plotSignalLinePlot, args = args)
+}
+
 #' @export
 setGeneric("plotSignalLinePlot", function(
         ct2,
@@ -87,5 +100,8 @@ setGeneric("plotSignalLinePlot", function(
 
 #' @export
 setMethod("plotSignalLinePlot", c("ChIPtsne2"), .plotSignalLinePlot)
+
+#' @export
+setMethod("plotSignalLinePlot", c("ChIPtsne2_no_rowRanges"), .plotSignalLinePlot_meta)
 
 

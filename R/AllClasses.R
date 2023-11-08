@@ -24,7 +24,7 @@
 
 #' @export
 #' @import methods
-#' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
+#' @importClassesFrom SummarizedExperiment
 .ChIPtsne2_no_rowRanges <- setClass("ChIPtsne2_no_rowRanges",
                        slots= representation(
                            rowToRowMat="matrix",
