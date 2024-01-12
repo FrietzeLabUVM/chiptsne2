@@ -1,6 +1,12 @@
 
-calculate_centroid_per_group = function(ct2, group_VAR){
-    ct2.r_sp = split(ct2, group_VAR)
+calculate_centroid_per_group = function(ct2, group_VARS){
+    if(length(group_VARS) > 1){
+        tmp_df = data.frame(TMP_GROUP__ = apply(GenomicRanges::mcols(rowRanges(ct2))[,group_VARS], 1, paste, collapse = ","))
+        ct2 = chiptsne2::setRegionMetaData(ct2, tmp_df)
+        rowRanges(ct2)
+        group_VARS = "TMP_GROUP__"
+    }
+    ct2.r_sp = split(ct2, group_VARS)
     centroids = t(sapply(ct2.r_sp, function(x){
         colMeans(rowToRowMat(x))
     }))
@@ -9,15 +15,10 @@ calculate_centroid_per_group = function(ct2, group_VAR){
 
 calculate_distance_to_centroids = function(ct2, centroids, name_FUN = function(x){rownames(x)}){
     r2rm = rowToRowMat(ct2)
-
     euclidean_distance <- function(p,q){
         sqrt(sum((p - q)^2))
     }
-
-    # install.packages("pdist")
-    # library(pdist)
     dist_mat = as.matrix(pdist::pdist(r2rm, centroids))
-    # colnames(dist_mat) = paste0(group_VAR, ":", rownames(centroids))
     rownames(dist_mat) = rownames(r2rm)
     colnames(dist_mat) = name_FUN(centroids)
     dist_mat
@@ -47,14 +48,14 @@ classify_by_centroid_distances = function(distances, centroids, ambiguous_value 
 #' calculateGroupCentroid
 #'
 #' @param ct2
-#' @param group_VAR
+#' @param group_VARS
 #'
 #' @return
 #' @export
 #'
 #' @examples
-calculateGroupCentroid = function(ct2, group_VAR){
-    cent = calculate_centroid_per_group(ct2, group_VAR)
+calculateGroupCentroid = function(ct2, group_VARS){
+    cent = calculate_centroid_per_group(ct2, group_VARS)
     cent
 }
 

@@ -48,14 +48,6 @@ ChIPtsne2.from_tidy = function(prof_dt,
                            c(name_VAR, position_VAR, value_VAR, region_VAR)[missed], sep = ": ")
         stop(paste(c("Missing required VAR in prof_dt:", missed_msg), collapse = "\n"))
     }
-    if(!is.null(query_gr)){
-        if(is.null(names(query_gr))){
-            stop("names() must be set on query_gr. Maybe call seqsetvis::prepare_fetch_GRanges_names on query_gr before fetching prof_dt?")
-        }
-        if(!all(unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr))){
-            stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
-        }
-    }
     if(!is.null(sample_metadata)){
         if(is.null(rownames(sample_metadata))){
             if(!name_VAR %in% colnames(sample_metadata)){
@@ -108,11 +100,6 @@ ChIPtsne2.from_tidy = function(prof_dt,
     }
     if(is.null(rn)){
         stop("Could not determine row order from prof_dt from region_VAR: ", region_VAR, "\nIs ", region_VAR, " present and a character or factor?")
-    }
-    if(!is.null(query_gr)){
-        if(!setequal(names(query_gr), rn)){
-            stop("names(query_gr) is not consistent with region_VAR: ", region_VAR, " in prof_dt")
-        }
     }
 
     #create wide profile matrix
@@ -172,15 +159,6 @@ ChIPtsne2.from_tidy = function(prof_dt,
     rownames(sample_metadata) = sample_metadata[[name_VAR]]
     sample_metadata[[name_VAR]] = NULL
 
-    if(!is.null(query_gr)){
-        if(!is.null(region_metadata)){
-            #merge region_metadata into query_gr
-            #region_metadata is not used after
-            query_gr = .add_region_metadata(query_gr, region_metadata, region_VAR, overwrite = TRUE)
-            query_gr = query_gr[rn]
-        }
-    }
-
     map_dt = prof_dt %>%
         dplyr::select(all_of(c(name_VAR, position_VAR))) %>%
         unique
@@ -196,11 +174,13 @@ ChIPtsne2.from_tidy = function(prof_dt,
     sample_metadata = sample_metadata[cn, , drop = FALSE]
 
     if(is.null(query_gr)){
+        region_metadata = region_metadata[rn,]
         ChIPtsne2_no_rowRanges(
             assay = list(max = prof_max_mat),
             rowToRowMat = prof_mat,
             colToRowMatCols = map_list,
             colData = sample_metadata,
+            rowData = region_metadata,
             name_VAR = name_VAR,
             position_VAR = position_VAR,
             value_VAR = value_VAR,
@@ -208,6 +188,21 @@ ChIPtsne2.from_tidy = function(prof_dt,
             fetch_config = fetch_config,
             metadata = obj_history)
     }else{
+        if(is.null(names(query_gr))){
+            stop("names() must be set on query_gr. Maybe call seqsetvis::prepare_fetch_GRanges_names on query_gr before fetching prof_dt?")
+        }
+        if(!all(unique(as.character(prof_dt[[region_VAR]])) %in% names(query_gr))){
+            stop("region_VAR: ", region_VAR, " in prof_dt is not consistent with names of query_gr")
+        }
+        if(!is.null(region_metadata)){
+            #merge region_metadata into query_gr
+            #region_metadata is not used after
+            query_gr = .add_region_metadata(query_gr, region_metadata, region_VAR, overwrite = TRUE)
+        }
+        if(!setequal(names(query_gr), rn)){
+            stop("names(query_gr) is not consistent with region_VAR: ", region_VAR, " in prof_dt")
+        }
+        query_gr = query_gr[rn]
         ChIPtsne2(
             assay = list(max = prof_max_mat),
             rowRanges = query_gr,

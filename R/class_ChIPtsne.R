@@ -330,6 +330,7 @@ setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
     ChIPtsne2List(x.split)
 })
 
+
 .validate_names_match = function(args, dim_FUN, str){
     ref = args[[1]]
     for(test in args[-1]){

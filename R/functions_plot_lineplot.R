@@ -1,4 +1,78 @@
 
+aggregateRegionsByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_id")){
+    centroid = calculateGroupCentroid(ct2, group_VAR)
+
+    df = do.call(rbind,
+                 lapply(names(ct2@colToRowMatCols), function(nam){
+                     i = ct2@colToRowMatCols[[nam]]
+                     df = reshape2::melt(centroid[, i])
+                     df$Var2 = factor(df$Var2)
+                     levels(df$Var2) = as.numeric(sub(paste0(nam, "_"), "", levels(df$Var2), fixed = TRUE))
+                     df[[ct2@name_VAR]] = nam
+                     df
+                 })
+    )
+    colnames(df) = c(new_meta_VAR, ct2@position_VAR, ct2@value_VAR, ct2@name_VAR)
+    df[[new_meta_VAR]] = factor(df[[new_meta_VAR]], levels = rownames(centroid))
+
+    rd = unique(rowData(ct2)[, group_VAR, drop = FALSE])
+    rownames(rd) = apply(rd, 1, paste, collapse = ",")
+    rd[[new_meta_VAR]] = rownames(rd)
+
+    ct2.meta = ChIPtsne2.from_tidy(
+        df,
+        query_gr = NULL,
+        sample_metadata = colData(ct2),
+        region_metadata = rd,
+        position_VAR = ct2@position_VAR,
+        name_VAR = ct2@name_VAR,
+        value_VAR = ct2@value_VAR,
+        region_VAR = new_meta_VAR)
+    ct2.meta
+}
+
+aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_name")){
+    carried_VARS = unique(c(group_VAR, new_meta_VAR))
+    if(group_VAR != new_meta_VAR){
+        ct2@colData[[new_meta_VAR]] =  apply(colData(ct2)[, group_VAR, drop = FALSE], 1, paste, collapse = ",")
+    }
+    ct2.sp = split(ct2, new_meta_VAR)
+    ct2.parts = list()
+    for(name in names(ct2.sp)){
+        x = ct2.sp[[name]]
+        if(ncol(x) == 1){
+            ct2.new = x
+        }else{
+            ct2.new = x[,1]
+            for(i in seq(2, ncol(x))){
+                message(i)
+                ct2.new = ct2.new + x[,i]
+            }
+            ct2.new = ct2.new / ncol(x)
+        }
+        colnames(ct2.new) = name
+        ct2.new@colData = ct2.new@colData[, carried_VARS, drop = FALSE]
+        ct2.parts[[name]] = ct2.new
+    }
+    ct2.meta = do.call(cbind, ct2.parts)
+    ct2.meta
+}
+
+aggregateByGroup = function(ct2, group_VAR){
+    group_VAR.col = group_VAR[group_VAR %in% colnames(colData(ct2))]
+    group_VAR.row = group_VAR[group_VAR %in% colnames(rowData(ct2))]
+    if(length(group_VAR.col) > 0){
+        ct2.meta = aggregateSamplesByGroup(ct2, group_VAR.col)
+    }else{
+        ct2.meta = ct2
+    }
+    if(length(group_VAR.row) > 0){
+        ct2.meta = aggregateRegionsByGroup(ct2.meta, group_VAR.row)
+    }
+
+    ct2.meta
+}
+
 #' plotSignalLinePlot
 #'
 #' @param ct2 A ChIPtsne2 object
@@ -36,9 +110,12 @@
                                return_data = FALSE){
     all_VARS = unique(c(group_VAR, color_VAR, facet_VAR, extra_VARS))
     meta_VARS = setdiff(all_VARS, ct2@name_VAR)
-    prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
-    agg_dt = prof_dt[, .(VALUE_ = mean(get(ct2@value_VAR))), c(unique(c(all_VARS, ct2@position_VAR, ct2@name_VAR)))]
-    data.table::setnames(agg_dt, "VALUE_", ct2@value_VAR)
+    row_VARS = meta_VARS[meta_VARS %in% colnames(rowData(ct2))]
+    ct2.agg = aggregateRegionsByGroup(ct2, row_VARS)
+    agg_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
+    # prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
+    # agg_dt = prof_dt[, .(VALUE_ = mean(get(ct2@value_VAR))), c(unique(c(all_VARS, ct2@position_VAR, ct2@name_VAR)))]
+    # data.table::setnames(agg_dt, "VALUE_", ct2@value_VAR)
     x_ = ct2@position_VAR
     x_ = ensym(x_)
     y_ = ct2@value_VAR
@@ -72,14 +149,14 @@
 }
 
 .plotSignalLinePlot_meta = function(ct2,
-                               group_VAR = ct2@region_VAR,
-                               color_VAR = NULL,
-                               facet_VAR = ct2@name_VAR,
-                               linewidth = 1.5,
-                               extra_VARS = character(),
-                               moving_average_window = 1,
-                               n_splines = 1,
-                               return_data = FALSE){
+                                    group_VAR = ct2@region_VAR,
+                                    color_VAR = NULL,
+                                    facet_VAR = ct2@name_VAR,
+                                    linewidth = 1.5,
+                                    extra_VARS = character(),
+                                    moving_average_window = 1,
+                                    n_splines = 1,
+                                    return_data = FALSE){
     args = get_args(to_ignore = NULL)
     do.call(.plotSignalLinePlot, args = args)
 }
