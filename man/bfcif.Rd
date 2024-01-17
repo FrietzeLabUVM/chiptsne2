@@ -5,21 +5,21 @@
 \title{bfcif}
 \usage{
 bfcif(
-  bfc,
-  rname,
   FUN,
-  version = getOption("SQC_CACHE_VERSION", "v4"),
-  force_overwrite = getOption("SQC_FORCE_CACHE_OVERWRITE", FALSE),
+  rname,
+  bfc = NULL,
+  version = NULL,
+  force_overwrite = FALSE,
   return_path_only = FALSE,
-  verbose = getOption("SQC_CACHE_VERBOSE", FALSE)
+  verbose = TRUE
 )
 }
 \arguments{
-\item{bfc}{A BiocFileCache object, typically from BiocFileCache::BiocFileCache().}
+\item{FUN}{A function that takes zero arguments.  This function can be a wrapper around other functions; ie. FUN = function(){mean(x)}.}
 
 \item{rname}{The unique identifier for the results in the cache. The recommendation is to use either a unique and meaningful description or digest::digest() on a list containing FUN and it's parameters.}
 
-\item{FUN}{A function that takes zero arguments.  This function can be a wrapper around other functions; ie. FUN = function(){mean(x)}.}
+\item{bfc}{A BiocFileCache object, typically from BiocFileCache::BiocFileCache().}
 
 \item{version}{A version indicator string to further distinguish cache entries.  Typically, you want to iterate this value when code outside of FUN or input parameters have changed and you want to force FUN to reevaluate. Default is SQC_CACHE_VERSION option or v3 if option is not set.}
 
@@ -37,9 +37,10 @@ Conditionally runs a function if it's results don't exist in the cache.  Cache i
 }
 \examples{
 bfc = BiocFileCache::BiocFileCache()
-bfcif(bfc, "test1", function(x)mean(seq(10)), verbose = TRUE)
-bfcif(bfc, "test1", function(x)mean(seq(10)), verbose = TRUE,
+test_fun = function(x)mean(seq(10))
+bfcif(test_fun, "test1", bfc, verbose = TRUE)
+bfcif(test_fun, "test1", bfc, verbose = TRUE,
   return_path_only = TRUE)
-bfcif(bfc, "test1", function(x)mean(seq(10)), verbose = TRUE,
+bfcif(test_fun, "test1", bfc, verbose = TRUE,
   force_overwrite = TRUE)
 }

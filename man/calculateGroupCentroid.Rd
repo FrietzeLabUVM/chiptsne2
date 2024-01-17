@@ -4,10 +4,10 @@
 \alias{calculateGroupCentroid}
 \title{calculateGroupCentroid}
 \usage{
-calculateGroupCentroid(ct2, group_VAR)
+calculateGroupCentroid(ct2, group_VARS)
 }
 \arguments{
-\item{group_VAR}{}
+\item{group_VARS}{}
 }
 \description{
 calculateGroupCentroid
