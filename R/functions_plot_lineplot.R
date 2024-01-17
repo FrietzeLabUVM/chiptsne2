@@ -112,7 +112,7 @@ aggregateByGroup = function(ct2, group_VAR){
     meta_VARS = setdiff(all_VARS, ct2@name_VAR)
     row_VARS = meta_VARS[meta_VARS %in% colnames(rowData(ct2))]
     ct2.agg = aggregateRegionsByGroup(ct2, row_VARS)
-    agg_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
+    agg_dt = getTidyProfile(ct2.agg, meta_VARS = meta_VARS)
     # prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
     # agg_dt = prof_dt[, .(VALUE_ = mean(get(ct2@value_VAR))), c(unique(c(all_VARS, ct2@position_VAR, ct2@name_VAR)))]
     # data.table::setnames(agg_dt, "VALUE_", ct2@value_VAR)
