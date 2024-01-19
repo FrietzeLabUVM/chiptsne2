@@ -9,7 +9,7 @@
     df = do.call(rbind,
                  lapply(names(ct2@colToRowMatCols), function(nam){
                      i = ct2@colToRowMatCols[[nam]]
-                     df = reshape2::melt(ct2@rowToRowMat[, i])
+                     df = reshape2::melt(ct2@rowToRowMat[, i, drop = FALSE])
                      df$Var2 = factor(df$Var2)
                      levels(df$Var2) = as.numeric(sub(paste0(nam, "_"), "", levels(df$Var2), fixed = TRUE))
                      df[[ct2@name_VAR]] = nam

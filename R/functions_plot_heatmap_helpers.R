@@ -189,7 +189,6 @@ add_cluster_annotation.numeric = function(anno_ids,
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = anno_rle$values
-browser()
     p = ggplot(df_rects) +
         coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
         facet_grid(.~grp)

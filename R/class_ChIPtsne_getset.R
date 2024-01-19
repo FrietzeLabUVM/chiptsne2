@@ -6,7 +6,7 @@ setGeneric("setNameVariable",
            })
 
 #' @export
-setMethod("setNameVariable", c("ChIPtsne2"), function(ct2, new_name_VAR){
+setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name_VAR){
     args = get_args()
     history_item = list(setNameVariable = list(FUN = setNameVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
@@ -26,6 +26,45 @@ setMethod("setNameVariable", c("ChIPtsne2"), function(ct2, new_name_VAR){
     ct2@name_VAR = new_name_VAR
     ct2
 })
+
+.update_ct2_rownames = function(ct2, new_names = NULL, old_name_VAR = NULL, new_name_VAR = NULL){
+    old_names = rownames(ct2)
+    if(is.null(new_names) & is.null(new_name_VAR)){
+        stop("One of new_names or new_name_VAR required.")
+    }
+    if(!is.null(new_names) & !is.null(new_name_VAR)){
+        stop("Only one of new_names or new_name_VAR is allowed.")
+    }
+    if(!is.null(old_name_VAR)){
+        rowData(ct2)[[old_name_VAR]] = rownames(ct2)
+    }
+    if(!is.null(new_name_VAR)){
+        new_names = rowData(ct2)[[new_name_VAR]]
+        rowData(ct2)[[new_name_VAR]] = NULL
+    }
+    names(new_names) = old_names
+    #updating internal data
+    r2rm = rowToRowMat(ct2)
+    new_rn = new_names[rownames(r2rm)]
+    names(new_rn) = NULL
+
+    rownames(r2rm) = new_rn
+
+    old_assays = ct2@assays@data
+    for(i in seq_along(old_assays)){
+        rownames(old_assays[[i]]) = new_rn
+    }
+    ct2@assays = SummarizedExperiment::Assays(old_assays)
+
+    rowToRowMat(ct2) = r2rm
+    if(is(ct2, "ChIPtsne2")){#unclear if equivalent operation of ChIPtsne2_no_rowRanges required
+        names(ct2@rowRanges) = new_rn
+    }
+    if(!is.null(new_name_VAR)){
+        ct2@region_VAR = new_name_VAR
+    }
+    ct2
+}
 
 .update_ct2_colnames = function(ct2, new_names = NULL, old_name_VAR = NULL, new_name_VAR = NULL){
     old_names = rownames(colData(ct2))
@@ -47,12 +86,15 @@ setMethod("setNameVariable", c("ChIPtsne2"), function(ct2, new_name_VAR){
     #updating internal data
     r2rm = rowToRowMat(ct2)
     c2rmc = colToRowMatCols(ct2)
+    if(is.null(new_name_VAR)){
+        rownames(colData(ct2)) = new_names[rownames(colData(ct2))]
+    }
     all_old_cn = unlist(c2rmc)
     for(nam in names(c2rmc)){
         match_names = c2rmc[[nam]]
         i = which(old_names == nam)
         new_nam = new_names[i]
-        c2rmc[[nam]] = sub(nam, new_nam, match_names)
+        c2rmc[[nam]] = sub(nam, new_nam, match_names, fixed = TRUE)
     }
     all_new_cn = unlist(c2rmc)
     names(all_new_cn) = all_old_cn
@@ -64,8 +106,19 @@ setMethod("setNameVariable", c("ChIPtsne2"), function(ct2, new_name_VAR){
     names(tmp) = NULL
     names(c2rmc) = tmp
 
+    old_assays = ct2@assays@data
+    for(i in seq_along(old_assays)){
+        new_cn = new_names[colnames(old_assays[[i]])]
+        names(new_cn) = NULL
+        colnames(old_assays[[i]]) = new_cn
+    }
+    ct2@assays = SummarizedExperiment::Assays(old_assays)
+
     rowToRowMat(ct2) = r2rm
     colToRowMatCols(ct2) = c2rmc
+    if(!is.null(new_name_VAR)){
+        ct2@name_VAR = new_name_VAR
+    }
     ct2
 }
 
@@ -76,7 +129,7 @@ setGeneric("getNameVariable",
            })
 
 #' @export
-setMethod("getNameVariable", c("ChIPtsne2"), function(ct2){
+setMethod("getNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
     ct2@name_VAR
 })
 
@@ -89,7 +142,7 @@ setGeneric("setValueVariable",
            })
 
 #' @export
-setMethod("setValueVariable", c("ChIPtsne2"), function(ct2, new_value_VAR){
+setMethod("setValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_value_VAR){
     args = get_args()
     history_item = list(setValueVariable = list(FUN = setValueVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
@@ -104,7 +157,7 @@ setGeneric("getValueVariable",
            })
 
 #' @export
-setMethod("getValueVariable", c("ChIPtsne2"), function(ct2){
+setMethod("getValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
     ct2@value_VAR
 })
 
@@ -116,7 +169,7 @@ setGeneric("setRegionVariable",
            })
 
 #' @export
-setMethod("setRegionVariable", c("ChIPtsne2"), function(ct2, new_region_VAR){
+setMethod("setRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_region_VAR){
     args = get_args()
     history_item = list(setRegionVariable = list(FUN = setRegionVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
@@ -131,7 +184,7 @@ setGeneric("getRegionVariable",
            })
 
 #' @export
-setMethod("getRegionVariable", c("ChIPtsne2"), function(ct2){ct2@region_VAR})
+setMethod("getRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@region_VAR})
 
 #### position_VAR ####
 #' @export
@@ -141,7 +194,7 @@ setGeneric("setPositionVariable",
            })
 
 #' @export
-setMethod("setPositionVariable", c("ChIPtsne2"), function(ct2, new_position_VAR){
+setMethod("setPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_position_VAR){
     args = get_args()
     history_item = list(setPositionVariable = list(FUN = setPositionVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
@@ -156,7 +209,7 @@ setGeneric("getPositionVariable",
            })
 
 #' @export
-setMethod("getPositionVariable", c("ChIPtsne2"), function(ct2){ct2@position_VAR})
+setMethod("getPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@position_VAR})
 
 #### SampleMetaData ####
 
@@ -254,45 +307,17 @@ setSampleMetaData = function(ct2, new_meta){
 #' @export
 setGeneric("getRegionMetaData", function(ct2, select_VARS = NULL) standardGeneric("getRegionMetaData"))
 
-#' @export
-setMethod("getRegionMetaData", "ChIPtsne2_no_rowRanges", function(ct2, select_VARS = NULL) {
-    df = rowData(ct2) %>% data.frame(check.names = FALSE)
-    df[[ct2@region_VAR]] = factor(rownames(df), levels = rownames(ct2))
-    if(!is.null(select_VARS)){
-        if(!all(select_VARS %in% colnames(df))){
-            stop(
-                paste(collapse = "\n",
-                      c(
-                          "select_VARS not found in region metadata:",
-                          setdiff(select_VARS, colnames(df))
-                      )
-                )
-            )
-        }
-        df = df[, union(ct2@region_VAR, select_VARS), drop = FALSE]
-    }
-    df
-})
-
-#' getRegionMetaData
-#'
-#' @param ct2 A ChIPtsne object
-#' @param select_VARS character vector of variables to select from region
-#'   metadata. Default of NULL will select all available region metadata
-#'   variables.
-#'
-#' @return data.frame with region meta data, similar to rowRanges but suitable
-#'   for tidyverse operations.
-#' @export
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2()
-#' getRegionMetaData(ct2)
-#' getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
 .getRegionMetaData = function(ct2, select_VARS = NULL){
-    gr = rowRanges(ct2)
-    df = GenomicRanges::mcols(gr) %>% data.frame(check.names = FALSE)
-    df[[ct2@region_VAR]] = names(gr)
+    if(is(ct2, "ChIPtsne2")){
+        gr = rowRanges(ct2)
+        df = GenomicRanges::mcols(gr) %>% data.frame(check.names = FALSE)
+        df[[ct2@region_VAR]] = names(gr)
+    }else if (is(ct2, "ChIPtsne2_no_rowRanges")){
+        df = rowData(ct2) %>% data.frame(check.names = FALSE)
+        df[[getRegionVariable(ct2)]] = rownames(df)
+
+    }
+    df = df[, c(getRegionVariable(ct2), setdiff(colnames(df), getRegionVariable(ct2))), drop = FALSE]
     if(!is.null(select_VARS)){
         if(!all(select_VARS %in% colnames(df))){
             stop(
@@ -309,10 +334,23 @@ setMethod("getRegionMetaData", "ChIPtsne2_no_rowRanges", function(ct2, select_VA
     df
 }
 
-
+#' getRegionMetaData
+#'
+#' @param ct2 A ChIPtsne object
+#' @param select_VARS character vector of variables to select from region
+#'   metadata. Default of NULL will select all available region metadata
+#'   variables.
+#'
+#' @return data.frame with region meta data, similar to rowRanges but suitable
+#'   for tidyverse operations.
+#'
 #' @export
-setMethod("getRegionMetaData", "ChIPtsne2", .getRegionMetaData)
-
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' getRegionMetaData(ct2)
+#' getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+setMethod("getRegionMetaData", "ChIPtsne2_no_rowRanges", .getRegionMetaData)
 
 # internals of setRegionMetaData
 # does not impact history
@@ -356,11 +394,25 @@ isolated_setRegionMetaData = function(ct2, new_meta){
 #' new_meta[["10A_and_AT1"]] = ifelse(new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF, "yes", "no")
 #' ct2 = setRegionMetaData(ct2, new_meta)
 #' getRegionMetaData(ct2)
+#'
+#' ct2.nrr = exampleChIPtsne2.with_meta()
+#' rowRanges(ct2.nrr) = NULL
+#' getRegionMetaData(ct2.nrr)
+#' ct2.nrr = setRegionMetaData(ct2.nrr, new_meta)
+#' getRegionMetaData(ct2.nrr)
 setRegionMetaData = function(ct2, new_meta){
     message("setRegionMetaData ...")
+    if(!is(ct2, "ChIPtsne2_no_rowRanges")){
+        stop("ct2 must be a ChIPtsne2 object")
+    }
+    if(!is(ct2, "ChIPtsne2")){
+        browser()
+    }
     args = get_args()
     ct2 = isolated_setRegionMetaData(ct2, new_meta)
     history_item = list(setRegionMetaData = list(FUN = setRegionMetaData, ARG = args))
     ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
     ct2
 }
+
+

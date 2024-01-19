@@ -17,7 +17,6 @@
 #' @param return_data
 #'
 #' @return
-#' @export
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()

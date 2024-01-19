@@ -1,80 +1,88 @@
+# v 0.1.27
+
+* added bfcif and related functions
+
 # v 0.1.26
 
-ChIPtsne2_no_rowRanges class added as a meta/centroid per group variant of ChIPtsne2.
-plotSignalLinePlot supports ChIPtsne2_no_rowRanges
+* ChIPtsne2_no_rowRanges class added as a meta/centroid per group variant of ChIPtsne2.
+* plotSignalLinePlot supports ChIPtsne2_no_rowRanges
 
 # v 0.1.23
 
-flipProfilesToMatch does not just reverse x but preserves x values
+* flipProfilesToMatch does not just reverse x but preserves x values
 
 # v 0.1.21
 
-get/set for all VAR
-added centroid calculation and classification
+* get/set for all VAR
+* added centroid calculation and classification
 
 # v 0.1.19
 
-added addRegionAnnotation and updated setRegionMetadata and setSampleMetadata to use history
+* added addRegionAnnotation and updated setRegionMetadata and setSampleMetadata to use history
 
 # v 0.1.18
 
-bugfix where sample_meta_data could be out of order in ChIPtsne2.from_tidy
+* bugfix where sample_meta_data could be out of order in ChIPtsne2.from_tidy
 
 # v 0.1.17
 
-arithmetic operator bugfix, bad sub
-.add_region_metadata checks for conflicting names
+* arithmetic operator bugfix, bad sub
+* .add_region_metadata checks for conflicting names
 
 # v 0.1.15
 
-plotSignalHeatmap now handles numeric side plots
+* plotSignalHeatmap now handles numeric side plots
 
 # v 0.1.14
 
-bugfixes for colnames order remaining consistent and used in plots
-max changed to abs_max
+* bugfixes for colnames order remaining consistent and used in plots
+* max changed to abs_max
 
 # v 0.1.13
 
-refactor plot color scales
+* refactor plot color scales
 
 # v 0.1.12
 
-added arithmetic
-filter and subsetRow/Col
+* added arithmetic
+* filter and subsetRow/Col
 
 # v 0.1.11
 
-added flipProfilesToMatch
+* added flipProfilesToMatch
 
 # v 0.1.10
 
-added summary profiles
+* added summary profiles
+
+# v 0.1.27
+
+* big changes to accomodate ChIPtsne2_no_rowRanges
 
 # v 0.1.9
 
-heatmap color scales
+* heatmap color scales
 
 # v 0.1.8
 
-heatmap efficiency and theme
-use config view size
+* heatmap efficiency and theme
+* use config view size
 
 # v 0.1.7
 
-bug: add_cluster_annotation was not respecting factor order for heatmap
+* bug: add_cluster_annotation was not respecting factor order for heatmap
 
 # v 0.1.6
 
-added max_row and balance_groups to plotHeatmap
+* added max_row and balance_groups to plotHeatmap
 
 # v 0.1.5
 
-plotSignalHeatmap and setRegionMetaData and setSampleMetaData
+* plotSignalHeatmap and setRegionMetaData and setSampleMetaData
 
 # v 0.1.4
 
-FetchConfig.files -> FetchConfig.from_files
+* FetchConfig.files -> FetchConfig.from_files
 
 # v 0.1.3
 

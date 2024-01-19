@@ -1,4 +1,4 @@
-apply_chiptsne2_operator = function(e1, e2, operator = "-"){
+apply_ChIPtsne2_operator = function(e1, e2, operator = "-"){
     if(!all(dim(e1) == dim(e2))){
         stop("ChIPtsne2 objects are not dimensionally compatible. Check dim() of each.")
     }
@@ -79,21 +79,39 @@ apply_chiptsne2_operator = function(e1, e2, operator = "-"){
 
     new_prof_max_mat = .recalculateMax(new_rowToRowMat, new_colToRowMatCols)
     init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne2_version = utils::packageDescription("chiptsne2")$Version)
-    ct2_result = ChIPtsne2(assay = list(max = new_prof_max_mat),
-                           rowRanges = rowRanges(e1),
-                           rowToRowMat = new_rowToRowMat,
-                           colToRowMatCols = new_colToRowMatCols,
-                           colData = new_colData,
-                           name_VAR = e1@name_VAR,
-                           position_VAR = e1@position_VAR,
-                           value_VAR = e1@value_VAR,
-                           region_VAR = e1@region_VAR,
-                           fetch_config = e1@fetch_config,
-                           metadata = init_history)
+    if("ChIPtsne2_no_rowRanges" %in% c(class(e1), class(e2))){
+        ct2_result = ChIPtsne2_no_rowRanges(
+            assay = list(max = new_prof_max_mat),
+            rowData = rowData(e1),
+            rowToRowMat = new_rowToRowMat,
+            colToRowMatCols = new_colToRowMatCols,
+            colData = new_colData,
+            name_VAR = e1@name_VAR,
+            position_VAR = e1@position_VAR,
+            value_VAR = e1@value_VAR,
+            region_VAR = e1@region_VAR,
+            fetch_config = e1@fetch_config,
+            metadata = init_history
+        )
+    }else{
+        ct2_result = ChIPtsne2(
+            assay = list(max = new_prof_max_mat),
+            rowRanges = rowRanges(e1),
+            rowToRowMat = new_rowToRowMat,
+            colToRowMatCols = new_colToRowMatCols,
+            colData = new_colData,
+            name_VAR = e1@name_VAR,
+            position_VAR = e1@position_VAR,
+            value_VAR = e1@value_VAR,
+            region_VAR = e1@region_VAR,
+            fetch_config = e1@fetch_config,
+            metadata = init_history
+        )
+    }
     ct2_result@metadata = c(ct2_result@metadata, new_history)
     ct2_result
 }
-apply_chiptsne2_operator.num = function(e1, e2, operator = "-"){
+apply_ChIPtsne2_operator.num = function(e1, e2, operator = "-"){
     reverse_mode = FALSE
     if(is.numeric(e1)){
         tmp = e1
@@ -158,57 +176,115 @@ apply_chiptsne2_operator.num = function(e1, e2, operator = "-"){
 
 
     init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne2_version = utils::packageDescription("chiptsne2")$Version)
-    ct2_result = ChIPtsne2(assay = list(max = new_prof_max_mat),
-                           rowRanges = rowRanges(e1),
-                           rowToRowMat = new_rowToRowMat,
-                           colToRowMatCols = new_colToRowMatCols,
-                           colData = new_colData,
-                           name_VAR = e1@name_VAR,
-                           position_VAR = e1@position_VAR,
-                           value_VAR = e1@value_VAR,
-                           region_VAR = e1@region_VAR,
-                           fetch_config = e1@fetch_config,
-                           metadata = init_history)
+    if("ChIPtsne2_no_rowRanges" %in% c(class(e1))){
+        ct2_result = ChIPtsne2_no_rowRanges(
+            assay = list(max = new_prof_max_mat),
+            rowData = rowData(e1),
+            rowToRowMat = new_rowToRowMat,
+            colToRowMatCols = new_colToRowMatCols,
+            colData = new_colData,
+            name_VAR = e1@name_VAR,
+            position_VAR = e1@position_VAR,
+            value_VAR = e1@value_VAR,
+            region_VAR = e1@region_VAR,
+            fetch_config = e1@fetch_config,
+            metadata = init_history
+        )
+    }else{
+        ct2_result = ChIPtsne2(
+            assay = list(max = new_prof_max_mat),
+            rowRanges = rowRanges(e1),
+            rowToRowMat = new_rowToRowMat,
+            colToRowMatCols = new_colToRowMatCols,
+            colData = new_colData,
+            name_VAR = e1@name_VAR,
+            position_VAR = e1@position_VAR,
+            value_VAR = e1@value_VAR,
+            region_VAR = e1@region_VAR,
+            fetch_config = e1@fetch_config,
+            metadata = init_history
+        )
+    }
     ct2_result@metadata = c(ct2_result@metadata, new_history)
     ct2_result
 }
 
-setMethod("-", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator(e1, e2, "-")
+# setMethod("-", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator(e1, e2, "-")
+# })
+# setMethod("+", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator(e1, e2, "+")
+# })
+# setMethod("/", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator(e1, e2, "/")
+# })
+# setMethod("*", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator(e1, e2, "*")
+# })
+#
+# setMethod("-", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "-")
+# })
+# setMethod("+", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "+")
+# })
+# setMethod("/", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "/")
+# })
+# setMethod("*", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "*")
+# })
+#
+# setMethod("-", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "-")
+# })
+# setMethod("+", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "+")
+# })
+# setMethod("/", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "/")
+# })
+# setMethod("*", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
+#     apply_ChIPtsne2_operator.num(e1, e2, "*")
+# })
+#
+
+setMethod("-", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator(e1, e2, "-")
 })
-setMethod("+", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator(e1, e2, "+")
+setMethod("+", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator(e1, e2, "+")
 })
-setMethod("/", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator(e1, e2, "/")
+setMethod("/", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator(e1, e2, "/")
 })
-setMethod("*", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator(e1, e2, "*")
+setMethod("*", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator(e1, e2, "*")
 })
 
-setMethod("-", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "-")
+setMethod("-", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "-")
 })
-setMethod("+", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "+")
+setMethod("+", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "+")
 })
-setMethod("/", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "/")
+setMethod("/", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "/")
 })
-setMethod("*", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "*")
+setMethod("*", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "*")
 })
 
-setMethod("-", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "-")
+setMethod("-", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "-")
 })
-setMethod("+", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "+")
+setMethod("+", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "+")
 })
-setMethod("/", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "/")
+setMethod("/", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "/")
 })
-setMethod("*", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-    apply_chiptsne2_operator.num(e1, e2, "*")
+setMethod("*", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
+    apply_ChIPtsne2_operator.num(e1, e2, "*")
 })
 

@@ -364,6 +364,9 @@ get_args = function(env = parent.frame(), to_ignore = "ct2", ...){
 }
 
 .add_region_metadata = function(query_gr, region_metadata, region_VAR, overwrite = FALSE){
+    if(is.null(region_metadata[[region_VAR]])){
+        region_metadata[[region_VAR]] = rownames(region_metadata)
+    }
     stopifnot(setequal(
         names(query_gr),
         region_metadata[[region_VAR]]

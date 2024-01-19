@@ -6,7 +6,6 @@
 #' @param n_clusters
 #'
 #' @return
-#' @export
 #' @rdname groupRegionsBySignalCluster
 #'
 #' @examples
@@ -144,7 +143,6 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2"), .groupRegionsByDimRe
 #' @param group_VAR
 #'
 #' @return
-#' @export
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -155,7 +153,6 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2"), .groupRegionsByDimRe
     args = get_args()
     gr = rowRanges(ct2)
     GenomicRanges::mcols(gr) = NULL
-    browser()
     memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), as.list(gr_list)))
     memb_gr$TMP__ = NULL
     memb_df = as.data.frame(GenomicRanges::mcols(memb_gr))

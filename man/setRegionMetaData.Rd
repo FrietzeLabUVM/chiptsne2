@@ -23,4 +23,10 @@ new_meta = getRegionMetaData(ct2)
 new_meta[["10A_and_AT1"]] = ifelse(new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF, "yes", "no")
 ct2 = setRegionMetaData(ct2, new_meta)
 getRegionMetaData(ct2)
+
+ct2.nrr = exampleChIPtsne2.with_meta()
+rowRanges(ct2.nrr) = NULL
+getRegionMetaData(ct2.nrr)
+ct2.nrr = setRegionMetaData(ct2.nrr, new_meta)
+getRegionMetaData(ct2.nrr)
 }

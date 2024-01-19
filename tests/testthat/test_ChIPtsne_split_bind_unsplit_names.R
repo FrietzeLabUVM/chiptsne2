@@ -81,6 +81,3 @@ test_that("unsplit ChIPtsne2List", {
     expect_equal(colnames(ct2.un_peak), colnames(ct2))
 })
 
-
-
-

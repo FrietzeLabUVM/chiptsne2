@@ -249,12 +249,12 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 #'   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
 #' )
 FetchConfig.from_files = function(file_paths,
-                             group_names = NULL,
-                             name_VAR = "name",
-                             view_size = getOption("CT_VIEW_SIZE", 3e3),
-                             window_size = getOption("CT_WINDOW_SIZE", 200),
-                             read_mode = NULL,
-                             fetch_options = list()
+                                  group_names = NULL,
+                                  name_VAR = "name",
+                                  view_size = getOption("CT_VIEW_SIZE", 3e3),
+                                  window_size = getOption("CT_WINDOW_SIZE", 200),
+                                  read_mode = NULL,
+                                  fetch_options = list()
 ){
     if(is.null(group_names)){
         if(is.null(names(file_paths))){
@@ -306,7 +306,7 @@ get_fetch_fun = function(read_mode){
 #'
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 #' chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
-fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
+fetch_signal_at_features = function(fetch_config, query_gr, bfc = NULL){
     extra_args = fetch_config@fetch_options
     ### JRB commenting out for now. user provided fragLens should be used.
     # if(!is.null(fetch_config@meta_data$fragLens)){ # fragLens is in meta data
@@ -341,9 +341,12 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = new_cache()){
         names_variable = fetch_config@name_VAR),
         extra_args)
     fetch_FUN = get_fetch_fun(fetch_config@read_mode)
-    prof_dt = bfcif(bfc, digest::digest(list(fetch_FUN, call_args)), function(){
-        do.call(fetch_FUN, call_args)
-    })
+    prof_dt = bfcif(
+        FUN = function(){
+            do.call(fetch_FUN, call_args)
+        },
+        rname = digest::digest(list(fetch_FUN, call_args)),
+        bfc = bfc)
     list(prof_dt = prof_dt, query_gr = query_gr)
 }
 

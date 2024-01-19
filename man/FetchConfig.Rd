@@ -40,7 +40,7 @@ FetchConfig.from_files(
   fetch_options = list()
 )
 
-fetch_signal_at_features(fetch_config, query_gr, bfc = new_cache())
+fetch_signal_at_features(fetch_config, query_gr, bfc = NULL)
 
 FetchConfig.save_config(object, file)
 

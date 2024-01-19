@@ -59,12 +59,6 @@ ChIPtsne2.from_tidy = function(prof_dt,
             }
         }
     }
-    if(!is.null(region_metadata)){
-        if(!region_VAR %in% colnames(region_metadata)){
-            stop("region_VAR: ", region_VAR, " not found in region_metadata")
-        }
-    }
-
     #determine colname order
     cn = NULL
     # use sample_metadata over prof_dt if provided and levels of factor if set, otherwise current order of character
@@ -101,6 +95,18 @@ ChIPtsne2.from_tidy = function(prof_dt,
     if(is.null(rn)){
         stop("Could not determine row order from prof_dt from region_VAR: ", region_VAR, "\nIs ", region_VAR, " present and a character or factor?")
     }
+    if(!is.null(region_metadata)){
+        if(region_VAR %in% colnames(region_metadata)){
+            rownames(region_metadata) = region_metadata[[region_VAR]]
+            region_metadata[[region_VAR]] = NULL
+        }
+        if(is.null(rownames(region_metadata))){
+            stop("region_metadata must have rownames or contain region_VAR: ", region_VAR)
+        }
+        if(!all(rownames(region_metadata) %in% rn)){
+            stop("rownames of region_metadata are not consistent with profile region_VAR: ", region_VAR)
+        }
+    }
 
     #create wide profile matrix
     tmp_wide = tidyr::pivot_wider(
@@ -111,7 +117,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
     )
     prof_mat = as.matrix(tmp_wide[, -1])
     rownames(prof_mat) = tmp_wide[[region_VAR]]
-    prof_mat = prof_mat[rn,]
+    prof_mat = prof_mat[rn,, drop = FALSE]
 
     tmp = c("value_VAR")
     names(tmp) = value_VAR
@@ -128,7 +134,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
         )
     prof_max_mat = as.matrix(prof_max[, -1])
     rownames(prof_max_mat) = prof_max[[region_VAR]]
-    prof_max_mat = prof_max_mat[rn,]
+    prof_max_mat = prof_max_mat[rn,, drop = FALSE]
 
     if(is.null(sample_metadata)){
         if(auto_sample_metadata){

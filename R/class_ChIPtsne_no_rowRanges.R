@@ -119,7 +119,14 @@ rowData = SummarizedExperiment::rowData
 #' @export
 colData = SummarizedExperiment::colData
 #' @export
+`rowData<-` = SummarizedExperiment::`rowData<-`
+#' @export
+`colData<-` = SummarizedExperiment::`colData<-`
+
+#' @export
 assay = SummarizedExperiment::assay
+#' @export
+Assays = SummarizedExperiment::Assays
 
 #### Subsetting by index ####
 
@@ -376,24 +383,17 @@ setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
         check=FALSE)
 })
 
-# getMethod("colnames", "SummarizedExperiment")
-# getMethod("rownames", "SummarizedExperiment")
-# getMethod(`rownames<-`, "SummarizedExperiment")
-# showMethods(`rownames<-`)
-# getMethod(`rownames<-`, "DFrame")
-setMethod("colnames", "ChIPtsne2_no_rowRanges", function(x, do.NULL = TRUE, prefix = "col") {
-    callNextMethod()
-})
-setMethod("rownames", "ChIPtsne2_no_rowRanges", function(x, do.NULL = TRUE, prefix = "row") {
-    callNextMethod()
-})
-setMethod("colnames<-", "ChIPtsne2_no_rowRanges", function(x, value) {
-    out = callNextMethod()
-    .update_ct2_colnames(x, new_names = colnames(out))
-})
-setMethod("rownames<-", "ChIPtsne2_no_rowRanges", function(x, value) {
-    stop("NYI")
-    out = callNextMethod()
-    # head(x@rowToRowMat)
-    browser()
-})
+setReplaceMethod("names", "ChIPtsne2_no_rowRanges",
+                 function(x, value)
+                 {
+                     rownames(x) = value
+                     x
+                 })
+
+setReplaceMethod("dimnames", c("ChIPtsne2_no_rowRanges", "list"),
+                 function(x, value)
+                 {
+                     x = .update_ct2_rownames(x, new_names = value[[1]])
+                     x = .update_ct2_colnames(x, new_names = value[[2]])
+                     x
+                 })

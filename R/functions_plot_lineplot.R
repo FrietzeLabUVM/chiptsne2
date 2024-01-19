@@ -1,11 +1,21 @@
 
+#' Title
+#'
+#' @param ct2
+#' @param group_VAR
+#' @param new_meta_VAR
+#'
+#' @return
+#' @export
+#'
+#' @examples
 aggregateRegionsByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_id")){
     centroid = calculateGroupCentroid(ct2, group_VAR)
 
     df = do.call(rbind,
                  lapply(names(ct2@colToRowMatCols), function(nam){
                      i = ct2@colToRowMatCols[[nam]]
-                     df = reshape2::melt(centroid[, i])
+                     df = reshape2::melt(centroid[, i, drop = FALSE])
                      df$Var2 = factor(df$Var2)
                      levels(df$Var2) = as.numeric(sub(paste0(nam, "_"), "", levels(df$Var2), fixed = TRUE))
                      df[[ct2@name_VAR]] = nam
@@ -31,6 +41,16 @@ aggregateRegionsByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
     ct2.meta
 }
 
+#' Title
+#'
+#' @param ct2
+#' @param group_VAR
+#' @param new_meta_VAR
+#'
+#' @return
+#' @export
+#'
+#' @examples
 aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_name")){
     carried_VARS = unique(c(group_VAR, new_meta_VAR))
     if(group_VAR != new_meta_VAR){
@@ -45,7 +65,6 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
         }else{
             ct2.new = x[,1]
             for(i in seq(2, ncol(x))){
-                message(i)
                 ct2.new = ct2.new + x[,i]
             }
             ct2.new = ct2.new / ncol(x)
@@ -55,9 +74,19 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
         ct2.parts[[name]] = ct2.new
     }
     ct2.meta = do.call(cbind, ct2.parts)
+    ct2.meta = setNameVariable(ct2.meta, new_meta_VAR)
     ct2.meta
 }
 
+#' Title
+#'
+#' @param ct2
+#' @param group_VAR
+#'
+#' @return
+#' @export
+#'
+#' @examples
 aggregateByGroup = function(ct2, group_VAR){
     group_VAR.col = group_VAR[group_VAR %in% colnames(colData(ct2))]
     group_VAR.row = group_VAR[group_VAR %in% colnames(rowData(ct2))]
@@ -111,7 +140,11 @@ aggregateByGroup = function(ct2, group_VAR){
     all_VARS = unique(c(group_VAR, color_VAR, facet_VAR, extra_VARS))
     meta_VARS = setdiff(all_VARS, ct2@name_VAR)
     row_VARS = meta_VARS[meta_VARS %in% colnames(rowData(ct2))]
-    ct2.agg = aggregateRegionsByGroup(ct2, row_VARS)
+    if(length(row_VARS) > 0){
+        ct2.agg = aggregateRegionsByGroup(ct2, row_VARS)
+    }else{
+        ct2.agg = ct2
+    }
     agg_dt = getTidyProfile(ct2.agg, meta_VARS = meta_VARS)
     # prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
     # agg_dt = prof_dt[, .(VALUE_ = mean(get(ct2@value_VAR))), c(unique(c(all_VARS, ct2@position_VAR, ct2@name_VAR)))]

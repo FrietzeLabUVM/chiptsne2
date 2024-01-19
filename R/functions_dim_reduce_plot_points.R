@@ -5,7 +5,6 @@
 #' @param point_size Size of points in plot.
 #'
 #' @return ggplot
-#' @export
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta() %>%

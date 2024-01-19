@@ -2,7 +2,7 @@
 
 
 #### Constructor ####
-
+#https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/Extensions.html
 #' @export
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
@@ -364,10 +364,16 @@ cbind = SummarizedExperiment::cbind
 
 #' @param ChIPtsne2
 #'
-#' @return
+#' @return A new ChIPtsne2 object where columns have been appended
 #' @export
 #'
 #' @examples
+#' ct2.left = exampleChIPtsne2()
+#' ct2.right = exampleChIPtsne2()
+#' colnames(ct2.right) = paste0("right_", colnames(ct2.right))
+#' ct2 = cbind(ct2.left, ct2.right)
+#' dim(ct2)
+#' colnames(ct2)
 setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
     args <- list(...)
     # cns = unname(unlist(lapply(args, colnames)))
@@ -472,19 +478,36 @@ setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
         check=FALSE)
 })
 
-setMethod("colnames", "ChIPtsne2", function(x, do.NULL = TRUE, prefix = "col") {
-    callNextMethod()
-})
-setMethod("rownames", "ChIPtsne2", function(x, do.NULL = TRUE, prefix = "row") {
-    callNextMethod()
-})
-setMethod("colnames<-", "ChIPtsne2", function(x, value) {
-    out = callNextMethod()
-    .update_ct2_colnames(x, new_names = colnames(out))
-})
-setMethod("rownames<-", "ChIPtsne2", function(x, value) {
-    stop("NYI")
-    out = callNextMethod()
-    # head(x@rowToRowMat)
-    browser()
-})
+rowRanges = SummarizedExperiment::rowRanges
+`rowRanges<-` = SummarizedExperiment::`rowRanges<-`
+
+setReplaceMethod("rowRanges", c("ChIPtsne2", "NULL"),
+                 function(x, ..., value){
+                     ChIPtsne2_no_rowRanges(
+                         assays = assays(x),
+                         rowData = rowData(x),
+                         colData = colData(x),
+                         rowToRowMat = x@rowToRowMat,
+                         colToRowMatCols = x@colToRowMatCols,
+                         name_VAR = x@name_VAR,
+                         position_VAR = x@position_VAR,
+                         value_VAR = x@value_VAR,
+                         region_VAR = x@region_VAR)
+                 }
+)
+
+setReplaceMethod("names", "ChIPtsne2",
+                 function(x, value)
+                 {
+                     rownames(x) = value
+                     x
+                 })
+
+setReplaceMethod("dimnames", c("ChIPtsne2", "list"),
+                 function(x, value)
+                 {
+                     x = .update_ct2_rownames(x, new_names = value[[1]])
+                     x = .update_ct2_colnames(x, new_names = value[[2]])
+                     x
+                 })
+

@@ -7,8 +7,18 @@ ChIPtsne2List <- function(
         ...)
 {
     ctl <- S4Vectors::SimpleList(...)
-    # .ChIPtsne2List(ctl)
-    new("ChIPtsne2List", listData = ctl@listData, elementType = "ChIPtsne2", elementMetadata = ctl@elementMetadata, metadata = ctl@metadata)
+    list_classes = unique(sapply(ctl, class))
+    if(!length(list_classes) == 1){
+        stop("ChIPtsne2List must contain only either ChIPtsne2 or ChIPtsne2_no_rowRanges objects.")
+    }
+    if(list_classes == "ChIPtsne2"){
+        out = new("ChIPtsne2List", listData = ctl@listData, elementType = "ChIPtsne2", elementMetadata = ctl@elementMetadata, metadata = ctl@metadata)
+    }else if(list_classes == "ChIPtsne2_no_rowRanges"){
+        out = new("ChIPtsne2List", listData = ctl@listData, elementType = "ChIPtsne2_no_rowRanges", elementMetadata = ctl@elementMetadata, metadata = ctl@metadata)
+    }else{
+        stop("ChIPtsne2List must contain only either ChIPtsne2 or ChIPtsne2_no_rowRanges objects.")
+    }
+    out
 }
 
 #' @param ChIPtsne2
