@@ -430,4 +430,4 @@ setGeneric("plotSignalHeatmap", function(
         signature = "ct2")
 
 #' @export
-setMethod("plotSignalHeatmap", c("ChIPtsne2"), .plotSignalHeatmap)
+setMethod("plotSignalHeatmap", c("ChIPtsne2_no_rowRanges"), .plotSignalHeatmap)

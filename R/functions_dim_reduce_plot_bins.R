@@ -23,6 +23,9 @@
 #' ct2 = exampleChIPtsne2.with_meta()
 #' ct2 = dimReducePCA(ct2)
 #' plotDimReduceBins(ct2)
+#'
+#' ct2.a = setValueVariable(ct2, "norm")
+#' plotDimReduceBins(ct2.a)
 .plotDimReduceBins = function(ct2,
                               facet_rows = ct2@name_VAR,
                               facet_columns = NULL,
@@ -82,7 +85,6 @@
 
     bin_colors = .prep_color_scale(bin_dt[[ct2@value_VAR]], color_scale = bin_colors)
     bin_fill_limits = .prep_symmetrical(bin_dt[[ct2@value_VAR]], has_symmetrical_limits = has_symmetrical_limits, scale_limits = bin_fill_limits)
-
     bin_dt[[ct2@value_VAR]] = .apply_limits(bin_dt[[ct2@value_VAR]], bin_fill_limits)
 
     if(return_data){
@@ -91,7 +93,7 @@
 
     p_bin = plot_binned_aggregates(
         bin_dt = bin_dt,
-        val = ct2@value_VAR,
+        fill_VAR = ct2@value_VAR,
         facet_ = extra_VARS[1],
         min_size = min_size
     ) +
@@ -129,7 +131,7 @@ setGeneric("plotDimReduceBins",
            signature = "ct2")
 
 #' @export
-setMethod("plotDimReduceBins", c("ChIPtsne2"), .plotDimReduceBins)
+setMethod("plotDimReduceBins", c("ChIPtsne2_no_rowRanges"), .plotDimReduceBins)
 
 aggregate_signals = function(profile_dt,
                              agg_FUN = max,
@@ -165,6 +167,7 @@ bin_signals = function(agg_dt,
     agg_dt[, by := bin_values(get(byval), n_bins = y_bins, xrng = yrng)]
 
     bin_dt = agg_dt[, .(y = bin_met(get(val)), N = .N), c(unique(c(facet_, extra_VARS, "bx", "by")))]
+    data.table::setnames(bin_dt, "y", val)
     bxvc = bin_values_centers(n_bins = x_bins, xrng)
     w = diff(bxvc[1:2])
     byvc = bin_values_centers(n_bins = y_bins, yrng)
@@ -178,7 +181,7 @@ bin_signals = function(agg_dt,
 plot_binned_aggregates = function(bin_dt,
                                   xrng = NULL,
                                   yrng = NULL,
-                                  val = "y",
+                                  fill_VAR = "y",
                                   bxval = "tx",
                                   byval = "ty",
                                   facet_ = "wide_var",
@@ -191,7 +194,9 @@ plot_binned_aggregates = function(bin_dt,
     }
     w = min(diff(unique(sort(bin_dt$tx))))
     h = min(diff(unique(sort(bin_dt$ty))))
-    ggplot(bin_dt[N >= min_size], aes(x = tx, y = ty, fill = y)) +
+    fill_ = fill_VAR
+    fill_ = ensym(fill_)
+    ggplot(bin_dt[N >= min_size], aes(x = tx, y = ty, fill = !!fill_)) +
         geom_tile(width = w, height = h) +
         facet_wrap(facet_) +
         coord_cartesian(xlim = xrng, ylim = yrng)

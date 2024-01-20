@@ -47,7 +47,7 @@ setGeneric("groupRegionsBySignalCluster",
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionsBySignalCluster", c("ChIPtsne2"), .groupRegionsBySignalCluster)
+setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegionsBySignalCluster)
 
 
 
@@ -132,7 +132,7 @@ setGeneric("groupRegionsByDimReduceCluster",
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2"), .groupRegionsByDimReduceCluster)
+setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupRegionsByDimReduceCluster)
 
 #### region overlap ####
 
@@ -200,7 +200,7 @@ setGeneric("groupRegionsByMembershipTable",
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionsByMembershipTable", c("ChIPtsne2"), .groupRegionsByMembershipTable)
+setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRegionsByMembershipTable)
 
 #### manual grouping ####
 .groupRegionsManually = function(ct2, assignment, group_VAR = "group_id"){
@@ -242,7 +242,7 @@ setGeneric("groupRegionsManually",
            signature = "ct2")
 
 #' @export
-setMethod("groupRegionsManually", c("ChIPtsne2"), .groupRegionsManually)
+setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManually)
 
 #### sort regions ####
 .sortRegions = function(ct2, group_VAR = NULL){
@@ -276,4 +276,4 @@ setGeneric("sortRegions",
            signature = "ct2")
 
 #' @export
-setMethod("sortRegions", c("ChIPtsne2"), .sortRegions)
+setMethod("sortRegions", c("ChIPtsne2_no_rowRanges"), .sortRegions)

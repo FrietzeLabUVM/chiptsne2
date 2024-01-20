@@ -80,5 +80,5 @@
 setGeneric("flipProfilesToMatch", function(ct2, highest_on_right = TRUE) standardGeneric("flipProfilesToMatch"))
 
 #' @export
-setMethod("flipProfilesToMatch", c("ChIPtsne2"), .flipProfilesToMatch)
+setMethod("flipProfilesToMatch", c("ChIPtsne2_no_rowRanges"), .flipProfilesToMatch)
 

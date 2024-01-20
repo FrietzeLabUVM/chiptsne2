@@ -51,7 +51,7 @@ setGeneric("normalizeSignalRPM",
            signature = "ct2")
 
 #' @export
-setMethod("normalizeSignalRPM", c("ChIPtsne2"), .normalizeSignalRPM)
+setMethod("normalizeSignalRPM", c("ChIPtsne2_no_rowRanges"), .normalizeSignalRPM)
 
 #### cap normalizeSignalCapValue #####
 .normalizeSignalCapValue = function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, minimum_ceiling = NULL){
@@ -109,7 +109,7 @@ setGeneric("normalizeSignalCapValue",
            signature = "ct2")
 
 #' @export
-setMethod("normalizeSignalCapValue", c("ChIPtsne2"), .normalizeSignalCapValue)
+setMethod("normalizeSignalCapValue", c("ChIPtsne2_no_rowRanges"), .normalizeSignalCapValue)
 
 #### calculateSignalCapValue ####
 
@@ -141,4 +141,4 @@ setGeneric("calculateSignalCapValue",
            signature = "ct2")
 
 #' @export
-setMethod("calculateSignalCapValue", c("ChIPtsne2"), .calculateSignalCapValue)
+setMethod("calculateSignalCapValue", c("ChIPtsne2_no_rowRanges"), .calculateSignalCapValue)

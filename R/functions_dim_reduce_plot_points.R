@@ -143,4 +143,4 @@ setGeneric("plotDimReducePoints",
            signature = "ct2")
 
 #' @export
-setMethod("plotDimReducePoints", c("ChIPtsne2"), .plotDimReducePoints)
+setMethod("plotDimReducePoints", c("ChIPtsne2_no_rowRanges"), .plotDimReducePoints)

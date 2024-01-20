@@ -44,8 +44,8 @@
 setGeneric("rerun_history", function(ct2, history_source) standardGeneric("rerun_history"))
 
 #' @export
-setMethod("rerun_history", c("ChIPtsne2", "list"), .rerun_history)
+setMethod("rerun_history", c("ChIPtsne2_no_rowRanges", "list"), .rerun_history)
 
 #' @export
-setMethod("rerun_history", c("ChIPtsne2", "ChIPtsne2"), .rerun_history)
+setMethod("rerun_history", c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), .rerun_history)
 

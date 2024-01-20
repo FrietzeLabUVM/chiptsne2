@@ -55,7 +55,7 @@
 setGeneric("dimReduceTSNE", function(ct2, perplexity = 50, ...) standardGeneric("dimReduceTSNE"), signature = "ct2")
 
 #' @export
-setMethod("dimReduceTSNE", c("ChIPtsne2"), .dimReduceTSNE)
+setMethod("dimReduceTSNE", c("ChIPtsne2_no_rowRanges"), .dimReduceTSNE)
 
 #### UMAP ####
 
@@ -104,7 +104,7 @@ setMethod("dimReduceTSNE", c("ChIPtsne2"), .dimReduceTSNE)
 setGeneric("dimReduceUMAP", function(ct2, config = umap::umap.defaults, ...) standardGeneric("dimReduceUMAP"), signature = "ct2")
 
 #' @export
-setMethod("dimReduceUMAP", c("ChIPtsne2"), .dimReduceUMAP)
+setMethod("dimReduceUMAP", c("ChIPtsne2_no_rowRanges"), .dimReduceUMAP)
 
 #### PCA ####
 
@@ -150,7 +150,7 @@ setMethod("dimReduceUMAP", c("ChIPtsne2"), .dimReduceUMAP)
 setGeneric("dimReducePCA", function(ct2) standardGeneric("dimReducePCA"), signature = "ct2")
 
 #' @export
-setMethod("dimReducePCA", c("ChIPtsne2"), .dimReducePCA)
+setMethod("dimReducePCA", c("ChIPtsne2_no_rowRanges"), .dimReducePCA)
 #### helpers ####
 
 .rescale_capped = function(x, to = c(0,1), from = range(x, na.rm = TRUE, finite = TRUE)){

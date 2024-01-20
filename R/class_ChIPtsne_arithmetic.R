@@ -209,45 +209,6 @@ apply_ChIPtsne2_operator.num = function(e1, e2, operator = "-"){
     ct2_result
 }
 
-# setMethod("-", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator(e1, e2, "-")
-# })
-# setMethod("+", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator(e1, e2, "+")
-# })
-# setMethod("/", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator(e1, e2, "/")
-# })
-# setMethod("*", signature = c("ChIPtsne2", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator(e1, e2, "*")
-# })
-#
-# setMethod("-", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "-")
-# })
-# setMethod("+", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "+")
-# })
-# setMethod("/", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "/")
-# })
-# setMethod("*", signature = c("ChIPtsne2", "numeric"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "*")
-# })
-#
-# setMethod("-", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "-")
-# })
-# setMethod("+", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "+")
-# })
-# setMethod("/", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "/")
-# })
-# setMethod("*", signature = c("numeric", "ChIPtsne2"), definition = function(e1, e2){
-#     apply_ChIPtsne2_operator.num(e1, e2, "*")
-# })
-#
 
 setMethod("-", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator(e1, e2, "-")

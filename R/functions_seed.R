@@ -13,4 +13,4 @@
 setGeneric("setSeed", function(ct2, seed = NULL) standardGeneric("setSeed"), signature = "ct2")
 
 #' @export
-setMethod("setSeed", c("ChIPtsne2"), .setSeed)
+setMethod("setSeed", c("ChIPtsne2_no_rowRanges"), .setSeed)

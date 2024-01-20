@@ -93,5 +93,5 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 setGeneric("centerProfilesAndTrim", function(ct2, view_size) standardGeneric("centerProfilesAndTrim"))
 
 #' @export
-setMethod("centerProfilesAndTrim", c("ChIPtsne2", "numeric"), .centerProfilesAndTrim)
+setMethod("centerProfilesAndTrim", c("ChIPtsne2_no_rowRanges", "numeric"), .centerProfilesAndTrim)
 

@@ -139,7 +139,7 @@ setGeneric("plotDimReduceSummaryProfiles", function(
         signature = "ct2")
 
 #' @export
-setMethod("plotDimReduceSummaryProfiles", c("ChIPtsne2"), .plotDimReduceSummaryProfiles)
+setMethod("plotDimReduceSummaryProfiles", c("ChIPtsne2_no_rowRanges"), .plotDimReduceSummaryProfiles)
 
 plot_summary_profiles = function (profile_dt,
                                   position_dt,

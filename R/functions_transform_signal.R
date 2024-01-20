@@ -19,4 +19,4 @@ setGeneric("transformSignal",
            signature = "ct2")
 
 #' @export
-setMethod("transformSignal", c("ChIPtsne2"), .transformSignal)
+setMethod("transformSignal", c("ChIPtsne2_no_rowRanges"), .transformSignal)

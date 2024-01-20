@@ -1,3 +1,7 @@
+# v 0.1.28
+
+* more bug fixes for ChIPtsne2_no_rowRanges
+
 # v 0.1.27
 
 * added bfcif and related functions
