@@ -153,8 +153,8 @@ ct2 = ct2.raw %>%
     flipProfilesToMatch() %>%
     groupRegionsBySignalCluster() %>%
     dimReduceTSNE() %>% 
-    groupRegionsByDimReduceCluster()
-setValueVariable(ct2, "normalized reads")
+    groupRegionsByDimReduceCluster() %>%
+    setValueVariable("normalized reads")
 ```
 
 ```{r heatmap}
@@ -386,40 +386,3 @@ cowplot::plot_grid(
     p.gfp, p.ik, p.diff, p.peaks, nrow = 2
 )
 ```
-
-## CSAW method
-
-Define "differential" peaks such that peaks are in both cell lines in one condition and neither cell line in the other condition.
-
-```{r peaks}
-csaw_file = "~/R_workspace.combined/preB_IK_induction/output_csaw.091923/ERG_cutnrun/IK_vs_GFP_in_all.csaw_regions.csv"
-dt = fread(csaw_file)
-dt = dt[PValue < .05]
-dt = dt[direction != "mixed"]
-# split(dt, dt$direction)
-table(dt$direction)
-csaw_gr = GRanges(dt)
-csaw_gr = subset(csaw_gr, width >= 1e3)
-csaw_gr$up_treatment = ifelse(csaw_gr$direction == "up", "IK", "GFP")
-csaw_gr$original_width = width(csaw_gr)
-
-olap_grs.csaw_ik = subsetByOverlaps(olap_grs, subset(csaw_gr, up_treatment == "IK"))
-olap_grs.csaw_gfp = subsetByOverlaps(olap_grs, subset(csaw_gr, up_treatment == "GFP"))
-
-olap_grs.csaw_ik$csaw_group = "IK"
-olap_grs.csaw_gfp$csaw_group = "GFP"
-
-diff_gr = c(
-    olap_grs.csaw_ik,
-    olap_grs.csaw_gfp
-)
-
-#invert selects regions NOT overlapping
-notDiff_gr = subsetByOverlaps(olap_grs, diff_gr, invert = TRUE)
-set.seed(0)
-notDiff_gr = sample(notDiff_gr, length(diff_gr)/2)
-notDiff_gr$csaw_group = "not_diff"
-
-query_gr = c(diff_gr, notDiff_gr)
-```
-

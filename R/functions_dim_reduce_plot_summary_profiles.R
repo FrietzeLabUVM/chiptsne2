@@ -41,7 +41,9 @@
         N_ceiling = NULL,
         min_size = 0.3,
         return_data = FALSE){
-
+    if(!hasDimReduce(ct2)){
+        stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
+    }
     position_VAR = ct2@position_VAR
     value_VAR = ct2@value_VAR
     region_VAR = ct2@region_VAR

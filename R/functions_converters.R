@@ -32,7 +32,7 @@
     }
     if(!is.null(region_meta_VARS)){
         if(length(region_meta_VARS) == 1 && region_meta_VARS == TRUE){
-            region_meta_VARS = colnames(mcols(rowRanges(ct2)))
+            region_meta_VARS = colnames(rowData(ct2))
         }
         reg_df = getRegionMetaData(ct2) %>%
             dplyr::select(all_of(c(ct2@region_VAR, region_meta_VARS)))
