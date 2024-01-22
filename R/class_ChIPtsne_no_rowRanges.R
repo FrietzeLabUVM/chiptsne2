@@ -114,20 +114,6 @@ setReplaceMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", function(x, value)
     x
 })
 
-#' @export
-rowData = SummarizedExperiment::rowData
-#' @export
-colData = SummarizedExperiment::colData
-#' @export
-`rowData<-` = SummarizedExperiment::`rowData<-`
-#' @export
-`colData<-` = SummarizedExperiment::`colData<-`
-
-#' @export
-assay = SummarizedExperiment::assay
-#' @export
-Assays = SummarizedExperiment::Assays
-
 #### Subsetting by index ####
 
 #' @export
@@ -164,30 +150,6 @@ setMethod("[", "ChIPtsne2_no_rowRanges", function(x, i, j, drop=TRUE) {
                                 colToRowMatCols = c2rrm,
                                 check=FALSE)
 })
-
-hasDimReduce = function(ct2){
-    meta_dt = getRegionMetaData(ct2)
-    all(c("tx", "ty") %in% colnames(meta_dt))
-}
-
-.recalculateMax_ct2 = function(ct2){
-    r2rm = ct2@rowToRowMat
-    c2rmc = ct2@colToRowMatCols
-    .recalculateMax(r2rm, c2rmc)
-}
-
-.recalculateMax = function(r2rm, c2rmc){
-    abs_max = function(x){
-        x[which.max(abs(x))]
-    }
-    resl = lapply(c2rmc, function(x){
-        apply(r2rm[,x,drop = FALSE], 1, abs_max)
-    })
-    df = as.data.frame(resl)
-    colnames(df) = names(c2rmc)
-    rownames(df) = rownames(r2rm)
-    as.matrix(df)
-}
 
 #### split ####
 
@@ -264,14 +226,6 @@ setMethod("split", "ChIPtsne2_no_rowRanges", function(x, f = NULL, drop=FALSE, .
 }
 
 #### cbind ####
-cbind = SummarizedExperiment::cbind
-# rowToRowMat = rowToRowMat,
-# colToRowMatCols = colToRowMatCols,
-# name_VAR = name_VAR,
-# position_VAR = position_VAR,
-# value_VAR = value_VAR,
-# region_VAR = region_VAR,
-# fetch_config = fetch_config
 
 #' @param ChIPtsne2_no_rowRanges
 #'
@@ -281,25 +235,12 @@ cbind = SummarizedExperiment::cbind
 #' @examples
 setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
     args <- list(...)
-    # cns = unname(unlist(lapply(args, colnames)))
-    # cn_dupes = duplicated(cns)
-    # if(any(cn_dupes)){
-    #     stop("Duplicated colnames are not allowed when combining ChIPtsne2_no_rowRanges objects. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n",
-    #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
-    # }
     .validate_names_unique(args, colnames, "Column")
     .validate_names_match(args, rownames, "Row")
 
 
     all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
     all.c2rrm <- lapply(args, colToRowMatCols, withDimnames=FALSE)
-
-    # cns = unlist(lapply(all.rrm, colnames))
-    # cn_dupes = duplicated(cns)
-    # if(any(cn_dupes)){
-    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n",
-    #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
-    # }
 
     all.rrm <- do.call(cbind, all.rrm)
     names(all.c2rrm) = NULL
@@ -329,8 +270,6 @@ setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
 
 
 #### rbind ####
-#' @export
-rbind = SummarizedExperiment::rbind
 #' @param ChIPtsne2_no_rowRanges
 #'
 #' @return
@@ -341,24 +280,8 @@ setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, rownames, "Row")
     .validate_names_match(args, colnames, "Column")
-    # ref = args[[1]]
-    # for(test in args[-1]){
-    #     is_match = colnames(ref) == colnames(test)
-    #     if(!all(is_match)){
-    #         a = colnames(ref)[!is_match]
-    #         b = colnames(test)[!is_match]
-    #         stop(paste(c("Column names must be identical for all ChIPtsne2_no_rowRanges objects. Example mismatches: ", head(paste(a, b, sep = " != "))), collapse = "\n"))
-    #     }
-    # }
 
     all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
-
-    # cns = unlist(lapply(all.rrm, colnames))
-    # cn_dupes = duplicated(cns)
-    # if(any(cn_dupes)){
-    #     stop("Duplicated colnames are not allowed when combining rowToRowMat. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n",
-    #          paste(head(unique(cns[cn_dupes])), collapse = "\n"))
-    # }
 
     all.rrm <- do.call(rbind, all.rrm)
 

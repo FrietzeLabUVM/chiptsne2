@@ -2,7 +2,6 @@ testthat::context("ChIPtsne2_no_rowRanges_class")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(SummarizedExperiment)
 
 ct2 = exampleChIPtsne2.with_meta()
 

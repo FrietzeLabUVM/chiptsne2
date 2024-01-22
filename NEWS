@@ -1,3 +1,11 @@
+# v 0.1.30
+
+* added reportDimReduceMethod and hasDimReduce
+
+# v 0.1.29
+
+* more SummarizedExperiment re-exports
+
 # v 0.1.28
 
 * more bug fixes for ChIPtsne2_no_rowRanges

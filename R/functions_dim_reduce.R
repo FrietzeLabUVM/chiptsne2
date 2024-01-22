@@ -184,3 +184,45 @@ setMethod("dimReducePCA", c("ChIPtsne2_no_rowRanges"), .dimReducePCA)
     }
     xy_df[]
 }
+
+#' hasDimReduce
+#'
+#' @param ct2
+#'
+#' @return TRUE if input ct2 has coordinates from dimensional reduction data
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' hasDimReduce(ct2)
+#' ct2 = dimReduceTSNE(ct2, perplexity = 25)
+#' hasDimReduce(ct2)
+hasDimReduce = function(ct2){
+    meta_dt = getRegionMetaData(ct2)
+    all(c("tx", "ty") %in% colnames(meta_dt))
+}
+
+#' reportDimReduceMethod
+#'
+#' @param ct2
+#'
+#' @return Character describing active dimReduction method.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' reportDimReduceMethod(ct2)
+#' ct2 = dimReduceTSNE(ct2, perplexity = 25)
+#' reportDimReduceMethod(ct2)
+reportDimReduceMethod = function(ct2){
+    obj_history = ChIPtsne2.history(ct2)
+    is_dim_red = which(grepl("dimReduce", names(obj_history)))
+    if(length(is_dim_red) < 1){
+        out = "none"
+    }else{
+        most_recent = names(obj_history[max(is_dim_red)])
+        out = sub("dimReduce", "", most_recent)
+        out = sub("TSNE", "t-SNE", out)
+    }
+    out
+}

@@ -2,7 +2,6 @@ testthat::context("FetchConfig_class")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(magrittr)
 
 bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
 bam_cfg_f.args = system.file("extdata/bam_config.args.csv", package = "chiptsne2", mustWork = TRUE)

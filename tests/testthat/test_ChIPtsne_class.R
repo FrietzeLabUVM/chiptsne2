@@ -2,8 +2,6 @@ testthat::context("ChIPtsne_class")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(SummarizedExperiment)
-library(data.table)
 
 query_gr = exampleQueryGR()
 prof_dt = exampleProfDT()

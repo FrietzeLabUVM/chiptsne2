@@ -2,8 +2,6 @@ testthat::context("ChIPtsne_metadata")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(SummarizedExperiment)
-library(data.table)
 
 query_gr = exampleQueryGR()
 prof_dt = exampleProfDT()
@@ -17,7 +15,7 @@ colData(ct2)
 ct2.no_meta = ChIPtsne2.from_tidy(prof_dt, query_gr)
 colData(ct2.no_meta)
 
-prof_dt2 = copy(prof_dt)
+prof_dt2 = data.table::copy(prof_dt)
 prof_dt2 = prof_dt2 %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
 prof_dt2$extra = 1
 

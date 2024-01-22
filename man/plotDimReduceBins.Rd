@@ -32,4 +32,7 @@ plotDimReduceBins
 ct2 = exampleChIPtsne2.with_meta()
 ct2 = dimReducePCA(ct2)
 plotDimReduceBins(ct2)
+
+ct2.a = setValueVariable(ct2, "norm")
+plotDimReduceBins(ct2.a)
 }

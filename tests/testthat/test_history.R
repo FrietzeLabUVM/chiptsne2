@@ -2,8 +2,6 @@ testthat::context("history")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(GenomicRanges)
-library(SummarizedExperiment)
 
 query_gr = exampleQueryGR()
 query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
