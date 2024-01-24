@@ -37,18 +37,10 @@
     xy_df = .tsne_from_profile_mat(rowToRowMat(ct2), perplexity = perplexity, ...)
     xy_df[[ct2@region_VAR]] = rownames(xy_df)
 
-    history_item = list(dimReduceTSNE = list(FUN = .dimReduceTSNE, ARG = args))
-    ChIPtsne2.from_tidy(getTidyProfile(ct2),
-                        rowRanges(ct2),
-                        region_metadata = xy_df,
-                        sample_metadata = colData(ct2),
-                        name_VAR = ct2@name_VAR,
-                        position_VAR = ct2@position_VAR,
-                        value_VAR = ct2@value_VAR,
-                        region_VAR = ct2@region_VAR,
-                        obj_history = c(ChIPtsne2.history(ct2), history_item),
-                        init = FALSE
-    )
+
+    ct2 = setRegionMetaData(ct2, xy_df, silent = TRUE)
+    ct2 = .add_history_entry(ct2 = ct2, entry_name = "dimReduceTSNE", FUN = .dimReduceTSNE, ARG = args)
+    ct2
 }
 
 #' @export
