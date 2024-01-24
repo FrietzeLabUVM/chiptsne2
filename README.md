@@ -1,7 +1,7 @@
 # Installation
 
 ```{R} 
-devtools::install_github("FrietzeLabUVM/chiptsne2")`
+devtools::install_github("FrietzeLabUVM/chiptsne2")
 ```
 
 # How to use
