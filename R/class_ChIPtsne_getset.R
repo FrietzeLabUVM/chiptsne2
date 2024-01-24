@@ -400,8 +400,10 @@ isolated_setRegionMetaData = function(ct2, new_meta){
 #' getRegionMetaData(ct2.nrr)
 #' ct2.nrr = setRegionMetaData(ct2.nrr, new_meta)
 #' getRegionMetaData(ct2.nrr)
-setRegionMetaData = function(ct2, new_meta){
-    message("setRegionMetaData ...")
+setRegionMetaData = function(ct2, new_meta, silent = FALSE){
+    if(!silent){
+        message("setRegionMetaData ...")
+    }
     if(!is(ct2, "ChIPtsne2_no_rowRanges")){
         stop("ct2 must be a ChIPtsne2 object")
     }
