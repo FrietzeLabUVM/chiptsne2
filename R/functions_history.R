@@ -49,3 +49,9 @@ setMethod("rerun_history", c("ChIPtsne2_no_rowRanges", "list"), .rerun_history)
 #' @export
 setMethod("rerun_history", c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), .rerun_history)
 
+.add_history_entry = function(ct2, entry_name, FUN, ARG){
+    history_item = list(list(FUN = FUN, ARG = ARG))
+    names(history_item) = entry_name
+    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+    ct2
+}
