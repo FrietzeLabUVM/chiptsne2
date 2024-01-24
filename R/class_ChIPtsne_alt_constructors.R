@@ -115,26 +115,33 @@ ChIPtsne2.from_tidy = function(prof_dt,
         values_from = all_of(c(value_VAR)),
         id_cols = all_of(c(region_VAR))
     )
-    prof_mat = as.matrix(tmp_wide[, -1])
-    rownames(prof_mat) = tmp_wide[[region_VAR]]
-    prof_mat = prof_mat[rn,, drop = FALSE]
+    new_rowToRowMat = as.matrix(tmp_wide[, -1])
+    rownames(new_rowToRowMat) = tmp_wide[[region_VAR]]
+    new_rowToRowMat = new_rowToRowMat[rn,, drop = FALSE]
 
     tmp = c("value_VAR")
     names(tmp) = value_VAR
+
+    # START DELETE
     #create max assay
     #unsure how to programmatically use summarize the way I want
-    prof_max = prof_dt %>%
-        dplyr::group_by(.data[[region_VAR]], .data[[name_VAR]]) %>%
-        dplyr::summarise(value_VAR = max(.data[[value_VAR]])) %>%
-        dplyr::rename(all_of(tmp)) %>%
-        tidyr::pivot_wider(
-            names_from = all_of(c(name_VAR)),
-            id_cols = all_of(c(region_VAR)),
-            values_from = all_of(c(value_VAR))
-        )
-    prof_max_mat = as.matrix(prof_max[, -1])
-    rownames(prof_max_mat) = prof_max[[region_VAR]]
-    prof_max_mat = prof_max_mat[rn,, drop = FALSE]
+    #TODO MAX not accommodating negative range values
+    # browser()
+    # how it's down in operator functions
+    # new_prof_max_mat = .recalculateMax(new_rowToRowMat, new_colToRowMatCols)
+    # prof_max = prof_dt %>%
+    #     dplyr::group_by(.data[[region_VAR]], .data[[name_VAR]]) %>%
+    #     dplyr::summarise(value_VAR = max(.data[[value_VAR]])) %>%
+    #     dplyr::rename(all_of(tmp)) %>%
+    #     tidyr::pivot_wider(
+    #         names_from = all_of(c(name_VAR)),
+    #         id_cols = all_of(c(region_VAR)),
+    #         values_from = all_of(c(value_VAR))
+    #     )
+    # new_prof_max_mat = as.matrix(prof_max[, -1])
+    # rownames(new_prof_max_mat) = prof_max[[region_VAR]]
+    # new_prof_max_mat = new_prof_max_mat[rn,, drop = FALSE]
+    # END DELETE
 
     if(is.null(sample_metadata)){
         if(auto_sample_metadata){
@@ -169,22 +176,25 @@ ChIPtsne2.from_tidy = function(prof_dt,
         dplyr::select(all_of(c(name_VAR, position_VAR))) %>%
         unique
     map_dt = dplyr::mutate(map_dt, cn = paste(get(name_VAR), get(position_VAR), sep = "_"))
-    stopifnot(map_dt$cn == colnames(prof_mat))
+    stopifnot(map_dt$cn == colnames(new_rowToRowMat))
     map_dt = dplyr::mutate(map_dt, nr = seq(nrow(map_dt)))
-    map_list = split(map_dt$cn, map_dt[[name_VAR]])
+    new_colToRowMatCols = split(map_dt$cn, map_dt[[name_VAR]])
 
     #impose cn and rn
-    prof_max_mat = prof_max_mat[rn, cn, drop = FALSE]
-    prof_mat = prof_mat[rn, , drop = FALSE]
-    map_list = map_list[cn]
+
+    new_rowToRowMat = new_rowToRowMat[rn, , drop = FALSE]
+    new_colToRowMatCols = new_colToRowMatCols[cn]
     sample_metadata = sample_metadata[cn, , drop = FALSE]
+
+    new_prof_max_mat = .recalculateMax(new_rowToRowMat, new_colToRowMatCols)
+    new_prof_max_mat = new_prof_max_mat[rn, cn, drop = FALSE]
 
     if(is.null(query_gr)){
         region_metadata = region_metadata[rn,]
         ChIPtsne2_no_rowRanges(
-            assay = list(max = prof_max_mat),
-            rowToRowMat = prof_mat,
-            colToRowMatCols = map_list,
+            assay = list(max = new_prof_max_mat),
+            rowToRowMat = new_rowToRowMat,
+            colToRowMatCols = new_colToRowMatCols,
             colData = sample_metadata,
             rowData = region_metadata,
             name_VAR = name_VAR,
@@ -210,10 +220,10 @@ ChIPtsne2.from_tidy = function(prof_dt,
         }
         query_gr = query_gr[rn]
         ChIPtsne2(
-            assay = list(max = prof_max_mat),
+            assay = list(max = new_prof_max_mat),
             rowRanges = query_gr,
-            rowToRowMat = prof_mat,
-            colToRowMatCols = map_list,
+            rowToRowMat = new_rowToRowMat,
+            colToRowMatCols = new_colToRowMatCols,
             colData = sample_metadata,
             name_VAR = name_VAR,
             position_VAR = position_VAR,
