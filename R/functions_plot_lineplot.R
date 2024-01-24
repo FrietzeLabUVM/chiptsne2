@@ -143,7 +143,10 @@ aggregateByGroup = function(ct2, group_VAR){
     if(length(row_VARS) > 0){
         ct2.agg = aggregateRegionsByGroup(ct2, row_VARS)
     }else{
-        ct2.agg = ct2
+        rowData(ct2)$`__ALL__` = "all regions"
+        ct2.agg = aggregateRegionsByGroup(ct2, "__ALL__")
+        all_VARS = unique(c( "__ALL__", color_VAR, facet_VAR, extra_VARS))
+        meta_VARS = setdiff(all_VARS, ct2@name_VAR)
     }
     agg_dt = getTidyProfile(ct2.agg, meta_VARS = meta_VARS)
     # prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
