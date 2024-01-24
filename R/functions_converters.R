@@ -20,7 +20,7 @@
     df[[ct2@region_VAR]] = factor(df[[ct2@region_VAR]], levels = rownames(ct2))
     df[[ct2@position_VAR]] = as.numeric(as.character(df[[ct2@position_VAR]]))
     df[[ct2@name_VAR]] = factor(df[[ct2@name_VAR]], levels = colnames(ct2))
-    if(!is.null(sample_meta_VARS)){
+    if(!is.null(sample_meta_VARS) & length(sample_meta_VARS) > 0){
         if(length(sample_meta_VARS) == 1 && sample_meta_VARS == TRUE){
             sample_meta_VARS = colnames(colData(ct2))
         }
@@ -30,7 +30,7 @@
         meta_df[[ct2@name_VAR]] = rownames(meta_df)
         df = merge(meta_df, df, by = ct2@name_VAR)
     }
-    if(!is.null(region_meta_VARS)){
+    if(!is.null(region_meta_VARS) & length(region_meta_VARS) > 0){
         if(length(region_meta_VARS) == 1 && region_meta_VARS == TRUE){
             region_meta_VARS = colnames(rowData(ct2))
         }
