@@ -77,11 +77,24 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2_no_rowRanges"), .normalizeSignalRPM
         signal_cap_data[[signal_cap_VAR]][k] = minimum_ceiling
     }
 
+    if(!signal_cap_VAR %in% colnames(signal_cap_data)){
+        stop("signal_cap_VAR: \"", signal_cap_VAR, "\" expected in colnames of signal_cap_data but was not found!")
+    }
+    if(!ct2@name_VAR %in% colnames(signal_cap_data)){
+        stop("ChIPtsne2 name variable: \"", ct2@name_VAR, "\" expected in colnames of signal_cap_data but was not found!")
+    }
+    if(!all(colnames(ct2) %in% signal_cap_data[[ct2@name_VAR]])){
+        err_extra = paste(setdiff(colnames(ct2), signal_cap_data[[ct2@name_VAR]]), collapse = "\n")
+        stop(paste0("Some or all values of ChIPtsne2 name variable are missing from provided signal_cap_data.\n", err_extra))
+
+    }
+
     new_prof_dt = getTidyProfile(ct2)
 
     new_prof_dt = seqsetvis::append_ynorm(
         new_prof_dt,
         cap_dt = signal_cap_data,
+        value_ = ct2@value_VAR,
         cap_value_ = signal_cap_VAR,
         norm_value_ = "NEW_SIGNAL_",
         by1 = ct2@region_VAR,
