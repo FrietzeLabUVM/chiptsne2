@@ -354,7 +354,7 @@ setMethod("getRegionMetaData", "ChIPtsne2_no_rowRanges", .getRegionMetaData)
 
 # internals of setRegionMetaData
 # does not impact history
-isolated_setRegionMetaData = function(ct2, new_meta){
+setRegionMetaData.no_history = function(ct2, new_meta){
     cd = getRegionMetaData(ct2)
     if(!ct2@region_VAR %in% colnames(new_meta)){
         if(is.null(rownames(new_meta))){
@@ -375,8 +375,27 @@ isolated_setRegionMetaData = function(ct2, new_meta){
                           setdiff(colnames(new_meta), ct2@region_VAR)
     )
     new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@region_VAR)
-    new_gr = .add_region_metadata(rowRanges(ct2), region_metadata = new_cd, region_VAR = ct2@region_VAR, overwrite = TRUE)
-    ct2@rowRanges = new_gr
+    if(!is(ct2, "ChIPtsne2")){# this should be a generic method dispatch
+        overwrite = TRUE
+        old_rd = rowData(ct2)
+        new_cd
+        conflicting_cn = intersect(colnames(old_rd), colnames(new_cd))
+        if(length(conflicting_cn) > 0){
+            if(overwrite){
+                old_rd = old_rd[, setdiff(colnames(old_rd), conflicting_cn), drop = FALSE]
+            }else{
+                stop(paste(c("Conflicting colnames in region_metadata already present in query_gr:", conflicting_cn), collapse = "\n"))
+            }
+        }
+        new_rd = cbind(
+            old_rd,
+            as.data.frame(new_cd %>% dplyr::select(!dplyr::all_of(c(ct2@region_VAR))))
+        )
+        rowData(ct2) = new_rd
+    }else{
+        new_gr = .add_region_metadata(rowRanges(ct2), region_metadata = new_cd, region_VAR = ct2@region_VAR, overwrite = TRUE)
+        ct2@rowRanges = new_gr
+    }
     ct2
 }
 
@@ -407,11 +426,8 @@ setRegionMetaData = function(ct2, new_meta, silent = FALSE){
     if(!is(ct2, "ChIPtsne2_no_rowRanges")){
         stop("ct2 must be a ChIPtsne2 object")
     }
-    if(!is(ct2, "ChIPtsne2")){
-        browser()
-    }
     args = get_args()
-    ct2 = isolated_setRegionMetaData(ct2, new_meta)
+    ct2 = setRegionMetaData.no_history(ct2, new_meta)
     history_item = list(setRegionMetaData = list(FUN = setRegionMetaData, ARG = args))
     ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
     ct2

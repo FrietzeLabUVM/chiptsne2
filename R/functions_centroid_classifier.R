@@ -77,5 +77,5 @@ groupRegionsByCentroidDistance = function(ct2, centroid, group_VAR, ambiguous_va
     new_grps = classify_by_centroid_distances(cent_dist, centroid, ambiguous_value = ambiguous_value, tolerance = tolerance)
     df_grps = data.frame(names(new_grps), new_grps)
     colnames(df_grps) = c(ct2@region_VAR, group_VAR)
-    chiptsne2:::isolated_setRegionMetaData(ct2, df_grps)
+    setRegionMetaData.no_history(ct2, df_grps)
 }

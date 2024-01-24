@@ -377,7 +377,7 @@ get_args = function(env = parent.frame(), to_ignore = "ct2", ...){
     old_mcols = GenomicRanges::mcols(query_gr)
     if(length(conflicting_cn) > 0){
      if(overwrite){
-         old_mcols = old_mcols[, setdiff(colnames(old_mcols), conflicting_cn)]
+         old_mcols = old_mcols[, setdiff(colnames(old_mcols), conflicting_cn), drop = FALSE]
      }else{
          stop(paste(c("Conflicting colnames in region_metadata already present in query_gr:", conflicting_cn), collapse = "\n"))
      }
