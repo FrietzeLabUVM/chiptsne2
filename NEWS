@@ -1,3 +1,9 @@
+# v 0.1.31
+
+* bugfix for remaining hardcoded variables in plotting functions
+* refactor for dimReduceTSNE function
+* creating from tidy profile uses .recalc_max_prof instead of inconsistent equivalent code
+
 # v 0.1.30
 
 * added reportDimReduceMethod and hasDimReduce
