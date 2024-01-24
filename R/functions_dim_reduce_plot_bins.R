@@ -58,7 +58,9 @@
     extra_VARS = c(facet_rows, facet_columns)
     agg_dt = aggregate_signals(
         prof_dt,
+        x_ = ct2@position_VAR,
         y_ = ct2@value_VAR,
+        id_ = ct2@region_VAR,
         yout_ = ct2@value_VAR,
         agg_FUN = agg_FUN,
         xmin = xmin,
@@ -135,16 +137,18 @@ setMethod("plotDimReduceBins", c("ChIPtsne2_no_rowRanges"), .plotDimReduceBins)
 
 aggregate_signals = function(profile_dt,
                              agg_FUN = max,
+                             x_ = "x",
                              y_ = "y",
+                             id_ = "id",
                              yout_ = "y",
                              xmin = -Inf,
                              xmax = Inf,
                              by_ = c("sample")){
-    agg_dt = profile_dt[x >= xmin & x <= xmax,
+    agg_dt = profile_dt[get(x_) >= xmin & get(x_) <= xmax,
                         .(val_ = agg_FUN(get(y_))),
-                        by = c("id", by_)]
+                        by = c(id_, by_)]
     agg_dt[[yout_]] = agg_dt$val_
-    agg_dt[, c(yout_, "id", by_), with = FALSE]
+    agg_dt[, c(yout_, id_, by_), with = FALSE]
 }
 
 bin_signals = function(agg_dt,

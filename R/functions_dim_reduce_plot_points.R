@@ -81,7 +81,6 @@
         p
     }
 
-
     if(all(is.na(color_VAR))){
         xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
         p = ggplot(xy_df, aes(x = tx, y = ty))

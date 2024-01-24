@@ -50,7 +50,7 @@
 
     profile_dt = getTidyProfile(ct2, meta_VARS = TRUE)
     cn = colnames(getSampleMetaData(ct2))
-    profile_dt = profile_dt[order(x)]
+    profile_dt = profile_dt[order(get(ct2@position_VAR))]
     position_dt = data.table::as.data.table(getRegionMetaData(ct2))
     extra_VARS = union(extra_VARS, cn)
 

@@ -8,6 +8,16 @@ ct2_objects = list(
     ct2_wMeta = exampleChIPtsne2.with_meta()
 )
 
+#all functions should adjust to renamed variables
+ct2_objects = lapply(ct2_objects, function(x){
+    x = setPositionVariable(x, "new_pos")
+    x = setNameVariable(x, "new_name")
+    x = setRegionVariable(x, "new_reg")
+    x = setValueVariable(x, "new_value")
+    x
+})
+
+
 ct2_objects.no_rowRanges = lapply(ct2_objects, function(x){
     rowRanges(x) = NULL
     x
@@ -98,6 +108,7 @@ fail_df = subset(all_df, simple_result == "error")
 nrow(fail_df)
 
 if(nrow(fail_df) > 0){
+    message(paste(fail_df$method[1], fail_df$obj_type[1], fail_df$FUN_name[1]))
     ct2.sel = ct2_objects.combined[[fail_df$method[1]]][[fail_df$obj_type[1]]]
     fun.sel = FUN_to_test[[fail_df$FUN_name[1]]]
     fun.sel(ct2.sel)
