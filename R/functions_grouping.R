@@ -156,17 +156,15 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupR
     args = get_args()
     gr = rowRanges(ct2)
     GenomicRanges::mcols(gr) = NULL
-    memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), as.list(gr_list)))
-    memb_gr$TMP__ = NULL
+    memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), as.list(gr_list)), use_first = TRUE)
+    names(memb_gr) = names(gr)
     memb_df = as.data.frame(GenomicRanges::mcols(memb_gr))
     group_df = seqsetvis::ssvFactorizeMembTable(memb_df)
-    colnames(group_df) = c(ct2@region_VAR, group_VAR)
-    history_item = list(groupRegionsByMembershipTable = list(FUN = .groupRegionsByMembershipTable, ARG = args))
-    cloneChIPtsne2_fromTidy(
-        ct2 = ct2,
-        region_metadata = group_df,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
-    )
+    rownames(group_df) = group_df$id
+    group_df$id = NULL
+    ct2 = setRegionMetaData(ct2, group_df, silent = TRUE)
+    ct2 = chiptsne2:::.add_history_entry(ct2, "groupRegionsByMembershipTable", FUN = .groupRegionsByMembershipTable, ARG = args)
+    ct2
 }
 
 
