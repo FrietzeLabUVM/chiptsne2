@@ -234,6 +234,12 @@ setMethod("split", "ChIPtsne2_no_rowRanges", function(x, f = NULL, drop=FALSE, .
 #' @rdname cbind
 #'
 #' @examples
+#' ct2.left = exampleChIPtsne2()
+#' ct2.right = exampleChIPtsne2()
+#' colnames(ct2.right) = paste0("right_", colnames(ct2.right))
+#' ct2 = cbind(ct2.left, ct2.right)
+#' dim(ct2)
+#' colnames(ct2)
 setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, colnames, "Column")
@@ -278,6 +284,12 @@ setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
 #' @aliases rbind cbind
 #'
 #' @examples
+#' ct2_a = exampleChIPtsne2()
+#' ct2_b = exampleChIPtsne2()
+#' # duplicated rownames are not allowed so we need to modify before rbind
+#' rownames(ct2_b) = paste0("b_", rownames(ct2_b))
+#' ct2_rbind = rbind(ct2_a, ct2_b)
+#' rownames(ct2_rbind)
 setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, rownames, "Row")
@@ -307,13 +319,6 @@ setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
         rowToRowMat=all.rrm,
         check=FALSE)
 })
-
-setReplaceMethod("names", "ChIPtsne2_no_rowRanges",
-                 function(x, value)
-                 {
-                     rownames(x) = value
-                     x
-                 })
 
 setReplaceMethod("dimnames", c("ChIPtsne2_no_rowRanges", "list"),
                  function(x, value)

@@ -344,102 +344,7 @@ setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
     }
 }
 
-#### cbind ####
-
-
-#' @param ChIPtsne2
-#'
-#' @return A new ChIPtsne2 object where columns have been appended
-#' @export
-#'
-#' @examples
-#' ct2.left = exampleChIPtsne2()
-#' ct2.right = exampleChIPtsne2()
-#' colnames(ct2.right) = paste0("right_", colnames(ct2.right))
-#' ct2 = cbind(ct2.left, ct2.right)
-#' dim(ct2)
-#' colnames(ct2)
-setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
-    args <- list(...)
-    .validate_names_unique(args, colnames, "Column")
-    .validate_names_match(args, rownames, "Row")
-
-
-    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
-    all.c2rrm <- lapply(args, colToRowMatCols, withDimnames=FALSE)
-
-    all.rrm <- do.call(cbind, all.rrm)
-    names(all.c2rrm) = NULL
-    all.c2rrm <- do.call(c, all.c2rrm)
-
-    # Checks for identical column state.
-    ref <- args[[1]]
-    ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
-    for (x in args[-1]) {
-        if (!identical(rownames(ref.rrm), rownames(rowToRowMat(x, withDimnames=FALSE))))
-        {
-            stop("per-row values are not compatible")
-        }
-    }
-
-    old.validity <- S4Vectors:::disableValidity()
-    S4Vectors:::disableValidity(TRUE)
-    on.exit(S4Vectors:::disableValidity(old.validity))
-
-    out <- callNextMethod()
-    BiocGenerics:::replaceSlots(
-        out,
-        rowToRowMat=all.rrm,
-        colToRowMatCols=all.c2rrm,
-        check=FALSE)
-})
-
-
-#### rbind ####
-
-#' @param ChIPtsne2
-#'
-#' @return ChIPtsne2 with concatenated rows/regions of input elements.
-#' @export
-#'
-#' @examples
-#' ct2_a = exampleChIPtsne2()
-#' ct2_b = exampleChIPtsne2()
-#' # duplicated rownames are not allowed so we need to modify before rbind
-#' rownames(ct2_b) = paste0("b_", rownames(ct2_b))
-#' ct2_rbind = rbind(ct2_a, ct2_b)
-#' rownames(ct2_rbind)
-setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
-    args <- list(...)
-    .validate_names_unique(args, rownames, "Row")
-    .validate_names_match(args, colnames, "Column")
-
-    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
-
-    all.rrm <- do.call(rbind, all.rrm)
-
-    # Checks for identical column state.
-    ref <- args[[1]]
-    ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
-    for (x in args[-1]) {
-        if (!identical(colnames(ref.rrm), colnames(rowToRowMat(x, withDimnames=FALSE))))
-        {
-            stop("per-row values are not compatible")
-        }
-    }
-
-    old.validity <- S4Vectors:::disableValidity()
-    S4Vectors:::disableValidity(TRUE)
-    on.exit(S4Vectors:::disableValidity(old.validity))
-
-    out <- callNextMethod()
-    BiocGenerics:::replaceSlots(
-        out,
-        rowToRowMat=all.rrm,
-        check=FALSE)
-})
-
-
+#### replace rowRanges, names, dimnames ####
 
 setReplaceMethod("rowRanges", c("ChIPtsne2", "NULL"),
                  function(x, ..., value){
@@ -456,18 +361,4 @@ setReplaceMethod("rowRanges", c("ChIPtsne2", "NULL"),
                  }
 )
 
-setReplaceMethod("names", "ChIPtsne2",
-                 function(x, value)
-                 {
-                     rownames(x) = value
-                     x
-                 })
-
-setReplaceMethod("dimnames", c("ChIPtsne2", "list"),
-                 function(x, value)
-                 {
-                     x = .update_ct2_rownames(x, new_names = value[[1]])
-                     x = .update_ct2_colnames(x, new_names = value[[2]])
-                     x
-                 })
 

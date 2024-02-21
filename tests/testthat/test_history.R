@@ -36,9 +36,9 @@ test_that("History names", {
 })
 
 test_that("ct2 rowRanges widths", {
-    expect_equal(width(rowRanges(ct2)) %>% unique, 700)
-    expect_equal(width(rowRanges(ct2.c)) %>% unique, 300)
-    expect_equal(width(rowRanges(ct2.rerun)) %>% unique, 300)
+    expect_equal(width((ct2)) %>% unique, 700)
+    expect_equal(width((ct2.c)) %>% unique, 300)
+    expect_equal(width((ct2.rerun)) %>% unique, 300)
 })
 
 

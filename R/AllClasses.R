@@ -42,7 +42,7 @@
 #' @import methods
 #' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
 .ChIPtsne2 <- setClass("ChIPtsne2",
-                       contains= c("RangedSummarizedExperiment", "ChIPtsne2_no_rowRanges")
+                       contains= c("ChIPtsne2_no_rowRanges", "RangedSummarizedExperiment")
 )
 
 #' @export

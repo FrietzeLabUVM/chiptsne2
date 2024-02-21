@@ -64,6 +64,24 @@ test_that("valid ChIPtsne2_no_rowRanges by aggregate", {
     expect_equal(rownames(reg_meta), c("FALSE,FALSE", "FALSE,TRUE", "TRUE,FALSE", "TRUE,TRUE"))
 })
 
+test_that("ChIPtsne2_no_rowRanges colnames", {
+    ct2.cn_test = ct2
+    rowRanges(ct2.cn_test) = NULL
+    class(ct2.cn_test)
+    colnames(ct2.cn_test) = colData(ct2.cn_test)$cell
+    expect_equal(colnames(ct2.cn_test@rowToRowMat)[1], "MCF10A_-325")
+    expect_equal(names(ct2.cn_test@colToRowMatCols)[1], "MCF10A")
+    expect_equal(ct2.cn_test@colToRowMatCols$MCF10A[1], "MCF10A_-325")
+})
+
+test_that("ChIPtsne2", {
+    ct2.cn_test = ct2
+    colnames(ct2.cn_test) = colData(ct2.cn_test)$cell
+    expect_equal(colnames(ct2.cn_test@rowToRowMat)[1], "MCF10A_-325")
+    expect_equal(names(ct2.cn_test@colToRowMatCols)[1], "MCF10A")
+    expect_equal(ct2.cn_test@colToRowMatCols$MCF10A[1], "MCF10A_-325")
+})
+
 test_that("aggregateSamplesByGroup mark", {
     ct2.agg = aggregateSamplesByGroup(ct2, "mark")
     expect_equal(
