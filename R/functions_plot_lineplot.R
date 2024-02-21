@@ -41,7 +41,7 @@ aggregateRegionsByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
     ct2.meta
 }
 
-#' Title
+#' aggregateSamplesByGroup
 #'
 #' @param ct2
 #' @param group_VAR
@@ -74,7 +74,7 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
         ct2.parts[[name]] = ct2.new
     }
     ct2.meta = do.call(cbind, ct2.parts)
-    ct2.meta = setNameVariable(ct2.meta, new_meta_VAR)
+    ct2.meta = swapNameVariable(ct2.meta, new_meta_VAR)
     ct2.meta
 }
 

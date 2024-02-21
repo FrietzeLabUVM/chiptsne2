@@ -18,7 +18,7 @@ environment.}
 }
 \value{
 A md5 digest of all variabes in calling environment. For a function
-  is the same as calling arguments.
+is the same as calling arguments.
 }
 \description{
 returns digest::digest results of named list of arguments to calling function

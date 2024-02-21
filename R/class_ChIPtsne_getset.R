@@ -1,9 +1,5 @@
 #### name_VAR ####
-#' @export
-setGeneric("setNameVariable",
-           function(ct2, new_name_VAR){
-               standardGeneric("setNameVariable")
-           })
+
 
 #' @export
 setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name_VAR){
@@ -11,6 +7,7 @@ setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name
     history_item = list(setNameVariable = list(FUN = setNameVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
     if(new_name_VAR %in% colnames(colData(ct2))){
+        .Deprecated("swapNameVariable", msg = "Specified sample metadata variable already exists. In the future, swapping to this variable must be explicit using 'swapNameVariable'.")
         cn = colData(ct2)[[new_name_VAR]]
         if(any(duplicated(cn))){
             bad_cn = unique(cn[duplicated(cn)])
@@ -22,6 +19,28 @@ setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name
         }
     }else{
         #no special considerations if name_VAR isn't otherwise present.
+    }
+    ct2@name_VAR = new_name_VAR
+    ct2
+})
+
+#' @export
+setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name_VAR){
+    args = get_args()
+    history_item = list(swapNameVariable = list(FUN = swapNameVariable, ARG = args))
+    ct2@metadata = c(ct2@metadata, history_item)
+    if(new_name_VAR %in% colnames(colData(ct2))){
+        cn = colData(ct2)[[new_name_VAR]]
+        if(any(duplicated(cn))){
+            bad_cn = unique(cn[duplicated(cn)])
+            stop("All values of new name variable are not unique. Offending values: ", paste(bad_cn, collapse = ", "))
+        }else{
+            #swap old and new
+            old_name_VAR = ct2@name_VAR
+            ct2 = .update_ct2_colnames(ct2, old_name_VAR = old_name_VAR, new_name_VAR = new_name_VAR)
+        }
+    }else{
+        stop("New name variable is not present in colData(ct2). Specify an existing variable or did you mean to use setNameVariable?")
     }
     ct2@name_VAR = new_name_VAR
     ct2
@@ -122,11 +141,7 @@ setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name
     ct2
 }
 
-#' @export
-setGeneric("getNameVariable",
-           function(ct2){
-               standardGeneric("getNameVariable")
-           })
+
 
 #' @export
 setMethod("getNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
@@ -134,12 +149,8 @@ setMethod("getNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
 })
 
 
+
 #### value_VAR ####
-#' @export
-setGeneric("setValueVariable",
-           function(ct2, new_value_VAR){
-               standardGeneric("setValueVariable")
-           })
 
 #' @export
 setMethod("setValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_value_VAR){
@@ -150,11 +161,7 @@ setMethod("setValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_val
     ct2
 })
 
-#' @export
-setGeneric("getValueVariable",
-           function(ct2){
-               standardGeneric("getValueVariable")
-           })
+
 
 #' @export
 setMethod("getValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
@@ -162,11 +169,7 @@ setMethod("getValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
 })
 
 #### region_VAR ####
-#' @export
-setGeneric("setRegionVariable",
-           function(ct2, new_region_VAR){
-               standardGeneric("setRegionVariable")
-           })
+
 
 #' @export
 setMethod("setRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_region_VAR){
@@ -177,21 +180,13 @@ setMethod("setRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_re
     ct2
 })
 
-#' @export
-setGeneric("getRegionVariable",
-           function(ct2){
-               standardGeneric("getRegionVariable")
-           })
+
 
 #' @export
 setMethod("getRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@region_VAR})
 
 #### position_VAR ####
-#' @export
-setGeneric("setPositionVariable",
-           function(ct2, new_position_VAR){
-               standardGeneric("setPositionVariable")
-           })
+
 
 #' @export
 setMethod("setPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_position_VAR){
@@ -202,11 +197,6 @@ setMethod("setPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_
     ct2
 })
 
-#' @export
-setGeneric("getPositionVariable",
-           function(ct2){
-               standardGeneric("getPositionVariable")
-           })
 
 #' @export
 setMethod("getPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@position_VAR})
@@ -304,8 +294,6 @@ setSampleMetaData = function(ct2, new_meta){
 #### RegionMetaData ####
 
 #### Getters ####
-#' @export
-setGeneric("getRegionMetaData", function(ct2, select_VARS = NULL) standardGeneric("getRegionMetaData"))
 
 .getRegionMetaData = function(ct2, select_VARS = NULL){
     if(is(ct2, "ChIPtsne2")){

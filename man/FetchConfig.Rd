@@ -92,9 +92,9 @@ A FetchConfig object
 a FetchConfig object
 
 A list of 2 items prof_dt and query_gr.  prof_dt is a tidy data.table
-  of signal profiles.  query_gr is a GRanges that may have been modified from
-  input query_gr if signal profiles are flipped or centered according to
-  center_signal_at_max or flip_signal_mode in the signal config.
+of signal profiles.  query_gr is a GRanges that may have been modified from
+input query_gr if signal profiles are flipped or centered according to
+center_signal_at_max or flip_signal_mode in the signal config.
 
 Invisibly returns path to saved config file.
 }

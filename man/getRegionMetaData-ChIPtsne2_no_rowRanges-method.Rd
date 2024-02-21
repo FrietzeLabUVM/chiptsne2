@@ -15,7 +15,7 @@ variables.}
 }
 \value{
 data.frame with region meta data, similar to rowRanges but suitable
-  for tidyverse operations.
+for tidyverse operations.
 }
 \description{
 getRegionMetaData

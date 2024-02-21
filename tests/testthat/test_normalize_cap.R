@@ -34,7 +34,8 @@ test_that("normalizeSignalCapValue", {
     expect_lt(m_norm1, m_raw * 10)
     expect_gt(m_norm2, m_norm1)
 
-    normalizeSignalCapValue(ct2.no_mr, signal_cap_data = meta_dt)
+
+    normalizeSignalCapValue(ct2.no_mr, signal_cap_data = meta_dt, signal_cap_VAR = "cap_value")
     expect_error(
         normalizeSignalCapValue(
             ct2.no_mr,

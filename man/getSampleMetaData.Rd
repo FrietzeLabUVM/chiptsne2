@@ -15,7 +15,7 @@ variables.}
 }
 \value{
 data.frame with sample meta data, similar to colData but suitable for
-  tidyverse operations.
+tidyverse operations.
 }
 \description{
 getSampleMetaData

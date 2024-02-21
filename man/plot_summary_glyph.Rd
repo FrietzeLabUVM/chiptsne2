@@ -45,7 +45,7 @@ will be ignored.}
 N_ceiling will have images drawn at full size.}
 
 \item{min_size}{Numeric (0, 1]. The minimum size images to draw.  The default
-of .3 draws images for all bins with N values >= 30% of the way from
+of .3 draws images for all bins with N values >= 30\% of the way from
 N_floor to N_ceiling.}
 
 \item{return_data}{if TRUE, data.table that would have been used to create
@@ -53,7 +53,7 @@ ggplot is returned instead.}
 }
 \value{
 a ggplot containing glyphs of local profile summaries arranged in
-  t-sne space.
+t-sne space.
 }
 \description{
 plot_summary_glyph

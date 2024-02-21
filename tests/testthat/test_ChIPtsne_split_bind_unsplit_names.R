@@ -1,4 +1,4 @@
-testthat::context("split unsplit cbind rbind List")
+testthat::context("split cbind rbind List")
 library(chiptsne2)
 library(testthat)
 ct2 = exampleChIPtsne2.with_meta()
@@ -61,23 +61,4 @@ test_that("rbind ChIPtsne2List", {
     expect_error(rbind(ct2.by_cell$MCF10A, ct2.by_cell$MCF10AT1, ct2.by_cell$MCF10CA1), regexp = "Duplicated Row names are not allowed ")
 })
 
-
-test_that("unsplit ChIPtsne2List", {
-    ct2.un_cell = unsplit(ct2.by_cell[c(2, 1, 3)], "cell")
-    ct2.un_peak = unsplit(ct2.by_peak, "peak_MCF10CA1_CTCF")
-
-    expect_equal(nrow(ct2.un_cell), nrow(ct2))
-    expect_equal(ncol(ct2.un_cell), ncol(ct2))
-    expect_setequal(colnames(ct2.un_cell), colnames(ct2))
-    expect_setequal(rownames(ct2.un_cell), rownames(ct2))
-    expect_equal(rownames(ct2.un_cell), rownames(ct2))
-    expect_failure(expect_equal(colnames(ct2.un_cell), colnames(ct2)))
-
-    expect_equal(nrow(ct2.un_peak), nrow(ct2))
-    expect_equal(ncol(ct2.un_peak), ncol(ct2))
-    expect_setequal(colnames(ct2.un_peak), colnames(ct2))
-    expect_setequal(rownames(ct2.un_peak), rownames(ct2))
-    expect_failure(expect_equal(rownames(ct2.un_peak), rownames(ct2)))
-    expect_equal(colnames(ct2.un_peak), colnames(ct2))
-})
 

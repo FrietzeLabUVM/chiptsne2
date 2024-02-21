@@ -1,37 +1,5 @@
 #### flipProfilesToMatch ####
 
-#' flipProfilesToMatch
-#'
-#' For unstranded data, a peak with higher signal on one side is not
-#' meaningfully different from its mirror image. This procedure identifies
-#' "tilted" peaks and flips those with more signal right-of-center. By flipping,
-#' rowRanges becomes stranded, flipped regions get assigned (-) strand with
-#' uaffected regions getting (+) strand
-#'
-#' @param ct2 A ChIPtsne2 object
-#'
-#' @return A chiptsne2 object updated such that signal "tilts" in the same way.
-#'   When signal is flipped, strand of rowRanges is set to negative.
-#'
-#' @importFrom seqsetvis centerGRangesAtMax
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' ct2_left = flipProfilesToMatch(ct2)
-#' ct2_right = flipProfilesToMatch(ct2, highest_on_right = TRUE)
-#'
-#' prof_original = getTidyProfile(ct2)
-#' prof_original$group = "original"
-#'
-#' prof_left = getTidyProfile(ct2_left)
-#' prof_left$group = "flip_left"
-#'
-#' prof_right = getTidyProfile(ct2_right)
-#' prof_right$group = "flip_right"
-#'
-#' prof_dt = rbind(prof_left, prof_right, prof_original)
-#' prof_dt = prof_dt[, .(y = mean(y)), .(x, group)]
-#' ggplot(prof_dt, aes(x = x, y = y, color = group)) + geom_path()
 .flipProfilesToMatch = function(ct2, highest_on_right = FALSE){
     args = get_args()
     message("flipProfilesToMatch ...")
@@ -76,7 +44,40 @@
                             obj_history = c(ChIPtsne2.history(ct2), history_item))
 }
 
+
+#' flipProfilesToMatch
+#'
+#' For unstranded data, a peak with higher signal on one side is not
+#' meaningfully different from its mirror image. This procedure identifies
+#' "tilted" peaks and flips those with more signal right-of-center. By flipping,
+#' rowRanges becomes stranded, flipped regions get assigned (-) strand with
+#' uaffected regions getting (+) strand
+#'
+#' @param ct2 A ChIPtsne2 object
+#'
+#' @return A chiptsne2 object updated such that signal "tilts" in the same way.
+#'   When signal is flipped, strand of rowRanges is set to negative.
+#'
+#' @importFrom seqsetvis centerGRangesAtMax
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2_left = flipProfilesToMatch(ct2)
+#' ct2_right = flipProfilesToMatch(ct2, highest_on_right = TRUE)
+#'
+#' prof_original = getTidyProfile(ct2)
+#' prof_original$group = "original"
+#'
+#' prof_left = getTidyProfile(ct2_left)
+#' prof_left$group = "flip_left"
+#'
+#' prof_right = getTidyProfile(ct2_right)
+#' prof_right$group = "flip_right"
+#'
+#' prof_dt = rbind(prof_left, prof_right, prof_original)
+#' prof_dt = prof_dt[, .(y = mean(y)), .(x, group)]
+#' ggplot(prof_dt, aes(x = x, y = y, color = group)) + geom_path()
 setGeneric("flipProfilesToMatch", function(ct2, highest_on_right = TRUE) standardGeneric("flipProfilesToMatch"))
 
 #' @export

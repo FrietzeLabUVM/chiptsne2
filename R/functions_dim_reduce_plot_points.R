@@ -1,30 +1,4 @@
-#' plotDimReducePoints
-#'
-#' @param ct2 valid ChIPtsne2 after dimReduce has been run
-#' @param color_VAR Control color assignment in plot. Can match entries in *either* sample metadata (colnames) or region metadata (rowRanges). Default of NULL will plot max signal for all sample profiles. NA will perform no color mapping.
-#' @param point_size Size of points in plot.
-#'
-#' @return ggplot
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta() %>%
-#'    dimReduceUMAP() %>%
-#'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%
-#'    groupRegionsBySignalCluster(group_VAR = "signal_cluster")
-#'
-#' plotDimReducePoints(ct2, NA)
-#' plotDimReducePoints(ct2)
-#' ct2_diff = subsetCol(ct2, cell == "MCF10A") - subsetCol(ct2, cell == "MCF10AT1")
-#' plotDimReducePoints(ct2_diff)
-#' plotDimReducePoints(ct2, "umap_cluster")
-#' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
-#' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
-#'
-#' plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
-#'   background_annotation_color = "gray50",
-#'   underlayer_FUN = function(p){p + annotate("rect", xmin = 0, xmax = .3, ymin = -.05, ymax = .13, fill = "gray80", color = "red")}) +
-#'   facet_grid(peak_MCF10CA1_CTCF~sample) +
-#'   labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
+
 .plotDimReducePoints = function(ct2,
                                 color_VAR = NULL,
                                 point_size = NULL,
@@ -120,6 +94,8 @@
             facet_wrap(paste0("~", ct2@name_VAR)) +
             labs(color = paste("max", ct2@value_VAR, "\nper", ct2@region_VAR))
         p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
+    }else{
+        stop("color_VAR: \"", color_VAR, "\" was not recognized. Check vs colnames of ct2 object or colnames of rowData(ct2).")
     }
     p
 }
@@ -136,7 +112,35 @@ generic_plotDimReducePoints = function(ct2,
     standardGeneric("plotDimReducePoints")
 }
 
+
+#' plotDimReducePoints
+#'
+#' @param ct2 valid ChIPtsne2 after dimReduce has been run
+#' @param color_VAR Control color assignment in plot. Can match entries in *either* sample metadata (colnames) or region metadata (rowRanges). Default of NULL will plot max signal for all sample profiles. NA will perform no color mapping.
+#' @param point_size Size of points in plot.
+#'
+#' @return ggplot
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta() %>%
+#'    dimReduceUMAP() %>%
+#'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%
+#'    groupRegionsBySignalCluster(group_VAR = "signal_cluster")
+#'
+#' plotDimReducePoints(ct2, NA)
+#' plotDimReducePoints(ct2)
+#' ct2_diff = subsetCol(ct2, cell == "MCF10A") - subsetCol(ct2, cell == "MCF10AT1")
+#' plotDimReducePoints(ct2_diff)
+#' plotDimReducePoints(ct2, "umap_cluster")
+#' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
+#' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
+#'
+#' plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
+#'   background_annotation_color = "gray50",
+#'   underlayer_FUN = function(p){p + annotate("rect", xmin = 0, xmax = .3, ymin = -.05, ymax = .13, fill = "gray80", color = "red")}) +
+#'   facet_grid(peak_MCF10CA1_CTCF~sample) +
+#'   labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
 setGeneric("plotDimReducePoints",
            generic_plotDimReducePoints,
            signature = "ct2")

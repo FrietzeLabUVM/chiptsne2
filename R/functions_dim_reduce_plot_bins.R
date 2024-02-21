@@ -1,3 +1,18 @@
+make_facet_str = function(facet_rows = character(), facet_columns = character()){
+    if(length(facet_rows) > 0){
+        row_str = paste0("`", paste(facet_rows, collapse = "`+`"), "`")
+    }else{
+        row_str = "."
+    }
+    if(length(facet_columns) > 0){
+        col_str = paste0("`", paste(facet_columns, collapse = "`+`"), "`")
+    }else{
+        col_str = "."
+    }
+
+    paste0(row_str, "~", col_str)
+}
+
 #' plotDimReduceBins
 #'
 #' @param ct2
@@ -73,8 +88,8 @@
     if(is.null(facet_columns)){
         facet_columns = "."
     }
-    facet_str = paste0(facet_rows, "~", facet_columns)
-
+    # facet_str = paste0(facet_rows, "~", facet_columns)
+    facet_str = make_facet_str(facet_rows = facet_rows, facet_columns = facet_columns)
     bin_dt = bin_signals(
         agg_dt = agg_dt,
         x_bins = x_bins,

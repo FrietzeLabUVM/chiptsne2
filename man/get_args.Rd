@@ -19,7 +19,7 @@ may also be a function that returns an environment.}
 environment.}
 }
 \value{
-named list or variables and their values in `env`
+named list or variables and their values in \code{env}
 
 parameters of calling function as a named list.
 }

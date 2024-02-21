@@ -71,12 +71,12 @@ test_that("Set Secondary Impacts", {
 #setNameVariable has some special checks and situations
 
 test_that("Error when existing not unique", {
-    expect_error(setNameVariable(ct2, "mark"), regexp = "New name variable is already present in colData\\(ct2\\). This is only allowed when all values are unique. Offending values: CTCF",)
+    expect_error(swapNameVariable(ct2, "mark"), regexp = "All values of new name variable are not unique. Offending values: CTCF")
 })
 
 test_that("Switch name variable to smaller set", {
     ct2.by_cell = split(ct2, "cell")
-    ct2.10a = setNameVariable(ct2.by_cell$MCF10A, new_name_VAR = "mark")
+    ct2.10a = swapNameVariable(ct2.by_cell$MCF10A, new_name_VAR = "mark")
     expect_equal(getNameVariable(ct2.10a), "mark")
     expect_equal(getSampleMetaData(ct2.10a)$mark, factor("CTCF"))
     expect_equal(getSampleMetaData(ct2.10a)$sample, "MCF10A_CTCF")
@@ -85,11 +85,11 @@ test_that("Switch name variable to smaller set", {
 
 test_that("When names match for operator", {
     ct2.by_cell = split(ct2, "cell")
-    ct2.by_cell = lapply(ct2.by_cell, setNameVariable, new_name_VAR = "mark")
+    ct2.by_cell = swapNameVariable(ct2.by_cell, new_name_VAR = "mark")
     ct2.diff = ct2.by_cell$MCF10A - ct2.by_cell$MCF10AT1
     expect_equal(colnames(rowToRowMat(ct2.diff))[1], "CTCF_-325")
-    ct2.diff1 = setNameVariable(ct2.diff, new_name_VAR = "cell")
-    ct2.diff2 = setNameVariable(ct2.diff, new_name_VAR = "sample")
+    ct2.diff1 = swapNameVariable(ct2.diff, new_name_VAR = "cell")
+    ct2.diff2 = swapNameVariable(ct2.diff, new_name_VAR = "sample")
     expect_equal(colnames(ct2.diff1), "MCF10A - MCF10AT1")
     expect_equal(colnames(rowToRowMat(ct2.diff1))[1], "MCF10A - MCF10AT1_-325")
     expect_equal(colnames(ct2.diff2), "MCF10A_CTCF - MCF10AT1_CTCF")
@@ -97,7 +97,7 @@ test_that("When names match for operator", {
 })
 
 test_that("Switch name variable same set", {
-    ct2.name_cell = setNameVariable(ct2, "cell")
+    ct2.name_cell = swapNameVariable(ct2, "cell")
     expect_equal(getNameVariable(ct2.name_cell), "cell")
     expect_equal(getSampleMetaData(ct2.name_cell)$mark, rep("CTCF", 3))
     expect_equal(colnames(rowToRowMat(ct2.name_cell))[1], "MCF10A_-325")

@@ -399,10 +399,16 @@ setMethod("cbind", "ChIPtsne2", function(..., deparse.level=1) {
 
 #' @param ChIPtsne2
 #'
-#' @return
+#' @return ChIPtsne2 with concatenated rows/regions of input elements.
 #' @export
 #'
 #' @examples
+#' ct2_a = exampleChIPtsne2()
+#' ct2_b = exampleChIPtsne2()
+#' # duplicated rownames are not allowed so we need to modify before rbind
+#' rownames(ct2_b) = paste0("b_", rownames(ct2_b))
+#' ct2_rbind = rbind(ct2_a, ct2_b)
+#' rownames(ct2_rbind)
 setMethod("rbind", "ChIPtsne2", function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, rownames, "Row")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions_plot_lineplot.R
 \name{aggregateSamplesByGroup}
 \alias{aggregateSamplesByGroup}
-\title{Title}
+\title{aggregateSamplesByGroup}
 \usage{
 aggregateSamplesByGroup(
   ct2,
@@ -14,5 +14,5 @@ aggregateSamplesByGroup(
 \item{new_meta_VAR}{}
 }
 \description{
-Title
+aggregateSamplesByGroup
 }

@@ -1,21 +1,6 @@
 #### centerProfilesAndRefetch ####
 
-#' .centerSignal
-#'
-#' @param ct2 A ChIPtsne2 object
-#'
-#' @return A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.
-#'
-#' @importFrom seqsetvis centerGRangesAtMax
-#'
-#' @examples
-#' library(tidyverse)
-#' bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
-#' fetch_config = FetchConfig.load_config(bam_cfg_f)
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
-#' ct2.c = centerProfilesAndRefetch(ct2)
-#' ct2.c
+
 .centerProfilesAndRefetch = function(ct2){
     message("centerProfilesAndRefetch ...")
     args = get_args()
@@ -40,7 +25,23 @@
                                init = FALSE)
 }
 
+#' centerSignal
+#'
+#' @param ct2 A ChIPtsne2 object
+#'
+#' @return A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.
+#'
+#' @importFrom seqsetvis centerGRangesAtMax
 #' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
+#' fetch_config = FetchConfig.load_config(bam_cfg_f)
+#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
+#' ct2.c = centerProfilesAndRefetch(ct2)
+#' ct2.c
 setGeneric("centerProfilesAndRefetch", function(ct2) standardGeneric("centerProfilesAndRefetch"))
 
 #' @export
@@ -48,25 +49,6 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 
 #### centerProfilesAndTrim ####
 
-#' .centerProfilesAndTrim
-#'
-#' @param ct2 A ChIPtsne2 object
-#' @param view_size bp range to search for max
-#'
-#' @return A chiptsne2 object updated to reflect centering procedure. Some x
-#'   values will have been lost.
-#' @importFrom GenomicRanges resize width
-#' @examples
-#' library(tidyverse)
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
-#' prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
-#' meta_dt = prof_dt %>%
-#'   select(sample) %>%
-#'   unique %>%
-#'   separate(sample, c("cell", "mark"), remove = FALSE)
-#' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
-#' ct2.c = centerProfilesAndTrim(ct2, view_size = 500)
 .centerProfilesAndTrim = function(ct2, view_size){
     message("centerProfilesAndTrim ...")
     args = get_args()
@@ -89,7 +71,28 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
     )
 }
 
+
+#' centerProfilesAndTrim
+#'
+#' @param ct2 A ChIPtsne2 object
+#' @param view_size bp range to search for max
+#'
+#' @return A chiptsne2 object updated to reflect centering procedure. Some x
+#'   values will have been lost.
+#' @importFrom GenomicRanges resize width
 #' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
+#' prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+#' meta_dt = prof_dt %>%
+#'   select(sample) %>%
+#'   unique %>%
+#'   separate(sample, c("cell", "mark"), remove = FALSE)
+#' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
+#' ct2.c = centerProfilesAndTrim(ct2, view_size = 500)
 setGeneric("centerProfilesAndTrim", function(ct2, view_size) standardGeneric("centerProfilesAndTrim"))
 
 #' @export

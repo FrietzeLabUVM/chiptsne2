@@ -23,10 +23,13 @@ ChIPtsne2List <- function(
 
 #' @param ChIPtsne2
 #'
-#' @return
+#' @return a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List
 #' @export
 #'
 #' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2.by_cell = split(ct2, "cell")
+#' ct2.cbind = cbind(ct2.by_cell)
 setMethod("cbind", "ChIPtsne2List", function(..., deparse.level=1) {
     args <- list(...)
     if(length(args) > 1){
@@ -39,10 +42,13 @@ setMethod("cbind", "ChIPtsne2List", function(..., deparse.level=1) {
 #### rbind ####
 #' @param ChIPtsne2
 #'
-#' @return
+#' @return a ChIPtsne2 object of concatenated rows/regions of all items in input ChIPtsne2List
 #' @export
 #'
 #' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2.by_peak = split(ct2, "peak_MCF10AT1_CTCF")
+#' ct2.rbind = rbind(ct2.by_peak)
 setMethod("rbind", "ChIPtsne2List", function(..., deparse.level=1) {
     args <- list(...)
     if(length(args) > 1){
@@ -51,46 +57,79 @@ setMethod("rbind", "ChIPtsne2List", function(..., deparse.level=1) {
     do.call(rbind, as.list(args[[1]]))
 })
 
-unsplit = BiocGenerics::unsplit
-#### unsplit ####
-#' @param ChIPtsne2
-#'
-#' @return
-#' @export
-#'
-#' @examples
-setMethod("unsplit", "ChIPtsne2List", function (value, f, drop = FALSE){
-    mode = "by_column"
-    x = value[[1]]
-    sample_meta_data = getSampleMetaData(x)
-    region_meta_data = getRegionMetaData(x)
-    if(is.null(f)){
-        f = colnames(x)
-        names(f) = f
-    }
-    if(length(f) == 1){
-        if(f %in% colnames(sample_meta_data)){
-            f = split(rownames(sample_meta_data), sample_meta_data[[f]])
-        }else if(f %in% colnames(region_meta_data)){
-            f = split(region_meta_data[[x@region_VAR]], region_meta_data[[f]])
-            mode = "by_row"
-        }
-    }else{
-        if(ncol(x) == nrow(x)){
-            stop("Cannot unambiguously split ChIPtsne2 using a vector when ncol == nrow. Try using a row or column attribute name.")
-        }
-        if(length(f) == ncol(x)){
-            f = split(colnames(x), f)
-        }else if(length(f) == nrow(x)){
-            f = split(rownames(x), f)
-            mode = "by_row"
-        }
-    }
 
-    if(mode == "by_column"){
-        x.unsplit = cbind(value)
-    }else{
-        x.unsplit = rbind(value)
+#### lapply shortcuts for ChIPtsne2 ####
+#' @export
+setMethod("lapply", c("ChIPtsne2List"), function(X, FUN, ...){
+    res = lapply(as.list(X), FUN, ...)
+    is_ct2 = sapply(res, is, "ChIPtsne2_no_rowRanges")
+    if(all(is_ct2)){
+        res = ChIPtsne2List(res)
     }
-    x.unsplit
+    res
 })
+
+#' @export
+setMethod("setNameVariable", c("ChIPtsne2List"), function(ct2, new_name_VAR){
+    lapply(ct2, setNameVariable, new_name_VAR)
+})
+
+#' @export
+setMethod("swapNameVariable", c("ChIPtsne2List"), function(ct2, new_name_VAR){
+    lapply(ct2, swapNameVariable, new_name_VAR)
+})
+
+#' @export
+setMethod("getNameVariable", c("ChIPtsne2List"), function(ct2){
+    sapply(ct2, getNameVariable)
+})
+#
+# ct2.l = split(ct2, "cell")
+# res = setNameVariable(ct2.l, "mark")
+# is(class(res), "ChIPtsne2List")
+# lapply(ct2.l, colnames)
+# lapply(ct2.l, setNameVariable, "mark")
+#
+# mutateCol = function(.data, ...){
+#     colData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(.data)), ...))
+#     .data
+# }
+# ct2.mut = mutateCol(ct2, group = paste(cell, mark, sep = "\n"))
+# colData(ct2.mut)
+#
+# mutateRow = function(.data, ...){
+#     rowData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(rowData(.data)), ...))
+#     .data
+# }
+#
+# ct2 = mutateRow(ct2, new_col = peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
+# rowData(ct2)
+# separateCol = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
+#                         convert = FALSE, extra = "warn", fill = "warn", ...){
+#     colData(data) = S4Vectors::DataFrame(tidyr::separate(
+#         as.data.frame(colData(data)),
+#         col = col,
+#         into = into,
+#         sep = sep,
+#         remove = remove,
+#         convert = convert,
+#         extra = extra,
+#         fill = fill,
+#         ...))
+#     data
+# }
+#
+# separateRow = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
+#                         convert = FALSE, extra = "warn", fill = "warn", ...){
+#     rowData(data) = S4Vectors::DataFrame(tidyr::separate(
+#         as.data.frame(rowData(data)),
+#         col = col,
+#         into = into,
+#         sep = sep,
+#         remove = remove,
+#         convert = convert,
+#         extra = extra,
+#         fill = fill,
+#         ...))
+#     data
+# }

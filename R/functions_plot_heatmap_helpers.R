@@ -113,9 +113,10 @@ add_group_annotation = function(anno_ids,
     }
 
     df_rects[[cluster_]] = name_FUN(cluster_)
+    facet_str = paste0(".~`", cluster_, "`")
     p = ggplot(df_rects) +
         coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
-        facet_grid(paste0(".~", cluster_)) +
+        facet_grid(facet_str) +
         labs(fill = cluster_)
 
     p = p + geom_rect(data = df_rects, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = grp)) +

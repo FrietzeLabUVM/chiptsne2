@@ -1,3 +1,10 @@
+# v 0.1.33
+
+* added swapNameVariable and deprecated setNameVariable for existing variable
+* deprecated subsetRow to subsetRegions
+* deprecated subsetCol to subsetSamples
+* removed unsplit
+
 # v 0.1.31
 
 * bugfix for remaining hardcoded variables in plotting functions

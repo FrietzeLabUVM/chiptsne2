@@ -231,6 +231,7 @@ setMethod("split", "ChIPtsne2_no_rowRanges", function(x, f = NULL, drop=FALSE, .
 #'
 #' @return
 #' @export
+#' @rdname cbind
 #'
 #' @examples
 setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
@@ -274,6 +275,7 @@ setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
 #'
 #' @return
 #' @export
+#' @aliases rbind cbind
 #'
 #' @examples
 setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {

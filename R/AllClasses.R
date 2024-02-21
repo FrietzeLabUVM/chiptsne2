@@ -26,16 +26,16 @@
 #' @import methods
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 .ChIPtsne2_no_rowRanges <- setClass("ChIPtsne2_no_rowRanges",
-                       slots= representation(
-                           rowToRowMat="matrix",
-                           colToRowMatCols="list",
-                           name_VAR = "character",
-                           position_VAR = "character",
-                           value_VAR = "character",
-                           region_VAR = "character",
-                           fetch_config = "FetchConfig"
-                       ),
-                       contains="SummarizedExperiment"
+                                    slots= representation(
+                                        rowToRowMat="matrix",
+                                        colToRowMatCols="list",
+                                        name_VAR = "character",
+                                        position_VAR = "character",
+                                        value_VAR = "character",
+                                        region_VAR = "character",
+                                        fetch_config = "FetchConfig"
+                                    ),
+                                    contains="SummarizedExperiment"
 )
 
 #' @export
@@ -50,3 +50,54 @@
 .ChIPtsne2List = setClass("ChIPtsne2List",
                           contains="SimpleList")
 
+#### Generics ####
+
+#' @export
+setGeneric("setNameVariable",
+           function(ct2, new_name_VAR){
+               standardGeneric("setNameVariable")
+           })
+#' @export
+setGeneric("swapNameVariable",
+           function(ct2, new_name_VAR){
+               standardGeneric("swapNameVariable")
+           })
+#' @export
+setGeneric("getNameVariable",
+           function(ct2){
+               standardGeneric("getNameVariable")
+           })
+
+#' @export
+setGeneric("setValueVariable",
+           function(ct2, new_value_VAR){
+               standardGeneric("setValueVariable")
+           })
+#' @export
+setGeneric("getValueVariable",
+           function(ct2){
+               standardGeneric("getValueVariable")
+           })
+#' @export
+setGeneric("setRegionVariable",
+           function(ct2, new_region_VAR){
+               standardGeneric("setRegionVariable")
+           })
+#' @export
+setGeneric("getRegionVariable",
+           function(ct2){
+               standardGeneric("getRegionVariable")
+           })
+#' @export
+setGeneric("setPositionVariable",
+           function(ct2, new_position_VAR){
+               standardGeneric("setPositionVariable")
+           })
+#' @export
+setGeneric("getPositionVariable",
+           function(ct2){
+               standardGeneric("getPositionVariable")
+           })
+
+#' @export
+setGeneric("getRegionMetaData", function(ct2, select_VARS = NULL) standardGeneric("getRegionMetaData"))

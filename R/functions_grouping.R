@@ -1,17 +1,5 @@
 #### signal clustering ####
-#' groupRegionsBySignalCluster
-#'
-#' @param ct2
-#' @param group_VAR
-#' @param n_clusters
-#'
-#' @return
-#' @rdname groupRegionsBySignalCluster
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' ct2 = groupRegionsBySignalCluster(ct2)
-#' ct2 = groupRegionsBySignalCluster(ct2)
+
 .groupRegionsBySignalCluster = function(ct2, group_VAR = "cluster_id", n_clusters = 6){
     message("groupRegionsBySignalCluster ...")
     args = get_args()
@@ -40,7 +28,20 @@
     )
 }
 
+
+#' groupRegionsBySignalCluster
+#'
+#' @param ct2 `r doc_ct2()`
+#' @param group_VAR `r doc_group_VAR()`
+#' @param n_clusters Number of clusters specified for k-means.
+#'
+#' @return `r doc_return_group()`
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = groupRegionsBySignalCluster(ct2)
+#' ct2 = groupRegionsBySignalCluster(ct2)
 setGeneric("groupRegionsBySignalCluster",
            function(ct2, group_VAR = "cluster_id", n_clusters = 6)
                standardGeneric("groupRegionsBySignalCluster"),
@@ -57,6 +58,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 #' @param xy_df data.frame contain "tx", "ty", and id_var
 #' @param nn number of nearest neighbors, passed as k to RANN::nn2
 #' @param id_var must be in xy_df, default is "id"
+#' @param ... passed to RANN::nn2
 #'
 #' @return cluster assignment table for xy_df based on tx and ty coordinates
 #' @importFrom Matrix Matrix
@@ -70,7 +72,8 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 #' .knn_clustering(xy_df, 20)
 .knn_clustering = function(xy_df,
                            nn = 100,
-                           id_var = "id"){
+                           id_var = "id",
+                           ...){
     valid_vars = c(id_var, "tx", "ty")
     stopifnot(valid_vars %in% colnames(xy_df))
 
@@ -80,7 +83,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
     }
     mat = t(as.matrix(xy_df[, c("tx", "ty")]))
     colnames(mat) = xy_df[[id_var]]
-    knn.info <- RANN::nn2(t(mat), k = nn)
+    knn.info <- RANN::nn2(t(mat), k = nn, ...)
     knn <- knn.info$nn.idx
     colnames(knn) = c("tid", paste0("V", seq(nn - 1)))
     knn = data.table::as.data.table(knn)
@@ -102,7 +105,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
     p_dt
 }
 
-.groupRegionsByDimReduceCluster = function(ct2, group_VAR = "knn_id", nearest_neighbors = 100){
+.groupRegionsByDimReduceCluster = function(ct2, group_VAR = "knn_id", nearest_neighbors = 100, ...){
     message("groupRegionsByDimReduceCluster ...")
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
@@ -115,7 +118,8 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 
     knn_res = .knn_clustering(xy_df,
                               nn = nearest_neighbors,
-                              id_var = ct2@region_VAR)
+                              id_var = ct2@region_VAR,
+                              ...)
     colnames(knn_res)[4] = group_VAR
     knn_res = knn_res[, c(ct2@region_VAR, group_VAR)]
 
@@ -128,9 +132,25 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 }
 
 
+
+#' groupRegionsByDimReduceCluster
+#'
+#' @param ct2 `r doc_ct2()`
+#' @param group_VAR `r doc_group_VAR()`
+#' @param nearest_neighbors The number of nearest neighbors to use when clustering. Higher numbers result in fewer clusters. Will be automatically reduced if set too high. See documentation of k in [RANN::nn2()].
+#' @param ... passed to RANN::nn2
+#'
+#' @return `r doc_return_group()`
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' ct2 = dimReduceTSNE(ct2, perplexity = 20)
+#' ct2 = groupRegionsByDimReduceCluster(ct2, group_VAR = "knn_id", nearest_neighbors = 20)
+#' rowData(ct2)
+#' plotDimReducePoints(ct2, color_VAR = "knn_id")
 setGeneric("groupRegionsByDimReduceCluster",
-           function(ct2, group_VAR = "knn_id", nearest_neighbors = 100)
+           function(ct2, group_VAR = "knn_id", nearest_neighbors = 100, ...)
                standardGeneric("groupRegionsByDimReduceCluster"),
            signature = "ct2")
 
@@ -139,38 +159,83 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupR
 
 #### region overlap ####
 
-#' Title
-#'
-#' @param ct2
-#' @param gr_list
-#' @param group_VAR
-#'
-#' @return
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' peak_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
-#' ct2.olap = groupRegionsByOverlap(ct2, peak_grs[1:2], group_VAR = "10A_AT1_overlap")
-.groupRegionsByOverlap = function(ct2, gr_list, group_VAR = "overlap_id"){
+
+.groupRegionsByOverlap = function(ct2, query, group_VAR = "overlap_id", use_priority = FALSE, ...){
     message("groupRegionsByOverlap ...")
     args = get_args()
     gr = rowRanges(ct2)
     GenomicRanges::mcols(gr) = NULL
-    memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), as.list(gr_list)), use_first = TRUE)
-    names(memb_gr) = names(gr)
-    memb_df = as.data.frame(GenomicRanges::mcols(memb_gr))
-    group_df = seqsetvis::ssvFactorizeMembTable(memb_df)
-    rownames(group_df) = group_df$id
-    group_df$id = NULL
+    if(is(query, "GRangesList")){
+        query = as.list(query)
+    }
+    if(!is.list(query)){#GRanges input
+        if(!is(query, "GRanges")){
+            stop("query must be a named list or a GRanges object.")
+        }
+        if(use_priority){
+            stop("use_priority = TRUE may not be used (does not make sense) with non-list input.")
+        }
+        to_overlap = list(query)
+        names(to_overlap) = group_VAR
+        memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), to_overlap), use_first = TRUE, ...)
+        names(memb_gr) = names(gr)
+        memb_df = data.frame(GenomicRanges::mcols(memb_gr), check.names = FALSE)
+        group_df = memb_df[, group_VAR, drop = FALSE]
+    }else{# list input
+        if(is.null(names(query))){
+            stop("query must have names.")
+        }
+        if(any(duplicated(names(query)))){
+            stop("All names of query must be unique.")
+        }
+        if(use_priority){
+            group_df = data.frame(id = rownames(ct2), group = "no_hit")
+            for(i in rev(seq_along(query))){
+                qgr = query[[i]]
+                olaps = GenomicRanges::findOverlaps(gr, qgr, ...)
+                group_df[S4Vectors::queryHits(olaps),]$group = names(query)[i]
+            }
+        }else{
+            memb_gr = seqsetvis::ssvOverlapIntervalSets(c(list(TMP__ = gr), as.list(query)), use_first = TRUE, ...)
+            names(memb_gr) = names(gr)
+            memb_df = data.frame(GenomicRanges::mcols(memb_gr), check.names = FALSE)
+            group_df = seqsetvis::ssvFactorizeMembTable(memb_df[, names(query), drop = FALSE])
+
+        }
+        rownames(group_df) = group_df$id
+        group_df$id = NULL
+        colnames(group_df) = group_VAR
+    }
     ct2 = setRegionMetaData(ct2, group_df, silent = TRUE)
-    ct2 = chiptsne2:::.add_history_entry(ct2, "groupRegionsByMembershipTable", FUN = .groupRegionsByMembershipTable, ARG = args)
+    ct2 = chiptsne2:::.add_history_entry(ct2, "groupRegionsByMembershipTable", FUN = .groupRegionsByOverlap, ARG = args)
     ct2
 }
 
-
+#' groupRegionsByOverlap
+#'
+#' @param ct2 `r doc_ct2()`
+#' @param query Either a single GRanges or named list of GRanges.
+#' @param group_VAR `r doc_group_VAR()`
+#' @param ... arguments passed to [IRanges::findOverlaps()], i.e. maxgap, minoverlap, type, select, invert.
+#'
+#' @return `r doc_return_group()`
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' peak_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+#' ct2.olap = ct2
+#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs[1:2], group_VAR = "10A_AT1_combos")
+#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs$MCF10A_CTCF, group_VAR = "10A_peaks")
+#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs$MCF10AT1_CTCF, group_VAR = "AT1_peaks")
+#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs[1:2], group_VAR = "10A_AT1_priority", use_priority = TRUE)
+#' rowData(ct2.olap)
+#'
+#' # a GRangesList is allowed too
+#' gr_ls = GenomicRanges::GRangesList(peak_grs)
+#' ct2.olap = groupRegionsByOverlap(ct2.olap, gr_ls, group_VAR = "gr_ls_combos")
 setGeneric("groupRegionsByOverlap",
-           function(ct2, gr_list, group_VAR = "overlap_id")
+           function(ct2, query, group_VAR = "overlap_id", use_priority = FALSE, ...)
                standardGeneric("groupRegionsByOverlap"),
            signature = "ct2")
 

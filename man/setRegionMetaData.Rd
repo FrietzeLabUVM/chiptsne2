@@ -4,7 +4,7 @@
 \alias{setRegionMetaData}
 \title{setRegionMetaData}
 \usage{
-setRegionMetaData(ct2, new_meta)
+setRegionMetaData(ct2, new_meta, silent = FALSE)
 }
 \arguments{
 \item{ct2}{A ChIPtsne object}
