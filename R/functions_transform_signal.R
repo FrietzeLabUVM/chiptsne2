@@ -1,3 +1,22 @@
+.recalculateMax_ct2 = function(ct2){
+    r2rm = ct2@rowToRowMat
+    c2rmc = ct2@colToRowMatCols
+    .recalculateMax(r2rm, c2rmc)
+}
+
+.recalculateMax = function(r2rm, c2rmc){
+    abs_max = function(x){
+        x[which.max(abs(x))]
+    }
+    resl = lapply(c2rmc, function(x){
+        apply(r2rm[,x,drop = FALSE], 1, abs_max)
+    })
+    df = as.data.frame(resl)
+    colnames(df) = names(c2rmc)
+    rownames(df) = rownames(r2rm)
+    as.matrix(df)
+}
+
 .transformSignal = function(ct2, transform_FUN){
     args = get_args()
 

@@ -72,20 +72,7 @@ S4Vectors::setValidity2("ChIPtsne2", function(object) {
     } else TRUE
 })
 
-#### Show ####
-
-#' @export
-#' @importMethodsFrom SummarizedExperiment show
-setMethod("show", "ChIPtsne2", function(object) {
-    callNextMethod()
-    cat(
-        "rowToRowMat has ", ncol(rowToRowMat(object)), " columns\n",
-        "colToRowMatCols has ", length(colToRowMatCols(object)), " items\n",
-        sep=""
-    )
-})
-
-#### Setter ####
+#### Example data ####
 
 #' exampleQueryGR
 #'
@@ -146,61 +133,8 @@ exampleChIPtsne2.with_meta = function(){
     ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 }
 
-#### Subsetting by index ####
+#### addRegionAnnotation ####
 
-#' @export
-setMethod("[", "ChIPtsne2", function(x, i, j, drop=TRUE) {
-    rrm <- rowToRowMat(x, withDimnames=FALSE)
-    c2rrm = colToRowMatCols(x)
-
-    if (!missing(j)) {
-        if (is.character(j)) {
-            fmt <- paste0("<", class(x), ">[,j] index out of bounds: %s")
-            j <- SummarizedExperiment:::.SummarizedExperiment.charbound(
-                j, colnames(x), fmt
-            )
-        }
-        j <- as.vector(j)
-        c2rrm = c2rrm[j]
-        rrm <- rrm[, unlist(c2rrm),drop=FALSE]
-    }
-
-    if (!missing(i)) {
-        if (is.character(i)) {
-            fmt <- paste0("<", class(x), ">[i,] index out of bounds: %s")
-            i <- SummarizedExperiment:::.SummarizedExperiment.charbound(
-                i, rownames(x), fmt
-            )
-        }
-        i <- as.vector(i)
-        rrm <- rrm[i,,drop=FALSE]
-    }
-
-    out <- callNextMethod()
-    BiocGenerics:::replaceSlots(out,
-                                rowToRowMat = rrm,
-                                colToRowMatCols = c2rrm,
-                                check=FALSE)
-})
-
-.recalculateMax_ct2 = function(ct2){
-    r2rm = ct2@rowToRowMat
-    c2rmc = ct2@colToRowMatCols
-    .recalculateMax(r2rm, c2rmc)
-}
-
-.recalculateMax = function(r2rm, c2rmc){
-    abs_max = function(x){
-        x[which.max(abs(x))]
-    }
-    resl = lapply(c2rmc, function(x){
-        apply(r2rm[,x,drop = FALSE], 1, abs_max)
-    })
-    df = as.data.frame(resl)
-    colnames(df) = names(c2rmc)
-    rownames(df) = rownames(r2rm)
-    as.matrix(df)
-}
 
 #' addRegionAnnotation
 #'
@@ -209,7 +143,7 @@ setMethod("[", "ChIPtsne2", function(x, i, j, drop=TRUE) {
 #' @param ct2 A ChIPtsne object
 #' @param anno_gr A GenomicRanges object to annotate ct2 based on overlap with rowRanges of ct2.
 #' @param anno_VAR Attribute in mcols of anno_gr to pull values from.
-#' @param anno_VAR_renames Matched vector to anno_VAR specificying final names in rowRanges of ct2. Essentially renames anno_VAR.
+#' @param anno_VAR_renames Matched vector to anno_VAR specifying final names in rowRanges of ct2. Essentially renames anno_VAR.
 #' @param no_overlap_value Value for when there is no overlap with anno_gr. Default is "no_hit".
 #' @param overlap_value Value for when there is an overlap, only relevant if anno_VAR is not in mcols of anno_gr. I.e. adding a single "hit" "no hit" annotation.
 #'
@@ -269,80 +203,6 @@ addRegionAnnotation = function(ct2,
     ct2
 }
 
-#### split ####
-
-#' @param ChIPtsne2
-#'
-#' @export
-#' @examples
-#' split(ct2, "sample")
-#' split(ct2, colnames(ct2))
-#' split(ct2, "cell")
-#' split(ct2, "peak_MCF10CA1_CTCF")
-#' split(ct2, ct2$cell)
-#'
-#' sample_meta_data = getSampleMetaData(ct2)
-#' region_meta_data = getRegionMetaData(ct2)
-#'
-#' split(ct2, sample_meta_data$mark)
-#' split(ct2, region_meta_data$peak_MCF10A_CTCF)
-#'
-setMethod("split", "ChIPtsne2", function(x, f = NULL, drop=FALSE, ...){
-    mode = "by_column"
-    sample_meta_data = getSampleMetaData(x)
-    region_meta_data = getRegionMetaData(x)
-    if(is.null(f)){
-        f = colnames(x)
-        names(f) = f
-    }
-    if(length(f) == 1){
-        if(f %in% colnames(sample_meta_data)){
-            f = split(rownames(sample_meta_data), sample_meta_data[[f]])
-        }else if(f %in% colnames(region_meta_data)){
-            f = split(region_meta_data[[x@region_VAR]], region_meta_data[[f]])
-            mode = "by_row"
-        }
-    }else{
-        if(ncol(x) == nrow(x)){
-            stop("Cannot unambiguously split ChIPtsne2 using a vector when ncol == nrow. Try using a row or column attribute name.")
-        }
-        if(length(f) == ncol(x)){
-            f = split(colnames(x), f)
-        }else if(length(f) == nrow(x)){
-            f = split(rownames(x), f)
-            mode = "by_row"
-        }
-    }
-
-    if(mode == "by_column"){
-        x.split = lapply(f, function(split_val)x[, split_val])
-    }else{
-        x.split = lapply(f, function(split_val)x[split_val, ])
-    }
-    ChIPtsne2List(x.split)
-})
-
-
-.validate_names_match = function(args, dim_FUN, str){
-    ref = args[[1]]
-    for(test in args[-1]){
-        is_match = dim_FUN(ref) == dim_FUN(test)
-        if(!all(is_match)){
-            a = dim_FUN(ref)[!is_match]
-            b = dim_FUN(test)[!is_match]
-            stop(paste(c(paste0(str, " names must be identical for all ChIPtsne2 objects. Example mismatches: "), head(paste(a, b, sep = " != "))), collapse = "\n"))
-        }
-    }
-}
-
-.validate_names_unique = function(args, dim_FUN, str){
-    cns = unname(unlist(lapply(args, dim_FUN)))
-    cn_dupes = duplicated(cns)
-    if(any(cn_dupes)){
-        stop(paste0("Duplicated ", str, " names are not allowed when combining ChIPtsne2 objects. You may need to use setNameVariable to differentiate names between ChIPtsne2 objects. Duplicated examples:\n"),
-             paste(head(unique(cns[cn_dupes])), collapse = "\n"))
-    }
-}
 
 #### replace rowRanges, names, dimnames ####
 

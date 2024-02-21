@@ -64,23 +64,7 @@ test_that("valid ChIPtsne2_no_rowRanges by aggregate", {
     expect_equal(rownames(reg_meta), c("FALSE,FALSE", "FALSE,TRUE", "TRUE,FALSE", "TRUE,TRUE"))
 })
 
-test_that("ChIPtsne2_no_rowRanges colnames", {
-    ct2.cn_test = ct2
-    rowRanges(ct2.cn_test) = NULL
-    class(ct2.cn_test)
-    colnames(ct2.cn_test) = colData(ct2.cn_test)$cell
-    expect_equal(colnames(ct2.cn_test@rowToRowMat)[1], "MCF10A_-325")
-    expect_equal(names(ct2.cn_test@colToRowMatCols)[1], "MCF10A")
-    expect_equal(ct2.cn_test@colToRowMatCols$MCF10A[1], "MCF10A_-325")
-})
 
-test_that("ChIPtsne2", {
-    ct2.cn_test = ct2
-    colnames(ct2.cn_test) = colData(ct2.cn_test)$cell
-    expect_equal(colnames(ct2.cn_test@rowToRowMat)[1], "MCF10A_-325")
-    expect_equal(names(ct2.cn_test@colToRowMatCols)[1], "MCF10A")
-    expect_equal(ct2.cn_test@colToRowMatCols$MCF10A[1], "MCF10A_-325")
-})
 
 test_that("aggregateSamplesByGroup mark", {
     ct2.agg = aggregateSamplesByGroup(ct2, "mark")
@@ -130,4 +114,66 @@ test_that("aggregateByGroup variable names", {
 })
 
 
+#### rownames and colnames ####
+test_that("ChIPtsne2_no_rowRanges set colnames", {
+    ct2.cn_test = ct2
+    rowRanges(ct2.cn_test) = NULL
+    class(ct2.cn_test)
+    colnames(ct2.cn_test) = LETTERS[seq_len(ncol(ct2.cn_test))]
+    expect_equal(colnames(ct2.cn_test)[1], "A")
+    expect_equal(colnames(ct2.cn_test@rowToRowMat)[1], "A_-325")
+    expect_equal(names(ct2.cn_test@colToRowMatCols)[1], "A")
+    expect_equal(ct2.cn_test@colToRowMatCols$A[1], "A_-325")
+})
 
+test_that("ChIPtsne2 set colnames", {
+    # if these fail then method dispatch is incorrect for dimnames
+    ct2.cn_test = ct2
+    colnames(ct2.cn_test) = LETTERS[seq_len(ncol(ct2.cn_test))]
+    expect_equal(colnames(ct2.cn_test)[1], "A")
+    expect_equal(colnames(ct2.cn_test@rowToRowMat)[1], "A_-325")
+    expect_equal(names(ct2.cn_test@colToRowMatCols)[1], "A")
+    expect_equal(ct2.cn_test@colToRowMatCols$A[1], "A_-325")
+})
+
+test_that("ChIPtsne2_no_rowRanges set rownames", {
+    ct2.rn_test = ct2
+    rowRanges(ct2.rn_test) = NULL
+    class(ct2.rn_test)
+    # debug(chiptsne2:::.update_ct2_rownames)
+    rownames(ct2.rn_test) = paste0("row_", rownames(ct2.rn_test))
+    expect_equal(rownames(ct2.rn_test)[1], "row_1")
+    expect_equal(rownames(ct2.rn_test@rowToRowMat)[1], "row_1")
+    expect_equal(rownames(assay(ct2.rn_test))[1], "row_1")
+})
+
+test_that("ChIPtsne2 set rownames", {
+    # if these fail then method dispatch is incorrect for dimnames
+    ct2.rn_test = ct2
+    class(ct2.rn_test)
+    rownames(ct2.rn_test) = paste0("row_", rownames(ct2.rn_test))
+    expect_equal(rownames(ct2.rn_test)[1], "row_1")
+    expect_equal(rownames(ct2.rn_test@rowToRowMat)[1], "row_1")
+    expect_equal(rownames(assay(ct2.rn_test))[1], "row_1")
+
+})
+
+#### [] accessors #####
+test_that("ChIPtsne2 []", {
+    ct2.1x1 = ct2[1,1]
+    ct2.nrr = ct2
+    rowRanges(ct2.nrr) = NULL
+
+    ct2.nrr.1x1  = ct2.nrr[1,1]
+
+    expect_equal(dim(ct2.1x1), c(1, 1))
+    expect_equal(dim(ct2.nrr.1x1), c(1, 1))
+
+    expect_equal(nrow(rowData(ct2.1x1)), 1)
+    expect_equal(nrow(rowData(ct2.nrr.1x1)), 1)
+
+    expect_equal(length(rowRanges(ct2.1x1)), 1)
+
+    expect_equal(nrow(colData(ct2.1x1)), 1)
+    expect_equal(nrow(colData(ct2.nrr.1x1)), 1)
+})
