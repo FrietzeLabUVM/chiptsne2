@@ -13,34 +13,6 @@ make_facet_str = function(facet_rows = character(), facet_columns = character())
     paste0(row_str, "~", col_str)
 }
 
-#' plotDimReduceBins
-#'
-#' @param ct2
-#' @param facet_rows
-#' @param facet_columns
-#' @param xmin
-#' @param xmax
-#' @param agg_FUN
-#' @param x_bins
-#' @param y_bins
-#' @param bg_color
-#' @param min_size
-#' @param bin_fill_limits
-#' @param has_symmetrical_limits
-#' @param bin_colors
-#' @param extra_VARS
-#' @param return_data
-#'
-#' @return
-#' @rdname plotDimReduceBins
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' ct2 = dimReducePCA(ct2)
-#' plotDimReduceBins(ct2)
-#'
-#' ct2.a = setValueVariable(ct2, "norm")
-#' plotDimReduceBins(ct2.a)
 .plotDimReduceBins = function(ct2,
                               facet_rows = ct2@name_VAR,
                               facet_columns = NULL,
@@ -65,12 +37,12 @@ make_facet_str = function(facet_rows = character(), facet_columns = character())
     if(is.null(y_bins)){
         y_bins = x_bins
     }
-    meta_VARS = c(facet_rows, facet_columns, "tx", "ty")
+    meta_VARS = c(facet_rows, facet_columns, "tx", "ty", extra_VARS)
     prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
     #aggregate_signals is retrieves a single representative value for a genomic region per sample
     #by default this is the maximum anywhere in the region but this can be
     #overridden using xmin/xmax and agg_FUN
-    extra_VARS = c(facet_rows, facet_columns)
+    extra_VARS = union(c(facet_rows, facet_columns), extra_VARS)
     agg_dt = aggregate_signals(
         prof_dt,
         x_ = ct2@position_VAR,
@@ -142,7 +114,45 @@ generic_plotDimReduceBins = function(ct2,
     standardGeneric("plotDimReduceBins")
 }
 
+
+#' #' plotDimReduceBins
+#'
+#' @param ct2 `r doc_ct2()`
+#' @param facet_rows The colData or rowData attribute for facetting row.
+#' @param facet_columns The colData or rowData attribute for facetting column
+#' @param xmin Minimum value of profile position allowed. Default is -Inf.
+#' @param xmax Maximum value of profile position allowed. Default is Inf.
+#' @param agg_FUN Function used to summarize each profile to a single value. Default is max.
+#' @param x_bins Resolution in dim reduced x-axis. Defaults to change with sqrt of number of regions.
+#' @param y_bins Resolution in dim reduced y-axis. Defaults to same as `x_bins`.
+#' @param bg_color Background color for plot. Passed to fill in plot.background of ggplot2 theme.
+#' @param min_size Bins with fewer items than this value will be omitted. Default is 1.
+#' @param bin_fill_limits Fill color scale limits to apply. Default is to fit all data.
+#' @param has_symmetrical_limits If TRUE, fill color scale limits will be symmetrical around 0. May override `bin_fill_limits`. Default is FALSE.
+#' @param bin_colors Colors to interpolate for fill scale.
+#' @param extra_VARS `r doc_extra_VARS()`
+#' @param return_data `r doc_return_data()`
+#'
+#' @return A ggplot2 object summarizing profiles by tiles at a resolution determined by `x_bins` and `y_bins`.
+#' @rdname plotDimReduceBins
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = dimReducePCA(ct2)
+#' plotDimReduceBins(ct2)
+#'
+#' # built in support for facet_grid
+#' plotDimReduceBins(ct2, facet_rows = "cell", facet_columns = "mark")
+#' # alternatively you can use extra_VARS and control facetting yourself
+#' plotDimReduceBins(ct2, extra_VARS = c("cell", "mark")) + facet_grid(cell~mark)
+#'
+#' # attributes from rowData can be used as well
+#' plotDimReduceBins(ct2, facet_rows = "peak_MCF10AT1_CTCF", facet_columns = "mark")
+#' plotDimReduceBins(ct2, extra_VARS = c("peak_MCF10AT1_CTCF", "mark")) + facet_grid(peak_MCF10AT1_CTCF~mark)
+#'
+#' plotDimReduceBins(ct2, xmin = -300, xmax = 0)
+#' plotDimReduceBins(ct2, xmin =  0, xmax = 300, bin_fill_limits = c(0, 20), bin_colors = c("blue", "green"))
 setGeneric("plotDimReduceBins",
            generic_plotDimReduceBins,
            signature = "ct2")

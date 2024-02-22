@@ -1,30 +1,3 @@
-#' plotDimReduceSummaryProfiles
-#'
-#' @param ct2
-#' @param color_VAR
-#' @param x_bins
-#' @param y_bins
-#' @param extra_VARS
-#' @param xrng
-#' @param yrng
-#' @param value_limits
-#' @param ma_size
-#' @param n_splines
-#' @param p
-#' @param N_floor
-#' @param N_ceiling
-#' @param min_size
-#' @param return_data
-#'
-#' @return
-#'
-#' @examples
-#' ct2 = exampleChIPtsne2.with_meta()
-#' ct2 = dimReducePCA(ct2)
-#' plotDimReduceSummaryProfiles(ct2)
-#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 50))
-#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 200))
-#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 500))
 .plotDimReduceSummaryProfiles = function(
         ct2,
         color_VAR = ct2@name_VAR,
@@ -101,26 +74,34 @@
 
 #' plotDimReduceSummaryProfiles
 #'
-#' @param ct2
-#' @param color_VAR
-#' @param x_bins
-#' @param y_bins
-#' @param extra_VARS
-#' @param xrng
-#' @param yrng
-#' @param value_limits
-#' @param ma_size
-#' @param n_splines
-#' @param p
-#' @param N_floor
-#' @param N_ceiling
-#' @param min_size
-#' @param return_data
+#' Divides dim reduced space into bins and represent each with glyph of the average profile of regions they contain.
 #'
-#' @return
+#' @param ct2 `r doc_ct2()`
+#' @param color_VAR Sample metadata attribute mapped to color.
+#' @param x_bins Resolution in dim reduced x-axis. Defaults to change with sqrt of number of regions.
+#' @param y_bins Resolution in dim reduced y-axis. Defaults to same as `x_bins`.
+#' @param extra_VARS `r doc_extra_VARS()`
+#' @param xrng Specify tx range of a subregion of dim reduced space to plot.
+#' @param yrng Specify ty range of a subregion of dim reduced space to plot.
+#' @param value_limits Glyph y-axis limits for values in summary profiles.
+#' @param ma_size Moving average window size for profiles. Makes profiles less spikey.
+#' @param n_splines Number of splines to interpolate between points.  Makes profiles smoother.
+#' @param p If not NULL, summary profiles will be added to this ggplot.
+#' @param N_floor Floor of region count used when calculating glyph sizes per bin.
+#' @param N_ceiling Ceiling of region count used when calculating glyph sizes per bin.
+#' @param min_size Minimum size (from 0 to 1) of glyph to include.
+#' @param return_data `r doc_return_data()`
+#'
+#' @return A ggplot2 object summarizing profiles by glyphs at a resolution determined by `x_bins` and `y_bins`.
+#' @export
 #'
 #' @examples
-#' @export
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = dimReducePCA(ct2)
+#' plotDimReduceSummaryProfiles(ct2)
+#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 50))
+#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 200))
+#' plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 500))
 setGeneric("plotDimReduceSummaryProfiles", function(
         ct2,
         color_VAR = ct2@name_VAR,

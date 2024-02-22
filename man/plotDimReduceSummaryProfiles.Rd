@@ -23,8 +23,47 @@ plotDimReduceSummaryProfiles(
 )
 }
 \arguments{
-\item{return_data}{}
+\item{ct2}{A ChIPtsne2 object.}
+
+\item{color_VAR}{Sample metadata attribute mapped to color.}
+
+\item{x_bins}{Resolution in dim reduced x-axis. Defaults to change with sqrt of number of regions.}
+
+\item{y_bins}{Resolution in dim reduced y-axis. Defaults to same as \code{x_bins}.}
+
+\item{extra_VARS}{Extra attributes from rowData or colData to carry through. These attributes will be available for facetting and similar ggplot2 operations.}
+
+\item{xrng}{Specify tx range of a subregion of dim reduced space to plot.}
+
+\item{yrng}{Specify ty range of a subregion of dim reduced space to plot.}
+
+\item{value_limits}{Glyph y-axis limits for values in summary profiles.}
+
+\item{ma_size}{Moving average window size for profiles. Makes profiles less spikey.}
+
+\item{n_splines}{Number of splines to interpolate between points.  Makes profiles smoother.}
+
+\item{p}{If not NULL, summary profiles will be added to this ggplot.}
+
+\item{N_floor}{Floor of region count used when calculating glyph sizes per bin.}
+
+\item{N_ceiling}{Ceiling of region count used when calculating glyph sizes per bin.}
+
+\item{min_size}{Minimum size (from 0 to 1) of glyph to include.}
+
+\item{return_data}{If TRUE, no plot is returned but the final plotted data.frame is returned instead. Default is FALSE.}
+}
+\value{
+A ggplot2 object summarizing profiles by glyphs at a resolution determined by \code{x_bins} and \code{y_bins}.
 }
 \description{
-plotDimReduceSummaryProfiles
+Divides dim reduced space into bins and represent each with glyph of the average profile of regions they contain.
+}
+\examples{
+ct2 = exampleChIPtsne2.with_meta()
+ct2 = dimReducePCA(ct2)
+plotDimReduceSummaryProfiles(ct2)
+plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 50))
+plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 200))
+plotDimReduceSummaryProfiles(ct2, value_limits = c(0, 500))
 }

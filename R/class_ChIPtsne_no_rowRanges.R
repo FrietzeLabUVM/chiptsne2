@@ -33,27 +33,29 @@ ChIPtsne2_no_rowRanges <- function(
 #' @export
 setGeneric("rowToRowMat", function(x, ...) standardGeneric("rowToRowMat"))
 
-#' @export
-setMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", function(x, withDimnames=TRUE) {
+ct2_nrr_get_rowToRowMat = function(x, withDimnames=TRUE) {
     out <- x@rowToRowMat
     if (withDimnames)
         rownames(out) <- rownames(x)
     out
-})
+}
+
+#' @export
+setMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", ct2_nrr_get_rowToRowMat)
 
 #' @export
 setGeneric("colToRowMatCols", function(x, ...) standardGeneric("colToRowMatCols"))
 
-#' @export
-setMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", function(x, withDimnames=TRUE) {
+ct2_nrr_get_colToRowMatCols =  function(x, withDimnames=TRUE) {
     out <- x@colToRowMatCols
     out
-})
+}
+#' @export
+setMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", ct2_nrr_get_colToRowMatCols)
 
 #### Validity ####
-#' @importFrom S4Vectors setValidity2
-#' @importFrom BiocGenerics NCOL NROW
-S4Vectors::setValidity2("ChIPtsne2_no_rowRanges", function(object) {
+
+ct2_nrr_validity = function(object) {
     NR <- NROW(object)
     NC <- NCOL(object)
     msg <- NULL
@@ -73,20 +75,26 @@ S4Vectors::setValidity2("ChIPtsne2_no_rowRanges", function(object) {
     if (length(msg)) {
         msg
     } else TRUE
-})
+}
+
+#' @importFrom S4Vectors setValidity2
+#' @importFrom BiocGenerics NCOL NROW
+S4Vectors::setValidity2("ChIPtsne2_no_rowRanges", ct2_nrr_validity)
 
 #### Show ####
 
-#' @export
-#' @importMethodsFrom SummarizedExperiment show
-setMethod("show", "ChIPtsne2_no_rowRanges", function(object) {
+ct2_nrr_show = function(object) {
     callNextMethod()
     cat(
         "rowToRowMat has ", ncol(rowToRowMat(object)), " columns\n",
         "colToRowMatCols has ", length(colToRowMatCols(object)), " items\n",
         sep=""
     )
-})
+}
+
+#' @export
+#' @importMethodsFrom SummarizedExperiment show
+setMethod("show", "ChIPtsne2_no_rowRanges", ct2_nrr_show)
 
 #### Setter ####
 
@@ -95,29 +103,32 @@ setGeneric("rowToRowMat<-", function(x, ..., value)
     standardGeneric("rowToRowMat<-")
 )
 
-#' @export
-setReplaceMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", function(x, value) {
+ct2_nrr_set_rowToRowMat = function(x, value) {
     x@rowToRowMat <- value
     validObject(x)
     x
-})
+}
+
+#' @export
+setReplaceMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", ct2_nrr_set_rowToRowMat)
 
 #' @export
 setGeneric("colToRowMatCols<-", function(x, ..., value)
     standardGeneric("colToRowMatCols<-")
 )
 
-#' @export
-setReplaceMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", function(x, value) {
+ct2_nrr_set_colToRowMatCols = function(x, value) {
     x@colToRowMatCols <- value
     validObject(x)
     x
-})
+}
+
+#' @export
+setReplaceMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", ct2_nrr_set_colToRowMatCols)
 
 #### Subsetting by index ####
 
-#' @export
-setMethod("[", "ChIPtsne2_no_rowRanges", function(x, i, j, drop=TRUE) {
+ct2_nrr_index_accessor = function(x, i, j, drop=TRUE) {
     rrm <- rowToRowMat(x, withDimnames=FALSE)
     c2rrm = colToRowMatCols(x)
 
@@ -149,27 +160,13 @@ setMethod("[", "ChIPtsne2_no_rowRanges", function(x, i, j, drop=TRUE) {
                                 rowToRowMat = rrm,
                                 colToRowMatCols = c2rrm,
                                 check=FALSE)
-})
+}
+#' @export
+setMethod("[", "ChIPtsne2_no_rowRanges", ct2_nrr_index_accessor)
 
 #### split ####
 
-#' @param ChIPtsne2_no_rowRanges
-#'
-#' @export
-#' @examples
-#' split(ct2, "sample")
-#' split(ct2, colnames(ct2))
-#' split(ct2, "cell")
-#' split(ct2, "peak_MCF10CA1_CTCF")
-#' split(ct2, ct2$cell)
-#'
-#' sample_meta_data = getSampleMetaData(ct2)
-#' region_meta_data = getRegionMetaData(ct2)
-#'
-#' split(ct2, sample_meta_data$mark)
-#' split(ct2, region_meta_data$peak_MCF10A_CTCF)
-#'
-setMethod("split", "ChIPtsne2_no_rowRanges", function(x, f = NULL, drop=FALSE, ...){
+ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
     mode = "by_column"
     sample_meta_data = getSampleMetaData(x)
     region_meta_data = getRegionMetaData(x)
@@ -202,7 +199,25 @@ setMethod("split", "ChIPtsne2_no_rowRanges", function(x, f = NULL, drop=FALSE, .
         x.split = lapply(f, function(split_val)x[split_val, ])
     }
     ChIPtsne2List(x.split)
-})
+}
+
+#' @param ChIPtsne2_no_rowRanges
+#'
+#' @export
+#' @examples
+#' split(ct2, "sample")
+#' split(ct2, colnames(ct2))
+#' split(ct2, "cell")
+#' split(ct2, "peak_MCF10CA1_CTCF")
+#' split(ct2, ct2$cell)
+#'
+#' sample_meta_data = getSampleMetaData(ct2)
+#' region_meta_data = getRegionMetaData(ct2)
+#'
+#' split(ct2, sample_meta_data$mark)
+#' split(ct2, region_meta_data$peak_MCF10A_CTCF)
+#'
+setMethod("split", "ChIPtsne2_no_rowRanges", ct2_nrr_split)
 
 .validate_names_match = function(args, dim_FUN, str){
     ref = args[[1]]
@@ -227,20 +242,7 @@ setMethod("split", "ChIPtsne2_no_rowRanges", function(x, f = NULL, drop=FALSE, .
 
 #### cbind ####
 
-#' @param ChIPtsne2_no_rowRanges
-#'
-#' @return
-#' @export
-#' @rdname cbind
-#'
-#' @examples
-#' ct2.left = exampleChIPtsne2()
-#' ct2.right = exampleChIPtsne2()
-#' colnames(ct2.right) = paste0("right_", colnames(ct2.right))
-#' ct2 = cbind(ct2.left, ct2.right)
-#' dim(ct2)
-#' colnames(ct2)
-setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
+ct2_nrr_cbind = function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, colnames, "Column")
     .validate_names_match(args, rownames, "Row")
@@ -273,24 +275,24 @@ setMethod("cbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
         rowToRowMat=all.rrm,
         colToRowMatCols=all.c2rrm,
         check=FALSE)
-})
+}
 
-
-#### rbind ####
 #' @param ChIPtsne2_no_rowRanges
 #'
-#' @return
+#' @return a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List
 #' @export
-#' @aliases rbind cbind
+#' @rdname cbind
 #'
 #' @examples
-#' ct2_a = exampleChIPtsne2()
-#' ct2_b = exampleChIPtsne2()
-#' # duplicated rownames are not allowed so we need to modify before rbind
-#' rownames(ct2_b) = paste0("b_", rownames(ct2_b))
-#' ct2_rbind = rbind(ct2_a, ct2_b)
-#' rownames(ct2_rbind)
-setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
+#' ct2.left = exampleChIPtsne2()
+#' ct2.right = exampleChIPtsne2()
+#' colnames(ct2.right) = paste0("right_", colnames(ct2.right))
+#' ct2 = cbind(ct2.left, ct2.right)
+#' dim(ct2)
+#' colnames(ct2)
+setMethod("cbind", "ChIPtsne2_no_rowRanges", ct2_nrr_cbind)
+
+ct2_nrr_rbind = function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, rownames, "Row")
     .validate_names_match(args, colnames, "Column")
@@ -318,12 +320,30 @@ setMethod("rbind", "ChIPtsne2_no_rowRanges", function(..., deparse.level=1) {
         out,
         rowToRowMat=all.rrm,
         check=FALSE)
-})
+}
 
-setReplaceMethod("dimnames", c("ChIPtsne2_no_rowRanges", "list"),
-                 function(x, value)
-                 {
-                     x = .update_ct2_rownames(x, new_names = value[[1]])
-                     x = .update_ct2_colnames(x, new_names = value[[2]])
-                     x
-                 })
+
+#### rbind ####
+#' @param ChIPtsne2_no_rowRanges
+#'
+#' @return a ChIPtsne2 object of concatenated rows/regions of all items in input ChIPtsne2List
+#' @export
+#' @aliases rbind cbind
+#'
+#' @examples
+#' ct2_a = exampleChIPtsne2()
+#' ct2_b = exampleChIPtsne2()
+#' # duplicated rownames are not allowed so we need to modify before rbind
+#' rownames(ct2_b) = paste0("b_", rownames(ct2_b))
+#' ct2_rbind = rbind(ct2_a, ct2_b)
+#' rownames(ct2_rbind)
+setMethod("rbind", "ChIPtsne2_no_rowRanges", ct2_nrr_rbind)
+
+ct2_nrr_set_dimnames =  function(x, value){
+    x = .update_ct2_rownames(x, new_names = value[[1]])
+    x = .update_ct2_colnames(x, new_names = value[[2]])
+    x
+}
+
+setReplaceMethod("dimnames", c("ChIPtsne2_no_rowRanges", "list"), ct2_nrr_set_dimnames)
+

@@ -13,7 +13,7 @@ groupRegionsByOverlap(
 )
 }
 \arguments{
-\item{ct2}{A ChIPtsne2 object}
+\item{ct2}{A ChIPtsne2 object.}
 
 \item{query}{Either a single GRanges or named list of GRanges.}
 
@@ -22,7 +22,7 @@ groupRegionsByOverlap(
 \item{...}{arguments passed to \code{\link[IRanges:findOverlaps-methods]{IRanges::findOverlaps()}}, i.e. maxgap, minoverlap, type, select, invert.}
 }
 \value{
-Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR
+Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.
 }
 \description{
 groupRegionsByOverlap

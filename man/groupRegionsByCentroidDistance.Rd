@@ -8,13 +8,48 @@ groupRegionsByCentroidDistance(
   ct2,
   centroid,
   group_VAR,
-  ambiguous_value = "ambiguous",
-  tolerance = 0
+  ambiguous_value = "ambiguous_match",
+  ambiguous_distance = 0,
+  no_match_value = "no_match",
+  match_distance = Inf
 )
 }
 \arguments{
-\item{tolerance}{}
+\item{ct2}{A ChIPtsne2 object.}
+
+\item{centroid}{A matrix of centroid profiles. Use \link{calculateGroupCentroid}
+to generate.}
+
+\item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
+
+\item{ambiguous_value}{Value used to indicate regions/rows that don't
+unambiguously match centroid profiles.}
+
+\item{ambiguous_distance}{Increase to make the definition of ambiguous
+mathces more lenient. When a row/region matches multiple centroids with
+distance values within \code{ambiguous_distance}, it is considered ambiguous and
+assigned \code{ambiguous_value}.}
+
+\item{no_match_value}{Value used to indicate regions/rows that don't closely
+match any centroid profiles.}
+
+\item{match_distance}{Maximum allowed distance for a row/region to be
+considered matching a centroid profile. If distances to all centroid
+profiles is over \code{match_distance}, it is assigned the value of
+\code{no_match_value}.
+
+With default values of ambiguous_distance = 0 and match_distance = Inf, all
+rows/regions will be assigned to a single centroid.}
+}
+\value{
+Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.
 }
 \description{
 groupRegionsByCentroidDistance
+}
+\examples{
+ct2 = exampleChIPtsne2()
+cents = calculateGroupCentroid(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+ct2 = groupRegionsByCentroidDistance(ct2, cents, group_VAR = "peak_overlap_profile")
+rowData(ct2)
 }

@@ -7,14 +7,14 @@
 groupRegionsBySignalCluster(ct2, group_VAR = "cluster_id", n_clusters = 6)
 }
 \arguments{
-\item{ct2}{A ChIPtsne2 object}
+\item{ct2}{A ChIPtsne2 object.}
 
 \item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
 
 \item{n_clusters}{Number of clusters specified for k-means.}
 }
 \value{
-Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR
+Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.
 }
 \description{
 groupRegionsBySignalCluster

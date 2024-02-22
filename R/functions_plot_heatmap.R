@@ -224,7 +224,10 @@
         meta_dt[[sort_VAR]] = factor(meta_dt[[sort_VAR]])
     }
     #### Fetch profile ####
-    prof_dt = getTidyProfile(ct2[meta_dt[[ct2@region_VAR]],], unique(c(group_VARS, sort_VAR, balance_VAR)))
+    tidy_vars = unique(c(group_VARS, sort_VAR, balance_VAR))
+    tidy_vars = setdiff(tidy_vars, '__FAKE_CLUSTER__')
+
+    prof_dt = getTidyProfile(ct2[meta_dt[[ct2@region_VAR]],], tidy_vars)
 
     heatmap_colors = .prep_color_scale(values = prof_dt[[ct2@value_VAR]], has_symmetrical_limits = has_symmetrical_limits, color_scale = heatmap_colors)
     heatmap_fill_limits = .prep_symmetrical(values = prof_dt[[ct2@value_VAR]], has_symmetrical_limits, heatmap_fill_limits)

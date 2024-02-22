@@ -20,7 +20,7 @@ addRegionAnnotation(
 
 \item{anno_VAR}{Attribute in mcols of anno_gr to pull values from.}
 
-\item{anno_VAR_renames}{Matched vector to anno_VAR specificying final names in rowRanges of ct2. Essentially renames anno_VAR.}
+\item{anno_VAR_renames}{Matched vector to anno_VAR specifying final names in rowRanges of ct2. Essentially renames anno_VAR.}
 
 \item{no_overlap_value}{Value for when there is no overlap with anno_gr. Default is "no_hit".}
 

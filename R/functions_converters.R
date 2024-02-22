@@ -51,6 +51,11 @@ setMethod("getTidyProfile.with_meta", c("ChIPtsne2_no_rowRanges"), .getTidyProfi
         sample_meta_VARS = TRUE
         region_meta_VARS = TRUE
     }else{
+        missed = setdiff(meta_VARS, c(colnames(getSampleMetaData(ct2)), colnames(getRegionMetaData(ct2))))
+        if(length(missed) > 0){
+            stop(paste0("Invalid meta_VARS specified. Not found in region or sample metadata:\n",
+                        paste(missed, collapse = "\n")))
+        }
         sample_meta_VARS = intersect(meta_VARS, colnames(getSampleMetaData(ct2)))
         sample_meta_VARS = setdiff(sample_meta_VARS, ct2@name_VAR)
         region_meta_VARS = intersect(meta_VARS, colnames(getRegionMetaData(ct2)))

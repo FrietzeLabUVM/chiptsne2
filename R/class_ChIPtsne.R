@@ -41,9 +41,7 @@ ChIPtsne2 <- function(
 }
 
 #### Validity ####
-#' @importFrom S4Vectors setValidity2
-#' @importFrom BiocGenerics NCOL NROW
-S4Vectors::setValidity2("ChIPtsne2", function(object) {
+ct2_validity = function(object) {
     NR <- NROW(object)
     NC <- NCOL(object)
     msg <- NULL
@@ -70,7 +68,10 @@ S4Vectors::setValidity2("ChIPtsne2", function(object) {
     if (length(msg)) {
         msg
     } else TRUE
-})
+}
+#' @importFrom S4Vectors setValidity2
+#' @importFrom BiocGenerics NCOL NROW
+S4Vectors::setValidity2("ChIPtsne2", ct2_validity)
 
 #### Example data ####
 
@@ -206,19 +207,23 @@ addRegionAnnotation = function(ct2,
 
 #### replace rowRanges, names, dimnames ####
 
-setReplaceMethod("rowRanges", c("ChIPtsne2", "NULL"),
-                 function(x, ..., value){
-                     ChIPtsne2_no_rowRanges(
-                         assays = assays(x),
-                         rowData = rowData(x),
-                         colData = colData(x),
-                         rowToRowMat = x@rowToRowMat,
-                         colToRowMatCols = x@colToRowMatCols,
-                         name_VAR = x@name_VAR,
-                         position_VAR = x@position_VAR,
-                         value_VAR = x@value_VAR,
-                         region_VAR = x@region_VAR)
-                 }
-)
+ct2_replace_rowRanges = function(x, ..., value){
+    if(is.null(value)){
+        ChIPtsne2_no_rowRanges(
+            assays = assays(x),
+            rowData = rowData(x),
+            colData = colData(x),
+            rowToRowMat = x@rowToRowMat,
+            colToRowMatCols = x@colToRowMatCols,
+            name_VAR = x@name_VAR,
+            position_VAR = x@position_VAR,
+            value_VAR = x@value_VAR,
+            region_VAR = x@region_VAR)
+    }else{
+        stop("Manipulating rowRanges is not supported except for removal by NULL assignment.")
+    }
+}
+
+setReplaceMethod("rowRanges", c("ChIPtsne2", "NULL"), ct2_replace_rowRanges)
 
 

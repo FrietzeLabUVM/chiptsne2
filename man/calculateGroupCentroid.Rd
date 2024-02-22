@@ -7,8 +7,23 @@
 calculateGroupCentroid(ct2, group_VARS)
 }
 \arguments{
-\item{group_VARS}{}
+\item{ct2}{\verb{R doc_ct2()}}
+
+\item{group_VARS}{A least 1 categorical attribute in rowData of \code{ct2}. When
+multiple attributes are specified, centroids will be calculated for all
+combinations of groups.}
+}
+\value{
+A matrix of centroid profiles per group. Input to
+\link{groupRegionsByCentroidDistance}.
 }
 \description{
 calculateGroupCentroid
+}
+\examples{
+ct2 = exampleChIPtsne2()
+cents = calculateGroupCentroid(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+cents
+ct2 = groupRegionsByCentroidDistance(ct2, cents, group_VAR = "peak_overlap_profile")
+rowData(ct2)
 }

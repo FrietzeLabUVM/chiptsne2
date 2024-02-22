@@ -68,6 +68,7 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_nam
     names(new_rn) = NULL
 
     rownames(r2rm) = new_rn
+    rowToRowMat(ct2) = r2rm
 
     old_assays = ct2@assays@data
     for(i in seq_along(old_assays)){
@@ -75,9 +76,12 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_nam
     }
     ct2@assays = SummarizedExperiment::Assays(old_assays)
 
-    rowToRowMat(ct2) = r2rm
+
     if(is(ct2, "ChIPtsne2")){#unclear if equivalent operation of ChIPtsne2_no_rowRanges required
         names(ct2@rowRanges) = new_rn
+    }else{
+        rownames(ct2@elementMetadata) = new_rn
+        ct2@NAMES = new_rn
     }
     if(!is.null(new_name_VAR)){
         ct2@region_VAR = new_name_VAR
