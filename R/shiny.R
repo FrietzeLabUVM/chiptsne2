@@ -39,6 +39,8 @@
 
 }
 
+#' .shiny_secondary_plot
+#'
 #' @examples
 #'
 #' plot_ct2 = exampleChIPtsne2.with_meta()

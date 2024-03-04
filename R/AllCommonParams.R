@@ -2,6 +2,10 @@ doc_ct2 = function(){
     "A ChIPtsne2 object."
 }
 
+doc_ct2list = function(){
+    "A ChIPtsne2List object."
+}
+
 doc_group_VAR = function(){
     "Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists."
 }

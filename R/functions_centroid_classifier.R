@@ -59,6 +59,7 @@ classify_by_centroid_distances = function(distances, centroids,
 #' ct2 = groupRegionsByCentroidDistance(ct2, cents, group_VAR = "peak_overlap_profile")
 #' rowData(ct2)
 calculateGroupCentroid = function(ct2, group_VARS){
+    .validate_allowed_input(group_VARS, colnames(rowData(ct2)), "Some values of group_VARS are not present in rowData:")
     cent = calculate_centroid_per_group(ct2, group_VARS)
     cent
 }

@@ -35,16 +35,13 @@ rbind(ct2.by_peak)
 
 ct2.by_cell$MCF10A
 
-# debug(unsplit, "ChIPtsne2List")
-ct2.un_cell = unsplit(ct2.by_cell, "cell")
-ct2.un_peak = unsplit(ct2.by_peak, "peak_MCF10CA1_CTCF")
+ct2.un_cell = cbind(ct2.by_cell)
+ct2.un_peak = rbind(ct2.by_peak)
 #### rbind ####
 dim(ct2.un_cell)
 dim(ct2.by_cell$MCF10A)
 dim(ct2.un_peak)
 dim(ct2.by_peak[[1]])
-
-
 
 
 

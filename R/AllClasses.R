@@ -52,52 +52,64 @@
 
 #### Generics ####
 
+#' getters and setters for ChIPtsne2 and ChIPtsne2_no_rowRanges objects
+#'
 #' @export
+#' @rdname ct2-getset
 setGeneric("setNameVariable",
            function(ct2, new_name_VAR){
                standardGeneric("setNameVariable")
            })
 #' @export
+#' @rdname ct2-getset
 setGeneric("swapNameVariable",
            function(ct2, new_name_VAR){
                standardGeneric("swapNameVariable")
            })
 #' @export
+#' @rdname ct2-getset
 setGeneric("getNameVariable",
            function(ct2){
                standardGeneric("getNameVariable")
            })
 
 #' @export
+#' @rdname ct2-getset
 setGeneric("setValueVariable",
            function(ct2, new_value_VAR){
                standardGeneric("setValueVariable")
            })
 #' @export
+#' @rdname ct2-getset
 setGeneric("getValueVariable",
            function(ct2){
                standardGeneric("getValueVariable")
            })
 #' @export
+#' @rdname ct2-getset
 setGeneric("setRegionVariable",
            function(ct2, new_region_VAR){
                standardGeneric("setRegionVariable")
            })
 #' @export
+#' @rdname ct2-getset
 setGeneric("getRegionVariable",
            function(ct2){
                standardGeneric("getRegionVariable")
            })
 #' @export
+#' @rdname ct2-getset
 setGeneric("setPositionVariable",
            function(ct2, new_position_VAR){
                standardGeneric("setPositionVariable")
            })
 #' @export
+#' @rdname ct2-getset
 setGeneric("getPositionVariable",
            function(ct2){
                standardGeneric("getPositionVariable")
            })
 
 #' @export
+#' @rdname ct2-getset
 setGeneric("getRegionMetaData", function(ct2, select_VARS = NULL) standardGeneric("getRegionMetaData"))

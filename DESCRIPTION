@@ -11,14 +11,17 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Depends:
+    R (>= 3.6),
     ggplot2,
     shiny
 Imports: 
     BiocFileCache,
     BiocGenerics, 
     data.table,
+    digest,
     dplyr,
     igraph,
+    GenomicRanges,
     GGally,
     magrittr,
     Matrix,
