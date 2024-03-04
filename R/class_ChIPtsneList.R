@@ -21,9 +21,12 @@ ChIPtsne2List <- function(
     out
 }
 
-#' @param ChIPtsne2
+#' cbind-ChIPtsne2List
+#'
+#' @param ChIPtsne2List `r doc_ct2list()`
 #'
 #' @return a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List
+#' @rdname cbind
 #' @export
 #'
 #' @examples
@@ -40,9 +43,12 @@ setMethod("cbind", "ChIPtsne2List", function(..., deparse.level=1) {
 
 
 #### rbind ####
-#' @param ChIPtsne2
+#' rbind-ChIPtsne2List
+#'
+#' @param ChIPtsne2List `r doc_ct2list()`
 #'
 #' @return a ChIPtsne2 object of concatenated rows/regions of all items in input ChIPtsne2List
+#' @rdname rbind
 #' @export
 #'
 #' @examples
@@ -59,8 +65,22 @@ setMethod("rbind", "ChIPtsne2List", function(..., deparse.level=1) {
 
 
 #### lapply shortcuts for ChIPtsne2 ####
+#' lapply-ChIPtsne2List
+#'
 #' @export
+#'
+#' @rdname lapply
+#' @return A ChIPtsne2List if FUN returns a ChIPtsne2 object. Otherwise a simple list.
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2.by_peak = split(ct2, "peak_MCF10AT1_CTCF")
+#' getNameVariable(ct2.by_peak)
+#' ct2.by_peak = lapply(ct2.by_peak, setNameVariable, "name")
+#' getNameVariable(ct2.by_peak)
 setMethod("lapply", c("ChIPtsne2List"), function(X, FUN, ...){
+    # when the result of lapply on a ChIPtsne2List is a list of ChIPtsne2_no_rowRanges,
+    # force it to be an actual ChIPtsne2List
     res = lapply(as.list(X), FUN, ...)
     is_ct2 = sapply(res, is, "ChIPtsne2_no_rowRanges")
     if(all(is_ct2)){
@@ -83,6 +103,34 @@ setMethod("swapNameVariable", c("ChIPtsne2List"), function(ct2, new_name_VAR){
 setMethod("getNameVariable", c("ChIPtsne2List"), function(ct2){
     sapply(ct2, getNameVariable)
 })
+
+#' @export
+setMethod("setValueVariable", c("ChIPtsne2List"), function(ct2, new_value_VAR){
+    lapply(ct2, setValueVariable, new_value_VAR)
+})
+#' @export
+setMethod("getValueVariable", c("ChIPtsne2List"), function(ct2){
+    sapply(ct2, getValueVariable)
+})
+
+#' @export
+setMethod("setRegionVariable", c("ChIPtsne2List"), function(ct2, new_region_VAR){
+    lapply(ct2, setRegionVariable, new_region_VAR)
+})
+#' @export
+setMethod("getRegionVariable", c("ChIPtsne2List"), function(ct2){
+    sapply(ct2, getRegionVariable)
+})
+
+#' @export
+setMethod("setPositionVariable", c("ChIPtsne2List"), function(ct2, new_position_VAR){
+    lapply(ct2, setPositionVariable, new_position_VAR)
+})
+#' @export
+setMethod("getPositionVariable", c("ChIPtsne2List"), function(ct2){
+    sapply(ct2, getPositionVariable)
+})
+
 #
 # ct2.l = split(ct2, "cell")
 # res = setNameVariable(ct2.l, "mark")

@@ -201,6 +201,8 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
     ChIPtsne2List(x.split)
 }
 
+#' split-ChIPtsne2_no_rowRanges
+#'
 #' @param ChIPtsne2_no_rowRanges
 #'
 #' @export
@@ -219,26 +221,7 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
 #'
 setMethod("split", "ChIPtsne2_no_rowRanges", ct2_nrr_split)
 
-.validate_names_match = function(args, dim_FUN, str){
-    ref = args[[1]]
-    for(test in args[-1]){
-        is_match = dim_FUN(ref) == dim_FUN(test)
-        if(!all(is_match)){
-            a = dim_FUN(ref)[!is_match]
-            b = dim_FUN(test)[!is_match]
-            stop(paste(c(paste0(str, " names must be identical for all ChIPtsne2_no_rowRanges objects. Example mismatches: "), head(paste(a, b, sep = " != "))), collapse = "\n"))
-        }
-    }
-}
 
-.validate_names_unique = function(args, dim_FUN, str){
-    cns = unname(unlist(lapply(args, dim_FUN)))
-    cn_dupes = duplicated(cns)
-    if(any(cn_dupes)){
-        stop(paste0("Duplicated ", str, " names are not allowed when combining ChIPtsne2_no_rowRanges objects. You may need to use setNameVariable to differentiate names between ChIPtsne2_no_rowRanges objects. Duplicated examples:\n"),
-             paste(head(unique(cns[cn_dupes])), collapse = "\n"))
-    }
-}
 
 #### cbind ####
 
@@ -277,11 +260,13 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
         check=FALSE)
 }
 
+#' cbind-ChIPtsne2_no_rowRanges
+#'
 #' @param ChIPtsne2_no_rowRanges
 #'
 #' @return a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List
 #' @export
-#' @rdname cbind
+#' @rdname ct2-generic
 #'
 #' @examples
 #' ct2.left = exampleChIPtsne2()
@@ -324,11 +309,14 @@ ct2_nrr_rbind = function(..., deparse.level=1) {
 
 
 #### rbind ####
+#' rbind-ChIPtsne2_no_rowRanges
+#'
 #' @param ChIPtsne2_no_rowRanges
 #'
 #' @return a ChIPtsne2 object of concatenated rows/regions of all items in input ChIPtsne2List
 #' @export
 #' @aliases rbind cbind
+#' @rdname ct2-generic
 #'
 #' @examples
 #' ct2_a = exampleChIPtsne2()
