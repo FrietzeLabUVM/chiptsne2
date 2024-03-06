@@ -111,9 +111,9 @@ ChIPtsne2.from_tidy = function(prof_dt,
     #create wide profile matrix
     tmp_wide = tidyr::pivot_wider(
         prof_dt,
-        names_from = all_of(c(name_VAR, position_VAR)),
-        values_from = all_of(c(value_VAR)),
-        id_cols = all_of(c(region_VAR))
+        names_from = dplyr::all_of(c(name_VAR, position_VAR)),
+        values_from = dplyr::all_of(c(value_VAR)),
+        id_cols = dplyr::all_of(c(region_VAR))
     )
     new_rowToRowMat = as.matrix(tmp_wide[, -1])
     rownames(new_rowToRowMat) = tmp_wide[[region_VAR]]

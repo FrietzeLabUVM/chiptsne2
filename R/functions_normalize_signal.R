@@ -126,6 +126,7 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2_no_rowRanges"), .normalizeSign
 
 #### calculateSignalCapValue ####
 
+#' @importFrom stats quantile
 .calculateSignalCapValue = function(ct2, signal_cap_VAR = "cap_value", cap_quantile = .95){
     message("calculateSignalCapValue ...")
     args = get_args()
@@ -135,7 +136,7 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2_no_rowRanges"), .normalizeSign
                                  cap_value_ = signal_cap_VAR,
                                  by1 = ct2@region_VAR,
                                  by2 = ct2@name_VAR,
-                                 aggFUN2 = function(x)quantile(x, cap_quantile))
+                                 aggFUN2 = function(x)stats::quantile(x, cap_quantile))
     new_meta_dt = merge(getSampleMetaData(ct2), cap_dt, by = ct2@name_VAR)
     new_meta_dt = new_meta_dt[order(new_meta_dt[[ct2@name_VAR]]), ]
 

@@ -53,14 +53,15 @@
     values
 }
 
+#' @import ggplot2
 .apply_scale = function(p, color_scale, scale_limits, fill = TRUE){
     if(is(color_scale, "Scale")){
         p = p + color_scale
     }else{
         if(fill){
-            p = p + scale_fill_gradientn(colours = color_scale, limits = scale_limits)
+            p = p + ggplot2::scale_fill_gradientn(colours = color_scale, limits = scale_limits)
         }else{
-            p = p + scale_color_gradientn(colours = color_scale, limits = scale_limits)
+            p = p + ggplot2::scale_color_gradientn(colours = color_scale, limits = scale_limits)
         }
 
     }

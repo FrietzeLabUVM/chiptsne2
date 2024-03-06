@@ -98,13 +98,14 @@ setMethod("dimReduceUMAP", c("ChIPtsne2_no_rowRanges"), .dimReduceUMAP)
 #' @param prof_mat matrix of profile data
 #'
 #' @return data.frame of reduced dimensions by PCA
+#' @importFrom stats prcomp
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2()
 #' ct2.pca = dimReducePCA(ct2)
 #' rowRanges(ct2.pca)
 .pca_from_profile_mat = function(prof_mat){
-    pca_res = prcomp(prof_mat)
+    pca_res = stats::prcomp(prof_mat)
     xy_df = as.data.frame(pca_res$x[, c(1, 2)])
     colnames(xy_df) = c("tx", "ty")
     rownames(xy_df) = rownames(prof_mat)

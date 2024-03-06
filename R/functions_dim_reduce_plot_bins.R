@@ -88,8 +88,8 @@ make_facet_str = function(facet_rows = character(), facet_columns = character())
     ) +
         facet_grid(facet_str) +
         theme(
-            panel.background = element_rect(fill = bg_color),
-            panel.grid = element_blank()
+            panel.background = ggplot2::element_rect(fill = bg_color),
+            panel.grid = ggplot2::element_blank()
         ) +
         labs(caption = paste("Binned to", y_bins, "rows by", x_bins, "columns."))
     p_bin = .apply_scale(p_bin, bin_colors, bin_fill_limits)

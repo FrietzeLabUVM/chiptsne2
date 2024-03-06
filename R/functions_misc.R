@@ -185,6 +185,8 @@ get_mapped_reads = function(bam_file){
                                     "to_run_reference"
                                 )
 ){
+    #visible binding NOTE
+    V1 = NULL
     cfg_txt = read.table(f, sep = "\n", header = FALSE, stringsAsFactors = FALSE, comment.char = "", quote = "") %>%
         dplyr::filter(grepl("^#CFG", V1))
     if(nrow(cfg_txt) == 0){

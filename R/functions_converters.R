@@ -26,7 +26,7 @@
         }
         meta_df = colData(ct2) %>%
             as.data.frame %>%
-            dplyr::select(all_of(sample_meta_VARS))
+            dplyr::select(dplyr::all_of(sample_meta_VARS))
         meta_df[[ct2@name_VAR]] = rownames(meta_df)
         df = merge(meta_df, df, by = ct2@name_VAR)
     }
@@ -35,7 +35,7 @@
             region_meta_VARS = colnames(rowData(ct2))
         }
         reg_df = getRegionMetaData(ct2) %>%
-            dplyr::select(all_of(c(ct2@region_VAR, region_meta_VARS)))
+            dplyr::select(dplyr::all_of(c(ct2@region_VAR, region_meta_VARS)))
         df = merge(df, reg_df, by = ct2@region_VAR)
     }
     df[[ct2@name_VAR]] = factor(df[[ct2@name_VAR]], levels = colnames(ct2))

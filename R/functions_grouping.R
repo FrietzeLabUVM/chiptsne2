@@ -17,7 +17,7 @@
             max_cols = Inf)
     })
     assign_dt = clust_dt %>%
-        dplyr::select(all_of(c(group_VAR, ct2@region_VAR))) %>%
+        dplyr::select(dplyr::all_of(c(group_VAR, ct2@region_VAR))) %>%
         unique
 
     history_item = list(groupRegionsBySignalCluster = list(FUN = .groupRegionsBySignalCluster, ARG = args))
@@ -106,6 +106,8 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 }
 
 .groupRegionsByDimReduceCluster = function(ct2, group_VAR = "knn_id", nearest_neighbors = 100, ...){
+    #visible binding NOTE
+    tx = ty = NULL
     message("groupRegionsByDimReduceCluster ...")
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")

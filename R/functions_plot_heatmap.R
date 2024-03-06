@@ -109,7 +109,7 @@
     fill_ = ct2@value_VAR
     fill_ = ensym(fill_)
 
-    assign_dt = clust_dt %>% dplyr::select(all_of(c(ct2@region_VAR, sort_VAR))) %>%
+    assign_dt = clust_dt %>% dplyr::select(dplyr::all_of(c(ct2@region_VAR, sort_VAR))) %>%
         unique
 
     clust_dt[[ct2@region_VAR]] = factor(clust_dt[[ct2@region_VAR]], levels = rev(levels(clust_dt[[ct2@region_VAR]])))

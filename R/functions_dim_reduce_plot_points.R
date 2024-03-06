@@ -64,7 +64,7 @@
             geom_point(size = point_size)
     }else if(all(color_VAR %in% colnames(getRegionMetaData(ct2)))){
         xy_df = getRegionMetaData(ct2) %>%
-            dplyr::select(all_of(c("tx", "ty", ct2@region_VAR, color_VAR)))
+            dplyr::select(dplyr::all_of(c("tx", "ty", ct2@region_VAR, color_VAR)))
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = "group")
         xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
         point_colors = .prep_color_scale(xy_df$value, color_scale = point_colors)

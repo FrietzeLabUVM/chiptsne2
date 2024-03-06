@@ -1,6 +1,8 @@
 #### flipProfilesToMatch ####
 
 .flipProfilesToMatch = function(ct2, highest_on_right = FALSE){
+    #visible binding NOTE
+    left_sum = right_sum = needs_flip = `:=` = .N = fraction_flipped = TMP_POS_I__ = NEW_POS_X__ = NULL
     args = get_args()
     message("flipProfilesToMatch ...")
     prof_dt = getTidyProfile(ct2)
