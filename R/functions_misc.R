@@ -55,6 +55,7 @@ sampleCap = function(x, size = 500){
 #'
 #' @return The number of mapped reads in bam file.
 #' @export
+#' @importFrom Rsamtools idxstatsBam
 #'
 #' @examples
 #' data_dir = system.file("extdata", package = "seqsetvis", mustWork = TRUE)
@@ -304,21 +305,6 @@ is_signal_file = function(files, suff = getOption("SQC_SIGNAL_FILE_SUFF", c("bam
 get_group_colors = function(group_names){
     cols = getOption("SQC_COLORS", seqsetvis::safeBrew(group_names, "Dark2"))
     cols
-}
-
-#' ssv_mclapply
-#'
-#' @return result of either pblapply or pbmclapply
-#'
-#' @importFrom pbapply pblapply
-#' @importFrom pbmcapply pbmclapply
-ssv_mclapply = function(X, FUN, mc.cores = getOption("mc.cores", 1), ...){
-    if(.Platform$OS.type == "windows" || mc.cores == 1) {
-        pbapply::pblapply(X = X, FUN = FUN, ...)
-
-    } else {
-        pbmcapply::pbmclapply(X = X, FUN = FUN, mc.cores = mc.cores, ...)
-    }
 }
 
 

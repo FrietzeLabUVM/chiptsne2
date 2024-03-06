@@ -28,5 +28,9 @@ ct2 = exampleChIPtsne2.with_meta()
 
 aggregateRegionsByGroup(ct2, "peak_MCF10A_CTCF")
 
-aggregateRegionsByGroup(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), new_meta_VAR = "peak_overlap")
+aggregateRegionsByGroup(
+  ct2,
+  c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"),
+  new_meta_VAR = "peak_overlap"
+)
 }

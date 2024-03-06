@@ -7,6 +7,8 @@
 #' @param perplexity perplexity, will be reduced to 1/4 of nrow of prof_mat if too large.
 #' @param ... passed to Rtsne::Rtsne
 #'
+#' @importFrom Rtsne Rtsne
+#'
 #' @return data.frame of reduced dimensions by tSNE
 #'
 #' @examples
@@ -54,6 +56,9 @@ setMethod("dimReduceTSNE", c("ChIPtsne2_no_rowRanges"), .dimReduceTSNE)
 #' @param prof_mat matrix of profile data
 #' @param config umap.config object, uses umap::umap.defaults by default
 #' @param ... passed to umap::umap
+#'
+#' @importFrom umap umap
+#' @importFrom umap umap.defaults
 #'
 #' @return data.frame of reduced dimensions by UMAP
 #'
@@ -130,6 +135,7 @@ setMethod("dimReducePCA", c("ChIPtsne2_no_rowRanges"), .dimReducePCA)
     y
 }
 
+#' importFrom scales rescale
 .post_dim_reduce = function(xy_df, prof_mat, norm1 = TRUE, high_topright = TRUE){
     if (norm1) {
         xy_df$tx = .rescale_capped(xy_df$tx) - 0.5

@@ -16,7 +16,6 @@ A chiptsne2 object updated to reflect centering procedure. Width will be the sam
 centerSignal
 }
 \examples{
-library(tidyverse)
 bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
 fetch_config = FetchConfig.load_config(bam_cfg_f)
 query_gr = seqsetvis::CTCF_in_10a_overlaps_gr

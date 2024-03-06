@@ -13,7 +13,11 @@
 #'
 #' aggregateRegionsByGroup(ct2, "peak_MCF10A_CTCF")
 #'
-#' aggregateRegionsByGroup(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), new_meta_VAR = "peak_overlap")
+#' aggregateRegionsByGroup(
+#'   ct2,
+#'   c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"),
+#'   new_meta_VAR = "peak_overlap"
+#' )
 aggregateRegionsByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_id")){
     centroid = calculateGroupCentroid(ct2, group_VAR)
 

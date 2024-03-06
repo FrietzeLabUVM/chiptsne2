@@ -10,6 +10,8 @@ setRegionMetaData(ct2, new_meta, silent = FALSE)
 \item{ct2}{A ChIPtsne object}
 
 \item{new_meta}{A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.}
+
+\item{silent}{If TRUE, no messages will be displayed. Default is FALSE.}
 }
 \value{
 A modified ChIPtsne2 object with added/overwritten sample metadata.

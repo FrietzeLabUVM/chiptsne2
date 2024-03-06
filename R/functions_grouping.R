@@ -207,7 +207,7 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupR
         colnames(group_df) = group_VAR
     }
     ct2 = setRegionMetaData(ct2, group_df, silent = TRUE)
-    ct2 = chiptsne2:::.add_history_entry(ct2, "groupRegionsByMembershipTable", FUN = .groupRegionsByOverlap, ARG = args)
+    ct2 = .add_history_entry(ct2, "groupRegionsByMembershipTable", FUN = .groupRegionsByOverlap, ARG = args)
     ct2
 }
 

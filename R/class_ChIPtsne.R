@@ -120,6 +120,7 @@ exampleChIPtsne2 = function(){
 #'
 #' @return ChIPtsne object for testing, includes meta data
 #' @export
+#' @importFrom tidyr separate
 #'
 #' @examples
 #' exampleChIPtsne2.with_meta()

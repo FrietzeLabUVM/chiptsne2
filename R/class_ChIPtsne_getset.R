@@ -395,6 +395,7 @@ setRegionMetaData.no_history = function(ct2, new_meta){
 #'
 #' @param ct2 A ChIPtsne object
 #' @param new_meta A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.
+#' @param silent If TRUE, no messages will be displayed. Default is FALSE.
 #'
 #' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
 #' @export

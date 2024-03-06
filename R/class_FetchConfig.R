@@ -118,7 +118,10 @@ setReplaceMethod("$", "FetchConfig",
 #' bam_config_df = chiptsne2:::.parse_config_body(bam_config_file)
 #' sig_conf = FetchConfig(bam_config_df)
 #'
-#' bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config.csv")
+#' bigwig_config_file = system.file(
+#'   package = "ssvQC",
+#'   "extdata/ssvQC_bigwig_config.csv"
+#' )
 #' bigwig_config_df = chiptsne2:::.parse_config_body(bigwig_config_file)
 #' sig_conf.bw = FetchConfig(bigwig_config_df)
 FetchConfig = function(config_df,
@@ -184,7 +187,10 @@ isFetchConfigNull = function(fetch_config){
 #' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
 #' FetchConfig.load_config(bam_config_file)
 #'
-#' bigwig_config_file = system.file(package = "chiptsne2", "extdata/bigwig_config.csv", mustWork = TRUE)
+#' bigwig_config_file = system.file(
+#'   package = "chiptsne2",
+#'   "extdata/bigwig_config.csv", mustWork = TRUE
+#' )
 #' FetchConfig.load_config(bigwig_config_file)
 FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
     cfg_vals = .parse_config_header(signal_config_file)
@@ -242,7 +248,13 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 #' @export
 #' @rdname FetchConfig
 #' @examples
-#' bam_files = dir(system.file(package = "ssvQC", "extdata"), pattern = "CTCF.+bam$", full.names = TRUE)
+#' bam_files = dir(
+#'   system.file(
+#'     package = "ssvQC",
+#'     "extdata"),
+#'   pattern = "CTCF.+bam$",
+#'   full.names = TRUE
+#' )
 #' object = FetchConfig.from_files(bam_files)
 #'
 #' object2 = FetchConfig.from_files(bam_files,

@@ -47,6 +47,7 @@ COLOR_KEY_STRAT = list(
 }
 
 
+#' @importFrom RColorBrewer brewer.pal
 add_group_annotation = function(anno_ids,
                                 xleft = 0,
                                 xright = 1,
@@ -154,9 +155,11 @@ add_group_annotation.legend = function(anno_ids,
     if(!is.null(plot_format_FUN)){
         p = plot_format_FUN(p)
     }
-    cowplot::get_legend(p)
+    # cowplot::get_legend() now returning warning
+    cowplot::get_plot_component(p, "guide-box", return_all = TRUE)[[1]]
 }
 
+#' @import ggplot2
 add_cluster_annotation.numeric = function(anno_ids,
                                           xleft = 0, xright = 1,
                                           rect_colors = NULL,
@@ -190,26 +193,27 @@ add_cluster_annotation.numeric = function(anno_ids,
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = anno_rle$values
-    p = ggplot(df_rects) +
-        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
-        facet_grid(.~grp)
-    p = p + geom_rect(aes(
+    p = ggplot2::ggplot(df_rects) +
+        ggplot2::coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
+        ggplot2::facet_grid(.~grp)
+    p = p + ggplot2::geom_rect(aes(
         xmin = xmin,
         xmax = xmax,
         ymin= ymin,
         ymax = ymax,
         fill = grp
     )) +
-        scale_fill_gradientn(colours = rect_colors) +
-        facet_grid(paste0(".~", cluster_)) +
-        labs(fill = cluster_)
+        ggplot2::scale_fill_gradientn(colours = rect_colors) +
+        ggplot2::facet_grid(paste0(".~", cluster_)) +
+        ggplot2::labs(fill = cluster_)
     if(!show_legend){
-        p = p + guides(fill = "none")
+        p = p + ggplot2::guides(fill = "none")
     }
     p + annotation_theme
 
 }
 
+#' @import ggplot2
 add_cluster_annotation = function(anno_ids,
                                   xleft = 0, xright = 1,
                                   rect_colors = NULL,
@@ -263,22 +267,22 @@ add_cluster_annotation = function(anno_ids,
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = rownames(df_rects)
 
-    p = ggplot(df_rects) +
-        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
-        facet_grid(.~grp)
-    p = p + geom_rect(aes(
+    p = ggplot2::ggplot(df_rects) +
+        ggplot2::coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
+        ggplot2::facet_grid(.~grp)
+    p = p + ggplot2::geom_rect(ggplot2::aes(
         xmin = xmin,
         xmax = xmax,
         ymin= ymin,
         ymax = ymax,
         fill = grp
     )) +
-        scale_fill_manual(values = rect_colors) +
-        facet_grid(paste0(".~", cluster_)) +
-        labs(fill = cluster_)
+        ggplot2::scale_fill_manual(values = rect_colors) +
+        ggplot2::facet_grid(paste0(".~", cluster_)) +
+        ggplot2::labs(fill = cluster_)
     if(show_labels){
         for(i in seq_len(nrow(df_rects))){
-            p = p + annotate("text",
+            p = p + ggplot2::annotate("text",
                              x = mean(c(df_rects$xmin[i], df_rects$xmax[i])),
                              y = mean(c(df_rects$ymin[i], df_rects$ymax[i])),
                              label = cluster_labels[i],
@@ -288,7 +292,7 @@ add_cluster_annotation = function(anno_ids,
         }
     }
     if(!show_legend){
-        p = p + guides(fill = "none")
+        p = p + ggplot2::guides(fill = "none")
     }
     p + annotation_theme
 }
@@ -321,7 +325,8 @@ add_cluster_annotation.legend = function(anno_ids,
     if(!is.null(plot_format_FUN)){
         p = plot_format_FUN(p)
     }
-    cowplot::get_legend(p)
+    # cowplot::get_legend() now returning warning
+    cowplot::get_plot_component(p, "guide-box", return_all = TRUE)[[1]]
 }
 
 

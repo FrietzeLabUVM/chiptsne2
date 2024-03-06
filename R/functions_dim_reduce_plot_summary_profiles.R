@@ -352,7 +352,7 @@ plot_summary_glyph = function (summary_dt,
 
 bin_values = function(x, n_bins, xrng = range(x)){
     stopifnot(length(xrng) == 2)
-    floor(rescale_capped(x, 0:1, xrng) * (n_bins-.00001))+1
+    floor(.rescale_capped(x, 0:1, xrng) * (n_bins-.00001))+1
 }
 
 bin_values_centers = function (n_bins, rng){
@@ -362,13 +362,6 @@ bin_values_centers = function (n_bins, rng){
     xspc = diff(rng)/n_bins/2
     xs = seq(min(rng) + xspc, max(rng) - xspc, diff(rng)/(n_bins))
     xs
-}
-
-rescale_capped = function(x, to = c(0,1), from = range(x, na.rm = TRUE, finite = TRUE)){
-    y = scales::rescale(x, to, from)
-    y[y > max(to)] = max(to)
-    y[y < min(to)] = min(to)
-    y
 }
 
 

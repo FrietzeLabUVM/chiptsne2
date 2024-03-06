@@ -122,27 +122,6 @@ ChIPtsne2.from_tidy = function(prof_dt,
     tmp = c("value_VAR")
     names(tmp) = value_VAR
 
-    # START DELETE
-    #create max assay
-    #unsure how to programmatically use summarize the way I want
-    #TODO MAX not accommodating negative range values
-    # browser()
-    # how it's down in operator functions
-    # new_prof_max_mat = .recalculateMax(new_rowToRowMat, new_colToRowMatCols)
-    # prof_max = prof_dt %>%
-    #     dplyr::group_by(.data[[region_VAR]], .data[[name_VAR]]) %>%
-    #     dplyr::summarise(value_VAR = max(.data[[value_VAR]])) %>%
-    #     dplyr::rename(all_of(tmp)) %>%
-    #     tidyr::pivot_wider(
-    #         names_from = all_of(c(name_VAR)),
-    #         id_cols = all_of(c(region_VAR)),
-    #         values_from = all_of(c(value_VAR))
-    #     )
-    # new_prof_max_mat = as.matrix(prof_max[, -1])
-    # rownames(new_prof_max_mat) = prof_max[[region_VAR]]
-    # new_prof_max_mat = new_prof_max_mat[rn,, drop = FALSE]
-    # END DELETE
-
     if(is.null(sample_metadata)){
         if(auto_sample_metadata){
             drop_vars = c("seqnames",
