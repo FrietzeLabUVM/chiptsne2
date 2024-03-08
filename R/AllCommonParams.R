@@ -2,6 +2,11 @@ doc_ct2 = function(){
     "A ChIPtsne2 object."
 }
 
+doc_ct2_nrr = function(){
+    "A ChIPtsne2_no_rowRanges object."
+}
+
+
 doc_ct2list = function(){
     "A ChIPtsne2List object."
 }
