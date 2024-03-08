@@ -1,5 +1,9 @@
 #### Constructor ####
 
+#' ChIPtsne2List
+#'
+#' @param ... A number of ChIPtsne2_no_rowRanges or ChIPtsne2 objects.
+#'
 #' @export
 #'
 #' @importFrom S4Vectors SimpleList
@@ -12,9 +16,9 @@ ChIPtsne2List <- function(
         stop("ChIPtsne2List must contain only either ChIPtsne2 or ChIPtsne2_no_rowRanges objects.")
     }
     if(list_classes == "ChIPtsne2"){
-        out = new("ChIPtsne2List", listData = ctl@listData, elementType = "ChIPtsne2", elementMetadata = ctl@elementMetadata, metadata = ctl@metadata)
+        out = .ChIPtsne2List(listData = ctl@listData, elementType = "ChIPtsne2", elementMetadata = ctl@elementMetadata, metadata = ctl@metadata)
     }else if(list_classes == "ChIPtsne2_no_rowRanges"){
-        out = new("ChIPtsne2List", listData = ctl@listData, elementType = "ChIPtsne2_no_rowRanges", elementMetadata = ctl@elementMetadata, metadata = ctl@metadata)
+        out = .ChIPtsne2List(listData = ctl@listData, elementType = "ChIPtsne2_no_rowRanges", elementMetadata = ctl@elementMetadata, metadata = ctl@metadata)
     }else{
         stop("ChIPtsne2List must contain only either ChIPtsne2 or ChIPtsne2_no_rowRanges objects.")
     }

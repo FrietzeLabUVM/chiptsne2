@@ -114,14 +114,11 @@ setReplaceMethod("$", "FetchConfig",
 #' @export
 #' @rdname FetchConfig
 #' @examples
-#' bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
+#' bam_config_file = exampleBamConfigFile()
 #' bam_config_df = chiptsne2:::.parse_config_body(bam_config_file)
 #' sig_conf = FetchConfig(bam_config_df)
 #'
-#' bigwig_config_file = system.file(
-#'   package = "ssvQC",
-#'   "extdata/ssvQC_bigwig_config.csv"
-#' )
+#' bigwig_config_file = exampleBigWigConfigFile()
 #' bigwig_config_df = chiptsne2:::.parse_config_body(bigwig_config_file)
 #' sig_conf.bw = FetchConfig(bigwig_config_df)
 FetchConfig = function(config_df,
@@ -184,13 +181,10 @@ isFetchConfigNull = function(fetch_config){
 #' @export
 #' @rdname FetchConfig
 #' @examples
-#' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
+#' bam_config_file = exampleBamConfigFile()
 #' FetchConfig.load_config(bam_config_file)
 #'
-#' bigwig_config_file = system.file(
-#'   package = "chiptsne2",
-#'   "extdata/bigwig_config.csv", mustWork = TRUE
-#' )
+#' bigwig_config_file = exampleBigWigConfigFile()
 #' FetchConfig.load_config(bigwig_config_file)
 FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
     cfg_vals = .parse_config_header(signal_config_file)
@@ -313,7 +307,7 @@ get_fetch_fun = function(read_mode){
 #' @rdname FetchConfig
 #' @export
 #' @examples
-#' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv")
+#' bam_config_file = exampleBamConfigFile()
 #' fetch_config = FetchConfig.load_config(bam_config_file)
 #'
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
@@ -338,7 +332,7 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = NULL){
         warning("window_size found in configured fetch_options. ignored. Please use FetchConfig$window_size.")
         extra_args[["window_size"]] = NULL
     }
-    .n_region_splits = 50
+    .n_region_splits = getOption("mc.cores", 1)
     if("n_region_splits" %in% names(extra_args)){
         .n_region_splits = extra_args[["n_region_splits"]]
         extra_args[["n_region_splits"]] = NULL
@@ -368,11 +362,11 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = NULL){
 #' @export
 #' @rdname FetchConfig
 #' @examples
-#' bam_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bam_config.csv")
+#' bam_config_file = exampleBamConfigFile()
 #' bam_config = FetchConfig.load_config(bam_config_file)
 #' #FetchConfig.save_config(bam_config, "bam_config.csv")
 #'
-#' bigwig_config_file = system.file(package = "ssvQC", "extdata/ssvQC_bigwig_config.csv")
+#' bigwig_config_file = exampleBigWigConfigFile()
 #' bigwig_config = FetchConfig.load_config(bigwig_config_file)
 #' #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
 FetchConfig.save_config = function(object, file){
@@ -397,13 +391,14 @@ FetchConfig.save_config = function(object, file){
 #' @param qc A FetchConfig object
 #'
 #' @examples
-#' feature_config_file = system.file(package = "ssvQC", "extdata/ssvQC_peak_config.csv")
-#' qc = ConfigFeatures.parse(feature_config_file)
-#' qc
+#' bam_config_file = exampleBamConfigFile()
+#' fetch_config = FetchConfig.load_config(bam_config_file)
+#' fetch_config
 .show_Config = function(qc){
     if(qc@is_null){
         msg = "This FetchConfig is a NULL placeholder."
     }else{
+
         msg = paste(sep = "\n",
                     paste("Configuration for", nrow(qc@meta_data), "items.")
         )

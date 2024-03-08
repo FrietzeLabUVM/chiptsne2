@@ -1,4 +1,4 @@
-#' .FetchConfig
+#' FetchConfig
 #'
 #' @slot view_size Consistent size to use when viewing assessment regions. Uses
 #'   CT_VIEW_SIZE option or 3kb as default.
@@ -8,8 +8,6 @@
 #'   fetch function.
 #'
 #' @rdname FetchConfig
-#' @export
-#'
 .FetchConfig = setClass("FetchConfig",
                         representation = list(
                             meta_data = "data.frame",
@@ -22,7 +20,6 @@
                         )
 )
 
-#' @export
 #' @import methods
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 .ChIPtsne2_no_rowRanges <- setClass("ChIPtsne2_no_rowRanges",
@@ -38,14 +35,12 @@
                                     contains="SummarizedExperiment"
 )
 
-#' @export
 #' @import methods
 #' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
 .ChIPtsne2 <- setClass("ChIPtsne2",
                        contains= c("ChIPtsne2_no_rowRanges", "RangedSummarizedExperiment")
 )
 
-#' @export
 #' @importClassesFrom S4Vectors List
 .ChIPtsne2List = setClass("ChIPtsne2List",
                           contains="SimpleList")

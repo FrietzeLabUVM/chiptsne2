@@ -25,6 +25,6 @@ A named list containing configuration options mapped to values.
 }
 \examples{
 
-bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
+bam_config_file = exampleBamConfigFile()
 chiptsne2:::.parse_config_header(bam_config_file)
 }

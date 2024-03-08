@@ -1,4 +1,6 @@
 .shiny_primary_plot = function(plot_ct2, tx_df, plotType, selAttribute, selIds, plotBrush){
+    #visible binding NOTE
+    id = NULL
     plot_ct2 = setRegionMetaData(plot_ct2, tx_df)
     theme_update(panel.background = element_blank(), panel.grid = element_blank())
     switch(plotType,
@@ -51,17 +53,62 @@
 #' selIds = character()
 #' selIds = rownames(plot_ct2)[1:10]
 #'
-#' .shiny_secondary_plot(plot_ct2, tx_df, "line_color_selection", selAttribute = "peak_MCF10A_CTCF", selIds = rownames(plot_ct2)[1:10])
-#' .shiny_secondary_plot(plot_ct2, tx_df, "line_color_selection", selAttribute = "peak_MCF10A_CTCF", selIds = character())
-#'
-#' .shiny_secondary_plot(plot_ct2, tx_df, "line_color_annotation", selAttribute = "peak_MCF10A_CTCF", selIds = rownames(plot_ct2)[1:10])
-#' .shiny_secondary_plot(plot_ct2, tx_df, "line_color_annotation", selAttribute = "peak_MCF10A_CTCF", selIds = character())
-#'
-#' .shiny_secondary_plot(plot_ct2, tx_df, "heatmap_cluster_selection", selAttribute = "peak_MCF10A_CTCF", selIds = rownames(plot_ct2)[1:10])
-#' .shiny_secondary_plot(plot_ct2, tx_df, "heatmap_cluster_selection", selAttribute = "peak_MCF10A_CTCF", selIds = character())
-#'
-#' .shiny_secondary_plot(plot_ct2, tx_df, "heatmap_cluster_annotation", selAttribute = "peak_MCF10A_CTCF", selIds = rownames(plot_ct2)[1:10])
-#' .shiny_secondary_plot(plot_ct2, tx_df, "heatmap_cluster_annotation", selAttribute = "peak_MCF10A_CTCF", selIds = character())
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "line_color_selection",
+#'   selAttribute = "peak_MCF10A_CTCF", s
+#'   elIds = rownames(plot_ct2)[1:10]
+#' )
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "line_color_selection",
+#'   selAttribute = "peak_MCF10A_CTCF",
+#'   selIds = character()
+#' )
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "line_color_annotation",
+#'   selAttribute = "peak_MCF10A_CTCF",
+#'   selIds = rownames(plot_ct2)[1:10]
+#' )
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "line_color_annotation",
+#'   selAttribute = "peak_MCF10A_CTCF",
+#'   selIds = character()
+#' )
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "heatmap_cluster_selection",
+#'   selAttribute = "peak_MCF10A_CTCF",
+#'   selIds = rownames(plot_ct2)[1:10]
+#' )
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "heatmap_cluster_selection",
+#'   selAttribute = "peak_MCF10A_CTCF",
+#'   selIds = character()
+#' )
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "heatmap_cluster_annotation",
+#'   selAttribute = "peak_MCF10A_CTCF",
+#'   selIds = rownames(plot_ct2)[1:10]
+#' )
+#' .shiny_secondary_plot(
+#'   plot_ct2,
+#'   tx_df,
+#'   "heatmap_cluster_annotation",
+#'   selAttribute = "peak_MCF10A_CTCF",
+#'   selIds = character()
+#' )
 #'
 .shiny_secondary_plot = function(plot_ct2, tx_df, plotType, selAttribute, selIds){
     theme_update(panel.background = element_blank(), panel.grid = element_blank())
@@ -143,6 +190,8 @@
 #'
 #'
 run_ChIPtsne2_shiny = function(ct2){
+    #visible binding NOTE
+    dist_ = rnk = tx = ty = vals = NULL
     theme_update(
         axis.title = element_text(size = 14),
         axis.text = element_text(size = 12),

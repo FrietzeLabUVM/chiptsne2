@@ -7,8 +7,8 @@
 #' @export
 #'
 #' @examples
-#' bam_file = dir(system.file("extdata", package = "seqsetvis"), pattern = "bam$", full.names = TRUE)[1]
-#' bw_file = dir(system.file("extdata", package = "seqsetvis"), pattern = "bw$", full.names = TRUE)[1]
+#' bam_file = exampleBamFiles()[1]
+#' bw_file = exampleBigWigFiles()[1]
 #' guess_read_mode(bam_file)
 #' guess_read_mode(bw_file)
 guess_read_mode = function(signal_file){
@@ -58,8 +58,7 @@ sampleCap = function(x, size = 500){
 #' @importFrom Rsamtools idxstatsBam
 #'
 #' @examples
-#' data_dir = system.file("extdata", package = "seqsetvis", mustWork = TRUE)
-#' bam_file = dir(data_dir, pattern = "bam$", full.names = TRUE)[1]
+#' bam_file = exampleBamFiles()[1]
 #'
 #' get_mapped_reads(bam_file)
 get_mapped_reads = function(bam_file){
@@ -163,7 +162,7 @@ get_mapped_reads = function(bam_file){
 #' @importFrom dplyr filter
 #' @examples
 #'
-#' bam_config_file = system.file(package = "chiptsne2", "extdata/bam_config.csv", mustWork = TRUE)
+#' bam_config_file = exampleBamConfigFile()
 #' chiptsne2:::.parse_config_header(bam_config_file)
 .parse_config_header = function(f,
                                 valid_config_VARS = c(

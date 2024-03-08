@@ -227,10 +227,27 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupR
 #' ct2 = exampleChIPtsne2.with_meta()
 #' peak_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
 #' ct2.olap = ct2
-#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs[1:2], group_VAR = "10A_AT1_combos")
-#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs$MCF10A_CTCF, group_VAR = "10A_peaks")
-#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs$MCF10AT1_CTCF, group_VAR = "AT1_peaks")
-#' ct2.olap = groupRegionsByOverlap(ct2.olap, peak_grs[1:2], group_VAR = "10A_AT1_priority", use_priority = TRUE)
+#' ct2.olap = groupRegionsByOverlap(
+#'   ct2.olap,
+#'   peak_grs[1:2],
+#'   group_VAR = "10A_AT1_combos"
+#' )
+#' ct2.olap = groupRegionsByOverlap(
+#'   ct2.olap,
+#'   peak_grs$MCF10A_CTCF,
+#'   group_VAR = "10A_peaks"
+#' )
+#' ct2.olap = groupRegionsByOverlap(
+#'   ct2.olap,
+#'   peak_grs$MCF10AT1_CTCF,
+#'   group_VAR = "AT1_peaks"
+#' )
+#' ct2.olap = groupRegionsByOverlap(
+#'   ct2.olap,
+#'   peak_grs[1:2],
+#'   group_VAR = "10A_AT1_priority",
+#'   use_priority = TRUE
+#' )
 #' rowData(ct2.olap)
 #'
 #' # a GRangesList is allowed too

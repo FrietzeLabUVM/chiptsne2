@@ -9,7 +9,9 @@ setRegionMetaData(ct2, new_meta, silent = FALSE)
 \arguments{
 \item{ct2}{A ChIPtsne object}
 
-\item{new_meta}{A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.}
+\item{new_meta}{A data.frame with new metadata information. Must include same
+name_VAR as ct2 or have equivalent rownames. Variables already present in
+ct2 will result in overiting those variables.}
 
 \item{silent}{If TRUE, no messages will be displayed. Default is FALSE.}
 }
@@ -22,7 +24,11 @@ setRegionMetaData
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 new_meta = getRegionMetaData(ct2)
-new_meta[["10A_and_AT1"]] = ifelse(new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF, "yes", "no")
+new_meta[["10A_and_AT1"]] = ifelse(
+  new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF,
+  "yes",
+  "no"
+)
 ct2 = setRegionMetaData(ct2, new_meta)
 getRegionMetaData(ct2)
 

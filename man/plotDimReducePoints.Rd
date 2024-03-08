@@ -19,7 +19,10 @@ plotDimReducePoints(
 \arguments{
 \item{ct2}{valid ChIPtsne2 after dimReduce has been run}
 
-\item{color_VAR}{Control color assignment in plot. Can match entries in \emph{either} sample metadata (colnames) or region metadata (rowRanges). Default of NULL will plot max signal for all sample profiles. NA will perform no color mapping.}
+\item{color_VAR}{Control color assignment in plot. Can match entries in
+\emph{either} sample metadata (colnames) or region metadata (rowRanges). Default
+of NULL will plot max signal for all sample profiles. NA will perform no
+color mapping.}
 
 \item{point_size}{Size of points in plot.}
 }
@@ -37,15 +40,25 @@ ct2 = exampleChIPtsne2.with_meta() \%>\%
 
 plotDimReducePoints(ct2, NA)
 plotDimReducePoints(ct2)
-ct2_diff = subsetCol(ct2, cell == "MCF10A") - subsetCol(ct2, cell == "MCF10AT1")
+ct2_diff = subsetSamples(ct2, cell == "MCF10A") -
+  subsetSamples(ct2, cell == "MCF10AT1")
 plotDimReducePoints(ct2_diff)
 plotDimReducePoints(ct2, "umap_cluster")
 plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 
+# layer plot elements beneath the final plot with a function like this:
+base_plot = function(p){
+  p +
+    annotate("rect",
+             xmin = 0, xmax = .3,
+             ymin = -.05, ymax = .13,
+             fill = "gray80", color = "red")
+}
+
 plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
   background_annotation_color = "gray50",
-  underlayer_FUN = function(p){p + annotate("rect", xmin = 0, xmax = .3, ymin = -.05, ymax = .13, fill = "gray80", color = "red")}) +
-  facet_grid(peak_MCF10CA1_CTCF~sample) +
-  labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
+  underlayer_FUN = base_plot) +
+    facet_grid(peak_MCF10CA1_CTCF~sample) +
+    labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
 }
