@@ -18,7 +18,7 @@ ChIPtsne2_no_rowRanges <- function(
         ...)
 {
     se <- SummarizedExperiment(...)
-    .ChIPtsne2_no_rowRanges(se,
+    ChIPtsne2_no_rowRanges(se,
                rowToRowMat = rowToRowMat,
                colToRowMatCols = colToRowMatCols,
                name_VAR = name_VAR,

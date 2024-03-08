@@ -29,7 +29,7 @@ ChIPtsne2 <- function(
                 new_names
         }
     }
-    .ChIPtsne2(se,
+    ChIPtsne2(se,
                rowToRowMat = rowToRowMat,
                colToRowMatCols = colToRowMatCols,
                name_VAR = name_VAR,
