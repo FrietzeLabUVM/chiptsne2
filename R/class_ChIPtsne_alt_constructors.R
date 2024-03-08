@@ -13,6 +13,8 @@
 #' @param init If TRUE, initialize history with birthday, session_info, and chiptsne2_version
 #'
 #' @return ChIPtsne2 object with tsne results
+#' @importFrom utils sessionInfo
+#' @importFrom dplyr any_of all_of
 #' @export
 #'
 #' @examples
@@ -34,7 +36,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
                                init = TRUE
 ){
     if(init){
-        init_history = list(birthday = date(), session_info = sessionInfo(), chiptsne2_version = utils::packageDescription("chiptsne2")$Version)
+        init_history = list(birthday = date(), session_info = utils::sessionInfo(), chiptsne2_version = utils::packageDescription("chiptsne2")$Version)
         obj_history = c(init_history, obj_history)
     }
 
@@ -137,7 +139,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
                           value_VAR)
             sample_metadata = prof_dt %>%
                 # dplyr::select(all_of(c(name_VAR))) %>%
-                dplyr::select(!any_of(c(drop_vars))) %>%
+                dplyr::select(!dplyr::any_of(c(drop_vars))) %>%
                 unique
             if(nrow(sample_metadata) != length(cn)){
                 stop("Something has gone wrong attempting to automatically derive sample_metadata. Either supply explicitly or disable with auto_sample_metadata = FALSE")
@@ -152,7 +154,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
     sample_metadata[[name_VAR]] = NULL
 
     map_dt = prof_dt %>%
-        dplyr::select(all_of(c(name_VAR, position_VAR))) %>%
+        dplyr::select(dplyr::all_of(c(name_VAR, position_VAR))) %>%
         unique
     map_dt = dplyr::mutate(map_dt, cn = paste(get(name_VAR), get(position_VAR), sep = "_"))
     stopifnot(map_dt$cn == colnames(new_rowToRowMat))
@@ -226,7 +228,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
 #' @export
 #'
 #' @examples
-#' bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
+#' bam_cfg_f = exampleBamConfigFile()
 #' fetch_config = FetchConfig.load_config(bam_cfg_f)
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 #' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
@@ -245,18 +247,6 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
 
     fetch_res = fetch_signal_at_features(fetch_config, query_gr)
     prof_dt = fetch_res$prof_dt
-    # name_lev = NULL
-    # if(is.factor(sample_metadata[[name_VAR]])){
-    #     name_lev = levels(sample_metadata[[name_VAR]])
-    # }else if(is.character(sample_metadata[[name_VAR]])){
-    #     name_lev = unique(sample_metadata[[name_VAR]])
-    # }
-    # if(!is.null(name_lev)){
-    #     prof_dt[[name_VAR]] = factor(prof_dt[[name_VAR]], levels = name_lev)
-    # }
-    #
-    # prof_dt[[name_VAR]] = droplevels(prof_dt[[name_VAR]])
-    # sample_metadata[[name_VAR]] = droplevels(sample_metadata[[name_VAR]])
 
     ct2 = ChIPtsne2.from_tidy(prof_dt = prof_dt,
                               name_VAR = name_VAR,

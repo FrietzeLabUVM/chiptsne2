@@ -20,9 +20,6 @@
         meta_VARS = setdiff(all_VARS, ct2@name_VAR)
     }
     agg_dt = getTidyProfile(ct2.agg, meta_VARS = meta_VARS)
-    # prof_dt = getTidyProfile(ct2, meta_VARS = meta_VARS)
-    # agg_dt = prof_dt[, .(VALUE_ = mean(get(ct2@value_VAR))), c(unique(c(all_VARS, ct2@position_VAR, ct2@name_VAR)))]
-    # data.table::setnames(agg_dt, "VALUE_", ct2@value_VAR)
     x_ = ct2@position_VAR
     x_ = ensym(x_)
     y_ = ct2@value_VAR
@@ -87,18 +84,47 @@
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
 #' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF")
-#' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", moving_average_window = 5)
-#' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", n_splines = 5)
-#' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", moving_average_window = 5, n_splines = 5)
-#' plotSignalLinePlot(ct2, group_VAR = "peak_MCF10A_CTCF", facet_VAR = NULL, color_VAR = "cell")
-#' plotSignalLinePlot(ct2, color_VAR = "cell", facet_VAR = "peak_MCF10AT1_CTCF", group_VAR = "peak_MCF10A_CTCF")
+#' # smoothing profiles
+#' plotSignalLinePlot(
+#'   ct2,
+#'   group_VAR = "peak_MCF10A_CTCF",
+#'   n_splines = 5,
+#'   moving_average_window = 5)
+#' # map sample meta data to color
+#' plotSignalLinePlot(
+#'   ct2,
+#'   group_VAR = "peak_MCF10A_CTCF",
+#'   facet_VAR = NULL,
+#'   color_VAR = "cell"
+#' )
+#' # map region meta data to facets
+#' plotSignalLinePlot(
+#'   ct2,
+#'   color_VAR = "cell",
+#'   facet_VAR = "peak_MCF10AT1_CTCF",
+#'   group_VAR = "peak_MCF10A_CTCF"
+#' )
 #'
+#' # more complicated examples using clustering
 #' ct2 = groupRegionsBySignalCluster(ct2, group_VAR = "cluster")
-#' ct2 = groupRegionsByOverlap(ct2, seqsetvis::CTCF_in_10a_narrowPeak_grs[1:2], group_VAR = "overlap")
-#' plotSignalLinePlot(ct2, color_VAR = "cell", group_VAR = "cluster", facet_VAR = NULL)
-#' plotSignalLinePlot(ct2, color_VAR = "cell", group_VAR = "cluster", facet_VAR = "peak_MCF10A_CTCF")
+#' ct2 = groupRegionsByOverlap(
+#'   ct2,
+#'   seqsetvis::CTCF_in_10a_narrowPeak_grs[1:2],
+#'   group_VAR = "overlap"
+#' )
+#' plotSignalLinePlot(
+#'   ct2,
+#'   color_VAR = "cell",
+#'   group_VAR = "cluster",
+#'   facet_VAR = "peak_MCF10A_CTCF"
+#' )
 #'
-#' plotSignalLinePlot(ct2, color_VAR = "peak_MCF10A_CTCF", group_VAR = "cluster", facet_VAR = "cell", extra_VARS = "mark")
+#' plotSignalLinePlot(
+#'   ct2,
+#'   color_VAR = "peak_MCF10A_CTCF",
+#'   group_VAR = "cluster",
+#'   facet_VAR = "cell"
+#' )
 setGeneric("plotSignalLinePlot", function(
         ct2,
         group_VAR = NULL,

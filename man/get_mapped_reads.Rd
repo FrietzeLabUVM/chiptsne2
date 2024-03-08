@@ -16,8 +16,7 @@ The number of mapped reads in bam file.
 get_mapped_reads
 }
 \examples{
-data_dir = system.file("extdata", package = "seqsetvis", mustWork = TRUE)
-bam_file = dir(data_dir, pattern = "bam$", full.names = TRUE)[1]
+bam_file = exampleBamFiles()[1]
 
 get_mapped_reads(bam_file)
 }

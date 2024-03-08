@@ -17,9 +17,12 @@ theme_update = ggplot2::theme_update
 labs = ggplot2::labs
 annotate = ggplot2::annotate
 facet_grid = ggplot2::facet_grid
+guides = ggplot2::guides
 
 coord_cartesian = ggplot2::coord_cartesian
 
+scale_x_continuous = ggplot2::scale_x_continuous
+scale_y_continuous = ggplot2::scale_y_continuous
 scale_fill_gradientn = ggplot2::scale_fill_gradientn
 scale_color_gradientn = ggplot2::scale_color_gradientn
 scale_color_manual = ggplot2::scale_color_manual

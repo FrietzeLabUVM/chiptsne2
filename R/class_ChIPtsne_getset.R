@@ -394,7 +394,9 @@ setRegionMetaData.no_history = function(ct2, new_meta){
 #' setRegionMetaData
 #'
 #' @param ct2 A ChIPtsne object
-#' @param new_meta A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.
+#' @param new_meta A data.frame with new metadata information. Must include same
+#'   name_VAR as ct2 or have equivalent rownames. Variables already present in
+#'   ct2 will result in overiting those variables.
 #' @param silent If TRUE, no messages will be displayed. Default is FALSE.
 #'
 #' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
@@ -403,7 +405,11 @@ setRegionMetaData.no_history = function(ct2, new_meta){
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
 #' new_meta = getRegionMetaData(ct2)
-#' new_meta[["10A_and_AT1"]] = ifelse(new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF, "yes", "no")
+#' new_meta[["10A_and_AT1"]] = ifelse(
+#'   new_meta$peak_MCF10A_CTCF & new_meta$peak_MCF10AT1_CTCF,
+#'   "yes",
+#'   "no"
+#' )
 #' ct2 = setRegionMetaData(ct2, new_meta)
 #' getRegionMetaData(ct2)
 #'
@@ -421,7 +427,8 @@ setRegionMetaData = function(ct2, new_meta, silent = FALSE){
     }
     args = get_args()
     ct2 = setRegionMetaData.no_history(ct2, new_meta)
-    history_item = list(setRegionMetaData = list(FUN = setRegionMetaData, ARG = args))
+    history_item = list(setRegionMetaData =
+                            list(FUN = setRegionMetaData, ARG = args))
     ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
     ct2
 }

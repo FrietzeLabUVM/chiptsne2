@@ -122,18 +122,25 @@ generic_plotDimReduceBins = function(ct2,
 #' @param facet_columns The colData or rowData attribute for facetting column
 #' @param xmin Minimum value of profile position allowed. Default is -Inf.
 #' @param xmax Maximum value of profile position allowed. Default is Inf.
-#' @param agg_FUN Function used to summarize each profile to a single value. Default is max.
-#' @param x_bins Resolution in dim reduced x-axis. Defaults to change with sqrt of number of regions.
+#' @param agg_FUN Function used to summarize each profile to a single value.
+#'   Default is max.
+#' @param x_bins Resolution in dim reduced x-axis. Defaults to change with sqrt
+#'   of number of regions.
 #' @param y_bins Resolution in dim reduced y-axis. Defaults to same as `x_bins`.
-#' @param bg_color Background color for plot. Passed to fill in plot.background of ggplot2 theme.
-#' @param min_size Bins with fewer items than this value will be omitted. Default is 1.
-#' @param bin_fill_limits Fill color scale limits to apply. Default is to fit all data.
-#' @param has_symmetrical_limits If TRUE, fill color scale limits will be symmetrical around 0. May override `bin_fill_limits`. Default is FALSE.
+#' @param bg_color Background color for plot. Passed to fill in plot.background
+#'   of ggplot2 theme.
+#' @param min_size Bins with fewer items than this value will be omitted.
+#'   Default is 1.
+#' @param bin_fill_limits Fill color scale limits to apply. Default is to fit
+#'   all data.
+#' @param has_symmetrical_limits If TRUE, fill color scale limits will be
+#'   symmetrical around 0. May override `bin_fill_limits`. Default is FALSE.
 #' @param bin_colors Colors to interpolate for fill scale.
 #' @param extra_VARS `r doc_extra_VARS()`
 #' @param return_data `r doc_return_data()`
 #'
-#' @return A ggplot2 object summarizing profiles by tiles at a resolution determined by `x_bins` and `y_bins`.
+#' @return A ggplot2 object summarizing profiles by tiles at a resolution
+#'   determined by `x_bins` and `y_bins`.
 #' @rdname plotDimReduceBins
 #' @export
 #'
@@ -145,14 +152,26 @@ generic_plotDimReduceBins = function(ct2,
 #' # built in support for facet_grid
 #' plotDimReduceBins(ct2, facet_rows = "cell", facet_columns = "mark")
 #' # alternatively you can use extra_VARS and control facetting yourself
-#' plotDimReduceBins(ct2, extra_VARS = c("cell", "mark")) + facet_grid(cell~mark)
+#' plotDimReduceBins(ct2, extra_VARS = c("cell", "mark")) +
+#'   facet_grid(cell~mark)
 #'
 #' # attributes from rowData can be used as well
-#' plotDimReduceBins(ct2, facet_rows = "peak_MCF10AT1_CTCF", facet_columns = "mark")
-#' plotDimReduceBins(ct2, extra_VARS = c("peak_MCF10AT1_CTCF", "mark")) + facet_grid(peak_MCF10AT1_CTCF~mark)
+#' plotDimReduceBins(
+#'   ct2,
+#'   facet_rows = "peak_MCF10AT1_CTCF",
+#'   facet_columns = "mark"
+#' )
+#' plotDimReduceBins(ct2, extra_VARS = c("peak_MCF10AT1_CTCF", "mark")) +
+#'   facet_grid(peak_MCF10AT1_CTCF~mark)
 #'
 #' plotDimReduceBins(ct2, xmin = -300, xmax = 0)
-#' plotDimReduceBins(ct2, xmin =  0, xmax = 300, bin_fill_limits = c(0, 20), bin_colors = c("blue", "green"))
+#' plotDimReduceBins(
+#'   ct2,
+#'   xmin =  0,
+#'   xmax = 300,
+#'   bin_fill_limits = c(0, 20),
+#'   bin_colors = c("blue", "green")
+#' )
 setGeneric("plotDimReduceBins",
            generic_plotDimReduceBins,
            signature = "ct2")
@@ -170,7 +189,7 @@ aggregate_signals = function(profile_dt,
                              xmax = Inf,
                              by_ = c("sample")){
     agg_dt = profile_dt[get(x_) >= xmin & get(x_) <= xmax,
-                        .(val_ = agg_FUN(get(y_))),
+                        list(val_ = agg_FUN(get(y_))),
                         by = c(id_, by_)]
     agg_dt[[yout_]] = agg_dt$val_
     agg_dt[, c(yout_, id_, by_), with = FALSE]
@@ -188,6 +207,8 @@ bin_signals = function(agg_dt,
                        extra_VARS = character(),
                        bin_met = mean,
                        min_size = 1, return_data = FALSE){
+    #visible binding NOTE
+    bx = .N = `:=` = tx = ty = NULL
     if(is.null(xrng)) xrng = range(agg_dt[[bxval]])
     if(is.null(yrng)) yrng = range(agg_dt[[byval]])
     agg_dt[bxval >= min(xrng) & bxval <= max(xrng) &
@@ -195,7 +216,8 @@ bin_signals = function(agg_dt,
     agg_dt[, bx := bin_values(get(bxval), n_bins = x_bins, xrng = xrng)]
     agg_dt[, by := bin_values(get(byval), n_bins = y_bins, xrng = yrng)]
 
-    bin_dt = agg_dt[, .(y = bin_met(get(val)), N = .N), c(unique(c(facet_, extra_VARS, "bx", "by")))]
+    bin_dt = agg_dt[, list(y = bin_met(get(val)), N = .N),
+                    c(unique(c(facet_, extra_VARS, "bx", "by")))]
     data.table::setnames(bin_dt, "y", val)
     bxvc = bin_values_centers(n_bins = x_bins, xrng)
     w = diff(bxvc[1:2])
@@ -215,6 +237,8 @@ plot_binned_aggregates = function(bin_dt,
                                   byval = "ty",
                                   facet_ = "wide_var",
                                   min_size = 1){
+    #visible binding NOTE
+    tx = ty = N = NULL
     if(is.null(xrng)) xrng = range(bin_dt[[bxval]])
     if(is.null(yrng)) yrng = range(bin_dt[[byval]])
     if(nrow(bin_dt[N >= min_size]) == 0){

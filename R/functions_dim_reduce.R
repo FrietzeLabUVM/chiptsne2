@@ -17,6 +17,8 @@
 #' ct2.tsne = dimReduceTSNE(ct2, perplexity = 10)
 #' rowRanges(ct2.tsne)
 .tsne_from_profile_mat = function(prof_mat, perplexity = 50, ...){
+    #visible binding NOTE
+    tx = ty = NULL
     if(perplexity > nrow(prof_mat)/4){
         perplexity = nrow(prof_mat)/4
         warning("autoreduced perplexity to ", perplexity, " due to small number of regions.")
@@ -138,6 +140,8 @@ setMethod("dimReducePCA", c("ChIPtsne2_no_rowRanges"), .dimReducePCA)
 
 #' importFrom scales rescale
 .post_dim_reduce = function(xy_df, prof_mat, norm1 = TRUE, high_topright = TRUE){
+    #visible binding NOTE
+    tx = ty = NULL
     if (norm1) {
         xy_df$tx = .rescale_capped(xy_df$tx) - 0.5
         xy_df$ty = .rescale_capped(xy_df$ty) - 0.5

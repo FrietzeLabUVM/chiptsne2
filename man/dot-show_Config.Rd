@@ -13,7 +13,7 @@
 used by show
 }
 \examples{
-feature_config_file = system.file(package = "ssvQC", "extdata/ssvQC_peak_config.csv")
-qc = ConfigFeatures.parse(feature_config_file)
-qc
+bam_config_file = exampleBamConfigFile()
+fetch_config = FetchConfig.load_config(bam_config_file)
+fetch_config
 }

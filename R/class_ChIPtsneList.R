@@ -1,5 +1,9 @@
 #### Constructor ####
 
+#' ChIPtsne2List
+#'
+#' @param ... A number of ChIPtsne2_no_rowRanges or ChIPtsne2 objects.
+#'
 #' @export
 #'
 #' @importFrom S4Vectors SimpleList

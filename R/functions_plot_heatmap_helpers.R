@@ -59,6 +59,8 @@ add_group_annotation = function(anno_ids,
                                 annotation_theme = .annotation_theme,
                                 name_FUN = .prep_names,
                                 show_legend = FALSE){
+    #visible binding NOTE
+    xmin = xmax = ymin = ymax = grp = NULL
     if(is.data.frame(anno_ids)){#yes this could be replaced with S4 method dispatch
         if(is.numeric(anno_ids[[cluster_]])){
             argg <- as.list(environment())
@@ -172,6 +174,8 @@ add_cluster_annotation.numeric = function(anno_ids,
                                           annotation_theme = .annotation_theme,
                                           name_FUN = .prep_names,
                                           show_legend = FALSE){
+    #visible binding NOTE
+    xmin = xmax = ymin = ymax = grp = NULL
     if(is.null(rect_colors)){
         rect_colors = c("#132B43",
                         "#56B1F7")
@@ -193,21 +197,21 @@ add_cluster_annotation.numeric = function(anno_ids,
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = anno_rle$values
-    p = ggplot2::ggplot(df_rects) +
-        ggplot2::coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
-        ggplot2::facet_grid(.~grp)
-    p = p + ggplot2::geom_rect(aes(
+    p = ggplot(df_rects) +
+        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
+        facet_grid(.~grp)
+    p = p + geom_rect(aes(
         xmin = xmin,
         xmax = xmax,
         ymin= ymin,
         ymax = ymax,
         fill = grp
     )) +
-        ggplot2::scale_fill_gradientn(colours = rect_colors) +
-        ggplot2::facet_grid(paste0(".~", cluster_)) +
-        ggplot2::labs(fill = cluster_)
+        scale_fill_gradientn(colours = rect_colors) +
+        facet_grid(paste0(".~", cluster_)) +
+        labs(fill = cluster_)
     if(!show_legend){
-        p = p + ggplot2::guides(fill = "none")
+        p = p + guides(fill = "none")
     }
     p + annotation_theme
 
@@ -226,6 +230,8 @@ add_cluster_annotation = function(anno_ids,
                                   annotation_theme = .annotation_theme,
                                   name_FUN = .prep_names,
                                   show_legend = FALSE){
+    #visible binding NOTE
+    xmin = xmax = ymin = ymax = grp = NULL
     if(is.data.frame(anno_ids)){#yes this could be replaced with S4 method dispatch
         if(is.numeric(anno_ids[[cluster_]])){
             argg <- as.list(environment())
@@ -267,32 +273,32 @@ add_cluster_annotation = function(anno_ids,
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = rownames(df_rects)
 
-    p = ggplot2::ggplot(df_rects) +
-        ggplot2::coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
-        ggplot2::facet_grid(.~grp)
-    p = p + ggplot2::geom_rect(ggplot2::aes(
+    p = ggplot(df_rects) +
+        coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
+        facet_grid(.~grp)
+    p = p + geom_rect(aes(
         xmin = xmin,
         xmax = xmax,
         ymin= ymin,
         ymax = ymax,
         fill = grp
     )) +
-        ggplot2::scale_fill_manual(values = rect_colors) +
-        ggplot2::facet_grid(paste0(".~", cluster_)) +
-        ggplot2::labs(fill = cluster_)
+        scale_fill_manual(values = rect_colors) +
+        facet_grid(paste0(".~", cluster_)) +
+        labs(fill = cluster_)
     if(show_labels){
         for(i in seq_len(nrow(df_rects))){
-            p = p + ggplot2::annotate("text",
+            p = p + annotate("text",
                              x = mean(c(df_rects$xmin[i], df_rects$xmax[i])),
                              y = mean(c(df_rects$ymin[i], df_rects$ymax[i])),
                              label = cluster_labels[i],
                              color = text_colors[rownames(df_rects)[i]],
                              angle = label_angle,
-                             size = text_size/ggplot2::.pt)
+                             size = text_size/.pt)
         }
     }
     if(!show_legend){
-        p = p + ggplot2::guides(fill = "none")
+        p = p + guides(fill = "none")
     }
     p + annotation_theme
 }

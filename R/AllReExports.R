@@ -12,8 +12,6 @@ assays = SummarizedExperiment::assays
 #' @export
 `assays<-` = SummarizedExperiment::`assays<-`
 #' @export
-Assays = SummarizedExperiment::`Assays`
-#' @export
 rowData = SummarizedExperiment::rowData
 #' @export
 colData = SummarizedExperiment::colData

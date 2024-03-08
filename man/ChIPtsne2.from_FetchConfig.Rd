@@ -30,7 +30,7 @@ A ChIPtsne2 created using profiles fetched used provided FetchConfig
 ChIPtsne2.from_FetchConfig
 }
 \examples{
-bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
+bam_cfg_f = exampleBamConfigFile()
 fetch_config = FetchConfig.load_config(bam_cfg_f)
 query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)

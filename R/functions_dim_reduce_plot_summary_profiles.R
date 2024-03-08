@@ -197,6 +197,8 @@ prep_summary = function (profile_dt,
                          region_VAR = "id",
                          color_VAR = "name",
                          extra_VARS = character()){
+    #visible binding NOTE
+    tx = ty = `:=` = bx = .N = plot_id = y_ = NULL
     position_dt = data.table::copy(position_dt[tx >= min(xrng) & tx <= max(xrng) &
                                                    ty >= min(yrng) & ty <= max(yrng)])
     position_dt = position_dt[get(region_VAR) %in% unique(profile_dt[[region_VAR]])]
@@ -220,7 +222,7 @@ prep_summary = function (profile_dt,
     data.table::setnames(summary_dt, "y_tmp_", value_VAR)
 
     merge_var_names = c(unique(c("bx", "by", intersect(extra_VARS, colnames(position_dt)))))
-    N_dt = position_dt[, .(.N), by = merge_var_names]
+    N_dt = position_dt[, list(.N), by = merge_var_names]
     summary_dt = merge(summary_dt, N_dt, by = merge_var_names)
     summary_dt[, `:=`(plot_id, paste(bx, by, sep = "_"))]
 
@@ -285,8 +287,9 @@ plot_summary_glyph = function (summary_dt,
                                position_VAR = "x",
                                value_VAR = "y",
                                color_VAR = "name",
-                               extra_VARS = character())
-{
+                               extra_VARS = character()){
+    #visible binding NOTE
+    tx = ty = `:=` = bx = glyph_group = NULL
     group_size = gx = gy = gid = NULL
     summary_dt = set_size(summary_dt, N_floor, N_ceiling, size.name = "group_size")
     if(nrow(summary_dt[group_size >= min_size]) == 0){
@@ -366,6 +369,8 @@ bin_values_centers = function (n_bins, rng){
 
 
 set_size = function (dt, N_floor, N_ceiling, size.name = "img_size"){
+    #visible binding NOTE
+    `:=` = N = NULL
     tmp_var = NULL
     stopifnot("N" %in% colnames(dt))
     if (is.null(N_ceiling)) {
