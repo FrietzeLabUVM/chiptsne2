@@ -37,5 +37,14 @@ setGeneric("transformSignal",
                standardGeneric("transformSignal"),
            signature = "ct2")
 
+#' transformSignal method for objects of class \code{ChIPtsne2_no_rowRanges}.
+#'
+#' @docType methods
+#' @name transformSignal-ChIPtsne2_no_rowRanges
+#' @rdname transformSignal-ChIPtsne2_no_rowRanges
+#' @aliases transformSignal-ChIPtsne2_no_rowRanges transformSignal,ChIPtsne2_no_rowRanges-method
+#'
+#' @param x A \code{ChIPtsne2_no_rowRanges} object.
+#'
 #' @export
 setMethod("transformSignal", c("ChIPtsne2_no_rowRanges"), .transformSignal)

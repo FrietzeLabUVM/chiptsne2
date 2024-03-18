@@ -2,6 +2,7 @@
 
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name_VAR){
     args = get_args()
     history_item = list(setNameVariable = list(FUN = setNameVariable, ARG = args))
@@ -25,6 +26,7 @@ setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name
 })
 
 #' @export
+#' @rdname ct2-getset
 setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name_VAR){
     args = get_args()
     history_item = list(swapNameVariable = list(FUN = swapNameVariable, ARG = args))
@@ -157,6 +159,7 @@ setMethod("getNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
 #### value_VAR ####
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_value_VAR){
     args = get_args()
     history_item = list(setValueVariable = list(FUN = setValueVariable, ARG = args))
@@ -168,6 +171,7 @@ setMethod("setValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_val
 
 
 #' @export
+#' @rdname ct2-getset
 setMethod("getValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
     ct2@value_VAR
 })
@@ -176,6 +180,7 @@ setMethod("getValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
 
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_region_VAR){
     args = get_args()
     history_item = list(setRegionVariable = list(FUN = setRegionVariable, ARG = args))
@@ -187,12 +192,14 @@ setMethod("setRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_re
 
 
 #' @export
+#' @rdname ct2-getset
 setMethod("getRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@region_VAR})
 
 #### position_VAR ####
 
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_position_VAR){
     args = get_args()
     history_item = list(setPositionVariable = list(FUN = setPositionVariable, ARG = args))
@@ -203,6 +210,7 @@ setMethod("setPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_
 
 
 #' @export
+#' @rdname ct2-getset
 setMethod("getPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@position_VAR})
 
 #### SampleMetaData ####

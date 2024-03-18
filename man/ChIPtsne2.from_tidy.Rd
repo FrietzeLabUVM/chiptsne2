@@ -40,6 +40,8 @@ ChIPtsne2.from_tidy(
 
 \item{obj_history}{Existing history for object, may be used to describe origin on prof_dt or query_gr.}
 
+\item{fetch_config}{A FetchConfig object. Optional. Allows signal to be fetched as needed.}
+
 \item{init}{If TRUE, initialize history with birthday, session_info, and chiptsne2_version}
 }
 \value{
@@ -49,8 +51,8 @@ ChIPtsne2 object with tsne results
 ChIPtsne2.from_tidy
 }
 \examples{
-query_gr = CTCF_in_10a_overlaps_gr
-prof_dt = CTCF_in_10a_profiles_dt
+query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr)
 ct2
 }

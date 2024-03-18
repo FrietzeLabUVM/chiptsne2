@@ -7,11 +7,18 @@
 ChIPtsne2.history(ct2)
 }
 \arguments{
-\item{ct2}{}
+\item{ct2}{A ChIPtsne2_no_rowRanges object.}
 }
 \value{
 list of history items
 }
 \description{
 ChIPtsne2.history
+}
+\examples{
+ct2 = exampleChIPtsne2.with_meta()
+ChIPtsne2.history(ct2)
+ct2 = setNameVariable(ct2, "name2")
+# the previous operation is now in the history
+ChIPtsne2.history(ct2)
 }

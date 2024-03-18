@@ -23,8 +23,8 @@ selIds = rownames(plot_ct2)[1:10]
   plot_ct2,
   tx_df,
   "line_color_selection",
-  selAttribute = "peak_MCF10A_CTCF", s
-  elIds = rownames(plot_ct2)[1:10]
+  selAttribute = "peak_MCF10A_CTCF",
+  selIds = rownames(plot_ct2)[1:10]
 )
 .shiny_secondary_plot(
   plot_ct2,

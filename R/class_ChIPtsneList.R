@@ -94,43 +94,52 @@ setMethod("lapply", c("ChIPtsne2List"), function(X, FUN, ...){
 })
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setNameVariable", c("ChIPtsne2List"), function(ct2, new_name_VAR){
     lapply(ct2, setNameVariable, new_name_VAR)
 })
 
 #' @export
+#' @rdname ct2-getset
 setMethod("swapNameVariable", c("ChIPtsne2List"), function(ct2, new_name_VAR){
     lapply(ct2, swapNameVariable, new_name_VAR)
 })
 
 #' @export
+#' @rdname ct2-getset
 setMethod("getNameVariable", c("ChIPtsne2List"), function(ct2){
     sapply(ct2, getNameVariable)
 })
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setValueVariable", c("ChIPtsne2List"), function(ct2, new_value_VAR){
     lapply(ct2, setValueVariable, new_value_VAR)
 })
 #' @export
+#' @rdname ct2-getset
 setMethod("getValueVariable", c("ChIPtsne2List"), function(ct2){
     sapply(ct2, getValueVariable)
 })
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setRegionVariable", c("ChIPtsne2List"), function(ct2, new_region_VAR){
     lapply(ct2, setRegionVariable, new_region_VAR)
 })
 #' @export
+#' @rdname ct2-getset
 setMethod("getRegionVariable", c("ChIPtsne2List"), function(ct2){
     sapply(ct2, getRegionVariable)
 })
 
 #' @export
+#' @rdname ct2-getset
 setMethod("setPositionVariable", c("ChIPtsne2List"), function(ct2, new_position_VAR){
     lapply(ct2, setPositionVariable, new_position_VAR)
 })
 #' @export
+#' @rdname ct2-getset
 setMethod("getPositionVariable", c("ChIPtsne2List"), function(ct2){
     sapply(ct2, getPositionVariable)
 })

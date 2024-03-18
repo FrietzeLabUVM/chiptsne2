@@ -7,7 +7,7 @@
 reportDimReduceMethod(ct2)
 }
 \arguments{
-\item{ct2}{}
+\item{ct2}{A ChIPtsne2_no_rowRanges object.}
 }
 \value{
 Character describing active dimReduction method.

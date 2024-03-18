@@ -7,12 +7,12 @@
 subsetCol(ct2, expr)
 }
 \arguments{
-\item{ct2}{\code{doc_ct2_nrr()}}
+\item{ct2}{A ChIPtsne2_no_rowRanges object.}
 
 \item{expr}{expression, indicating columns to select from sample/column metadata.}
 }
 \value{
-A subsetted \code{doc_ct2_nrr()}
+A subsetted A ChIPtsne2_no_rowRanges object.
 }
 \description{
 subsetCol

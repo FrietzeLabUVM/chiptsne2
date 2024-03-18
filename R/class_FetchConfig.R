@@ -58,7 +58,7 @@ setMethod("names", "FetchConfig",
 
           })
 
-
+#' @rdname FetchConfig
 setMethod("$", "FetchConfig",
           function(x, name)
           {
@@ -71,6 +71,7 @@ setMethod("$", "FetchConfig",
               )
           })
 
+#' @rdname FetchConfig
 setReplaceMethod("$", "FetchConfig",
                  function(x, name, value)
                  {
@@ -103,7 +104,7 @@ setReplaceMethod("$", "FetchConfig",
 #' @param read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
 #'   Use CT_READ_MODES$.
 #' @param view_size Consistent size to use when viewing assessment regions. Uses
-#'   CT_VIEW_SIZE option or 3kb as default.
+#'   3kb as default.
 #' @param window_size The window size used when fetching signal. Lower values
 #'   increase resolution but also RAM usage. Default is 200 bp.
 #' @param fetch_options Named list of additional arguments to pass to signal
@@ -114,16 +115,14 @@ setReplaceMethod("$", "FetchConfig",
 #' @export
 #' @rdname FetchConfig
 #' @examples
-#' bam_config_file = exampleBamConfigFile()
-#' bam_config_df = chiptsne2:::.parse_config_body(bam_config_file)
+#' bam_config_df = exampleBam_data.frame()
 #' sig_conf = FetchConfig(bam_config_df)
 #'
-#' bigwig_config_file = exampleBigWigConfigFile()
-#' bigwig_config_df = chiptsne2:::.parse_config_body(bigwig_config_file)
+#' bigwig_config_df = exampleBigWig_data.frame()
 #' sig_conf.bw = FetchConfig(bigwig_config_df)
 FetchConfig = function(config_df,
                        read_mode = NULL,
-                       view_size = getOption("CT_VIEW_SIZE", 3e3),
+                       view_size = 3e3,
                        window_size = 200,
                        fetch_options = list(),
                        is_null = FALSE,
@@ -213,7 +212,7 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 
     tfun = function(config_dt,
                     read_mode = NULL,
-                    view_size = getOption("CT_VIEW_SIZE", 3e3),
+                    view_size = 3e3,
                     window_size = getOption("CT_WINDOW_SIZE", 200),
                     fetch_options = list(),
                     is_null = FALSE,
@@ -257,7 +256,7 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 FetchConfig.from_files = function(file_paths,
                                   group_names = NULL,
                                   name_VAR = "name",
-                                  view_size = getOption("CT_VIEW_SIZE", 3e3),
+                                  view_size = 3e3,
                                   window_size = getOption("CT_WINDOW_SIZE", 200),
                                   read_mode = NULL,
                                   fetch_options = list()
@@ -406,8 +405,5 @@ FetchConfig.save_config = function(object, file){
     message(msg)
 }
 
-#' @param FetchConfig
-#'
 #' @export
-#' @rdname FetchConfig
 setMethod("show", "FetchConfig", definition = function(object).show_Config(object))

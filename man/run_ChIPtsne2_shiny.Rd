@@ -7,7 +7,7 @@
 run_ChIPtsne2_shiny(ct2)
 }
 \arguments{
-\item{ct2}{}
+\item{ct2}{A ChIPtsne2_no_rowRanges object.}
 }
 \value{
 ChIPtsne2 object modified with user's interactive annotations.

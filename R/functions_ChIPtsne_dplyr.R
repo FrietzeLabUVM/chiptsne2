@@ -3,10 +3,10 @@
 
 #' subsetRegions
 #'
-#' @param ct2 `doc_ct2_nrr()`
+#' @param ct2 `r doc_ct2_nrr()`
 #' @param expr expression, indicating columns to select from region/row metadata.
 #'
-#' @return A subsetted `doc_ct2_nrr()`
+#' @return A subsetted `r doc_ct2_nrr()`
 #' @export
 #'
 #' @examples
@@ -21,10 +21,10 @@ subsetRegions = function(ct2, expr){
 }
 #' subsetSamples
 #'
-#' @param ct2 `doc_ct2_nrr()`
+#' @param ct2 `r doc_ct2_nrr()`
 #' @param expr expression, indicating columns to select from sample/column metadata.
 #'
-#' @return A subsetted `doc_ct2_nrr()`
+#' @return A subsetted `r doc_ct2_nrr()`
 #' @export
 #'
 #' @examples
@@ -40,10 +40,10 @@ subsetSamples = function(ct2, expr){
 
 #' subsetRow
 #'
-#' @param ct2 `doc_ct2_nrr()`
+#' @param ct2 `r doc_ct2_nrr()`
 #' @param expr expression, indicating columns to select from region/row metadata.
 #'
-#' @return A subsetted `doc_ct2_nrr()`
+#' @return A subsetted `r doc_ct2_nrr()`
 #' @export
 #'
 #' @examples
@@ -61,10 +61,10 @@ subsetRow = function(ct2, expr){
 
 #' subsetCol
 #'
-#' @param ct2 `doc_ct2_nrr()`
+#' @param ct2 `r doc_ct2_nrr()`
 #' @param expr expression, indicating columns to select from sample/column metadata.
 #'
-#' @return A subsetted `doc_ct2_nrr()`
+#' @return A subsetted `r doc_ct2_nrr()`
 #' @export
 #'
 #' @examples

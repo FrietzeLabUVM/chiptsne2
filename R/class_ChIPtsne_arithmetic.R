@@ -1,4 +1,27 @@
+
+
+#' ChipTSNE2 arithmetic
+#' Arithmetic operators are supports for ChIPtsne2 and ChIPtsne2_no_rowRanges objects.
+#'
+#' +, -, *, and /
+#' @rdname ct2-op
 #' @importFrom utils sessionInfo
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = ct2[, c("MCF10A_CTCF", "MCF10AT1_CTCF")]
+#' ct2.by_cell = split(ct2, "cell")
+#' plotSignalLinePlot(ct2)
+#'
+#' #operators can be used on 2 ChIPtsne2_no_rowRanges objects or 1 object and a number
+#' ct2.diff = ct2.by_cell$MCF10A - ct2.by_cell$MCF10AT1
+#' plotSignalLinePlot(ct2.diff)
+#'
+#' # numeric operators work in either order
+#' ct2.2div10a = cbind(2 / (ct2.by_cell$MCF10A+1), ct2.by_cell$MCF10AT1)
+#' plotSignalLinePlot(ct2.2div10a)
+#' ct2.10adiv2 = cbind(ct2.by_cell$MCF10A / 2, ct2.by_cell$MCF10AT1)
+#' plotSignalLinePlot(ct2.10adiv2)
+#'
 apply_ChIPtsne2_operator = function(e1, e2, operator = "-"){
     if(!all(dim(e1) == dim(e2))){
         stop("ChIPtsne2 objects are not dimensionally compatible. Check dim() of each.")
@@ -114,6 +137,7 @@ apply_ChIPtsne2_operator = function(e1, e2, operator = "-"){
 }
 
 #' @importFrom utils sessionInfo
+#' @rdname ct2-op
 apply_ChIPtsne2_operator.num = function(e1, e2, operator = "-"){
     reverse_mode = FALSE
     if(is.numeric(e1)){
@@ -213,41 +237,52 @@ apply_ChIPtsne2_operator.num = function(e1, e2, operator = "-"){
 }
 
 
+
+#' @rdname ct2-op
 setMethod("-", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator(e1, e2, "-")
 })
+#' @rdname ct2-op
 setMethod("+", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator(e1, e2, "+")
 })
+#' @rdname ct2-op
 setMethod("/", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator(e1, e2, "/")
 })
+#' @rdname ct2-op
 setMethod("*", signature = c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator(e1, e2, "*")
 })
-
+#' @rdname ct2-op
 setMethod("-", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "-")
 })
+#' @rdname ct2-op
 setMethod("+", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "+")
 })
+#' @rdname ct2-op
 setMethod("/", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "/")
 })
+#' @rdname ct2-op
 setMethod("*", signature = c("ChIPtsne2_no_rowRanges", "numeric"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "*")
 })
-
+#' @rdname ct2-op
 setMethod("-", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "-")
 })
+#' @rdname ct2-op
 setMethod("+", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "+")
 })
+#' @rdname ct2-op
 setMethod("/", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "/")
 })
+#' @rdname ct2-op
 setMethod("*", signature = c("numeric", "ChIPtsne2_no_rowRanges"), definition = function(e1, e2){
     apply_ChIPtsne2_operator.num(e1, e2, "*")
 })

@@ -45,7 +45,19 @@
     ct2
 }
 
+#' dimReduceTSNE
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param perplexity Perplexity value for calculation of tSNE. Will be automatically reduced if too large. Default is 50.
+#' @param ... Additional arguments passed to [Rtsne::Rtsne]
+#'
+#' @return `r doc_ct2_nrr()` with tSNE coordinates added to region meta data.
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = dimReduceTSNE(ct2)
+#' ct2
 setGeneric("dimReduceTSNE", function(ct2, perplexity = 50, ...) standardGeneric("dimReduceTSNE"), signature = "ct2")
 
 #' @export
@@ -87,7 +99,20 @@ setMethod("dimReduceTSNE", c("ChIPtsne2_no_rowRanges"), .dimReduceTSNE)
     ct2
 }
 
+
+#' dimReduceUMAP
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param config Configuration used by umap package. Default is [umap::umap.defaults]
+#' @param ... Additional arguments passed to [umap::umap]
+#'
+#' @return `r doc_ct2_nrr()` with UMAP coordinates added to region meta data.
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = dimReduceUMAP(ct2)
+#' ct2
 setGeneric("dimReduceUMAP", function(ct2, config = umap::umap.defaults, ...) standardGeneric("dimReduceUMAP"), signature = "ct2")
 
 #' @export
@@ -124,7 +149,17 @@ setMethod("dimReduceUMAP", c("ChIPtsne2_no_rowRanges"), .dimReduceUMAP)
     ct2
 }
 
+#' dimReducePCA
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#'
+#' @return `r doc_ct2_nrr()` with PCA coordinates added to region meta data.
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = dimReducePCA(ct2)
+#' ct2
 setGeneric("dimReducePCA", function(ct2) standardGeneric("dimReducePCA"), signature = "ct2")
 
 #' @export
@@ -168,7 +203,7 @@ setMethod("dimReducePCA", c("ChIPtsne2_no_rowRanges"), .dimReducePCA)
 
 #' hasDimReduce
 #'
-#' @param ct2
+#' @param ct2  `r doc_ct2_nrr()`
 #'
 #' @return TRUE if input ct2 has coordinates from dimensional reduction data
 #' @export
@@ -185,7 +220,7 @@ hasDimReduce = function(ct2){
 
 #' reportDimReduceMethod
 #'
-#' @param ct2
+#' @param ct2 `r doc_ct2_nrr()`
 #'
 #' @return Character describing active dimReduction method.
 #' @export

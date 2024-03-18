@@ -12,7 +12,7 @@
 \S4method{rbind}{ChIPtsne2_no_rowRanges}(..., deparse.level = 1)
 }
 \arguments{
-\item{ChIPtsne2_no_rowRanges}{}
+\item{ChIPtsne2_no_rowRanges}{A ChIPtsne2_no_rowRanges object.}
 }
 \value{
 a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List

@@ -7,12 +7,24 @@
 \S4method{split}{ChIPtsne2_no_rowRanges,ANY}(x, f = NULL, drop = FALSE, ...)
 }
 \arguments{
-\item{ChIPtsne2_no_rowRanges}{}
+\item{x}{A ChIPtsne2_no_rowRanges object.}
+
+\item{f}{Either a row/region or column/sample specification in one of 2
+modes. 1) a metadata attribute present in colData or rowData. Or 2) a
+vector of the same length as rows or columns assigning groups to split into.}
+
+\item{drop}{As in base split, logical indicating if levels that do not occur should be dropped (if f is a factor or a list).}
+
+\item{...}{Not used. Will result in an error.}
+}
+\value{
+A ChIPtsne2List where each entry is grouping value specified by \code{f}.
 }
 \description{
 split-ChIPtsne2_no_rowRanges
 }
 \examples{
+ct2 = exampleChIPtsne2.with_meta()
 split(ct2, "sample")
 split(ct2, colnames(ct2))
 split(ct2, "cell")

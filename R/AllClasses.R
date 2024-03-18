@@ -1,7 +1,7 @@
 #' FetchConfig
 #'
 #' @slot view_size Consistent size to use when viewing assessment regions. Uses
-#'   CT_VIEW_SIZE option or 3kb as default.
+#'   3kb as default.
 #' @slot read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
 #'   Use CT_READ_MODES$.
 #' @slot fetch_options Named list of additional arguments to pass to signal

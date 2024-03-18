@@ -4,6 +4,8 @@
 \name{FetchConfig-class}
 \alias{FetchConfig-class}
 \alias{.FetchConfig}
+\alias{$,FetchConfig-method}
+\alias{$<-,FetchConfig-method}
 \alias{FetchConfig}
 \alias{FetchConfig.null}
 \alias{isFetchConfigNull}
@@ -11,13 +13,16 @@
 \alias{FetchConfig.from_files}
 \alias{fetch_signal_at_features}
 \alias{FetchConfig.save_config}
-\alias{show,FetchConfig-method}
 \title{FetchConfig}
 \usage{
+\S4method{$}{FetchConfig}(x, name)
+
+\S4method{$}{FetchConfig}(x, name) <- value
+
 FetchConfig(
   config_df,
   read_mode = NULL,
-  view_size = getOption("CT_VIEW_SIZE", 3000),
+  view_size = 3000,
   window_size = 200,
   fetch_options = list(),
   is_null = FALSE,
@@ -34,7 +39,7 @@ FetchConfig.from_files(
   file_paths,
   group_names = NULL,
   name_VAR = "name",
-  view_size = getOption("CT_VIEW_SIZE", 3000),
+  view_size = 3000,
   window_size = getOption("CT_WINDOW_SIZE", 200),
   read_mode = NULL,
   fetch_options = list()
@@ -43,8 +48,6 @@ FetchConfig.from_files(
 fetch_signal_at_features(fetch_config, query_gr, bfc = NULL)
 
 FetchConfig.save_config(object, file)
-
-\S4method{show}{FetchConfig}(object)
 }
 \arguments{
 \item{config_df}{A data.frame containing configuration information for signal
@@ -77,8 +80,6 @@ fetch function.}
 \item{cfg}{A FetchConfig object}
 
 \item{group_colors}{vector of colors to use per group}
-
-\item{FetchConfig}{}
 }
 \value{
 A FetchConfig object
@@ -115,7 +116,7 @@ FetchConfig.save_config
 
 \describe{
 \item{\code{view_size}}{Consistent size to use when viewing assessment regions. Uses
-CT_VIEW_SIZE option or 3kb as default.}
+3kb as default.}
 
 \item{\code{read_mode}}{Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
 Use CT_READ_MODES$.}
@@ -125,12 +126,10 @@ fetch function.}
 }}
 
 \examples{
-bam_config_file = exampleBamConfigFile()
-bam_config_df = chiptsne2:::.parse_config_body(bam_config_file)
+bam_config_df = exampleBam_data.frame()
 sig_conf = FetchConfig(bam_config_df)
 
-bigwig_config_file = exampleBigWigConfigFile()
-bigwig_config_df = chiptsne2:::.parse_config_body(bigwig_config_file)
+bigwig_config_df = exampleBigWig_data.frame()
 sig_conf.bw = FetchConfig(bigwig_config_df)
 FetchConfig.null()
 cfg.null = FetchConfig.null()

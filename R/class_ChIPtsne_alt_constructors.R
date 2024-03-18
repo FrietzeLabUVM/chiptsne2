@@ -10,6 +10,7 @@
 #' @param region_metadata Metadata to append to rowRanges, mcols of query_gr will also be used.
 #' @param auto_sample_metadata If true, additional attributes in prof_dt will used for metadata (minus certain region related attributes such as seqnames, start, end, etc.)
 #' @param obj_history Existing history for object, may be used to describe origin on prof_dt or query_gr.
+#' @param fetch_config A FetchConfig object. Optional. Allows signal to be fetched as needed.
 #' @param init If TRUE, initialize history with birthday, session_info, and chiptsne2_version
 #'
 #' @return ChIPtsne2 object with tsne results
@@ -18,8 +19,8 @@
 #' @export
 #'
 #' @examples
-#' query_gr = CTCF_in_10a_overlaps_gr
-#' prof_dt = CTCF_in_10a_profiles_dt
+#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr)
 #' ct2
 ChIPtsne2.from_tidy = function(prof_dt,
@@ -261,10 +262,17 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
 
 #' ChIPtsne2.history
 #'
-#' @param ct2
+#' @param ct2 `r doc_ct2_nrr()`
 #'
 #' @return list of history items
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ChIPtsne2.history(ct2)
+#' ct2 = setNameVariable(ct2, "name2")
+#' # the previous operation is now in the history
+#' ChIPtsne2.history(ct2)
 ChIPtsne2.history = function(ct2){
     ct2@metadata
 }

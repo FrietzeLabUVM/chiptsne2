@@ -3,11 +3,20 @@
 
 #### Constructor ####
 
+#' ChIPtsne2_no_rowRanges
+#'
+#' This is the base class for ChIPtsne2. Both classes support `rowData` but only
+#' ChIPtsne2 provides `rowRanges` and is therefore suitable for `GenomicRanges`
+#' functions.
+#'
+#' ChIPtsne2 object may be converted to ChIPtsne2_no_rowRanges simply by NULL
+#' assignment to rowRagnes. i.e. rowRanges(ct2) = NULL.
+#'
 #' @export
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom GenomicRanges mcols
-ChIPtsne2_no_rowRanges <- function(
+ChIPtsne2_no_rowRanges = function(
         rowToRowMat=matrix(0,0,0),
         colToRowMatCols=list(),
         name_VAR = "sample",
@@ -18,7 +27,7 @@ ChIPtsne2_no_rowRanges <- function(
         ...)
 {
     se <- SummarizedExperiment(...)
-    ChIPtsne2_no_rowRanges(se,
+    .ChIPtsne2_no_rowRanges(se,
                rowToRowMat = rowToRowMat,
                colToRowMatCols = colToRowMatCols,
                name_VAR = name_VAR,
@@ -161,12 +170,18 @@ ct2_nrr_index_accessor = function(x, i, j, drop=TRUE) {
                                 colToRowMatCols = c2rrm,
                                 check=FALSE)
 }
+#' ChIPtsne2_no_rowRanges array-like access
+#'
 #' @export
 setMethod("[", "ChIPtsne2_no_rowRanges", ct2_nrr_index_accessor)
 
 #### split ####
 
 ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
+    extra_args = list(...)
+    if(length(extra_args) > 0){
+        stop("Additional arguments (...) are not allowed for ChIPtsne2_no_rowRanges split.")
+    }
     mode = "by_column"
     sample_meta_data = getSampleMetaData(x)
     region_meta_data = getRegionMetaData(x)
@@ -176,9 +191,9 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
     }
     if(length(f) == 1){
         if(f %in% colnames(sample_meta_data)){
-            f = split(rownames(sample_meta_data), sample_meta_data[[f]])
+            f = split(rownames(sample_meta_data), sample_meta_data[[f]], drop = drop)
         }else if(f %in% colnames(region_meta_data)){
-            f = split(region_meta_data[[x@region_VAR]], region_meta_data[[f]])
+            f = split(region_meta_data[[x@region_VAR]], region_meta_data[[f]], drop = drop)
             mode = "by_row"
         }
     }else{
@@ -186,9 +201,9 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
             stop("Cannot unambiguously split ChIPtsne2_no_rowRanges using a vector when ncol == nrow. Try using a row or column attribute name.")
         }
         if(length(f) == ncol(x)){
-            f = split(colnames(x), f)
+            f = split(colnames(x), f, drop = drop)
         }else if(length(f) == nrow(x)){
-            f = split(rownames(x), f)
+            f = split(rownames(x), f, drop = drop)
             mode = "by_row"
         }
     }
@@ -203,10 +218,18 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
 
 #' split-ChIPtsne2_no_rowRanges
 #'
-#' @param ChIPtsne2_no_rowRanges
+#' @param x `r doc_ct2_nrr()`
+#' @param f Either a row/region or column/sample specification in one of 2
+#'   modes. 1) a metadata attribute present in colData or rowData. Or 2) a
+#'   vector of the same length as rows or columns assigning groups to split into.
+#' @param drop As in base split, logical indicating if levels that do not occur should be dropped (if f is a factor or a list).
+#' @param ... Not used. Will result in an error.
+#'
+#' @returns A ChIPtsne2List where each entry is grouping value specified by `f`.
 #'
 #' @export
 #' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
 #' split(ct2, "sample")
 #' split(ct2, colnames(ct2))
 #' split(ct2, "cell")
@@ -262,7 +285,7 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
 
 #' cbind-ChIPtsne2_no_rowRanges
 #'
-#' @param ChIPtsne2_no_rowRanges
+#' @param ChIPtsne2_no_rowRanges `r doc_ct2_nrr()`
 #'
 #' @return a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List
 #' @export
@@ -311,7 +334,7 @@ ct2_nrr_rbind = function(..., deparse.level=1) {
 #### rbind ####
 #' rbind-ChIPtsne2_no_rowRanges
 #'
-#' @param ChIPtsne2_no_rowRanges
+#' @param ChIPtsne2_no_rowRanges `r doc_ct2_nrr()`
 #'
 #' @return a ChIPtsne2 object of concatenated rows/regions of all items in input ChIPtsne2List
 #' @export

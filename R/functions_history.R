@@ -8,26 +8,7 @@
     FALSE
 }
 
-#' rerun_history
-#'
-#' @param ct2  A ChIPtsne2 object to apply history too.
-#' @param history_source list of history items or a ChIPtsne2 object to pull history from.
-#'
-#' @return Input ct2 with all functions from history_source applied.
-#'
-#' @examples
-#' library(tidyverse)
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
-#' prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
-#' meta_dt = prof_dt %>%
-#'   select(sample) %>%
-#'   unique %>%
-#'   separate(sample, c("cell", "mark"), remove = FALSE)
-#' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
-#' ct2.c = chiptsne2:::.centerProfilesAndTrim(ct2, view_size = 500)
-#' rerun_history(ct2, ct2.c)
-#' rerun_history(ct2, ChIPtsne2.history(ct2.c))
+
 .rerun_history = function(ct2, history_source){
     if(!is.list(history_source)){
         history_source = ChIPtsne2.history(history_source)
@@ -40,7 +21,27 @@
     ct2
 }
 
+
+#' rerun_history
+#'
+#' @param ct2  A ChIPtsne2 object to apply history too.
+#' @param history_source list of history items or a ChIPtsne2 object to pull history from.
+#'
+#' @return Input ct2 with all functions from history_source applied.
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2.c = centerProfilesAndTrim(ct2, view_size = 2e3)
+#' ChIPtsne2.history(ct2.c)
+#' #histories can be rerun just by supplying a source ct2 object
+#' ct2.c_re1 = rerun_history(ct2, history_source = ct2.c)
+#' ChIPtsne2.history(ct2.c_re1)
+#' hist_src = ChIPtsne2.history(ct2.c)
+#' #you can also supply the history items list, potentially modifying entries like so
+#' hist_src$centerProfilesAndTrim$ARG$view_size = 1000
+#' ct2.c_re2 = rerun_history(ct2, history_source = hist_src)
+#' ChIPtsne2.history(ct2.c_re2)
 setGeneric("rerun_history", function(ct2, history_source) standardGeneric("rerun_history"))
 
 #' @export

@@ -103,3 +103,35 @@ exampleBamConfigFile = function(){
 exampleBigWigConfigFile = function(){
     system.file("extdata/bigwig_config.csv", package = "chiptsne2", mustWork = TRUE)
 }
+
+#' exampleBam_data.frame
+#'
+#' @return data.frame with example bam files and metadata.
+#' @export
+#'
+#' @examples
+#' exampleBam_data.frame()
+exampleBam_data.frame = function(){
+    bam_config_file = exampleBamConfigFile()
+    bam_config_df = .parse_config_body(bam_config_file)
+    pkg_dir = system.file(package = "chiptsne2", "extdata", mustWork = TRUE)
+    bam_config_df$file = file.path(pkg_dir, bam_config_df$file)
+    bam_config_df
+
+
+}
+
+#' exampleBigWig_data.frame
+#'
+#' @return data.frame with example bigWig files and metadata.
+#' @export
+#'
+#' @examples
+#' exampleBigWig_data.frame()
+exampleBigWig_data.frame = function(){
+    bigwig_config_file = exampleBigWigConfigFile()
+    bigwig_config_df = .parse_config_body(bigwig_config_file)
+    pkg_dir = system.file(package = "chiptsne2", "extdata", mustWork = TRUE)
+    bigwig_config_df$file = file.path(pkg_dir, bigwig_config_df$file)
+    bigwig_config_df
+}
