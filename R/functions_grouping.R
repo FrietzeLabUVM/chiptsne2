@@ -1,24 +1,29 @@
 #### signal clustering ####
 
-.groupRegionsBySignalCluster = function(ct2, group_VAR = "cluster_id", n_clusters = 6){
+.groupRegionsBySignalCluster = function(ct2, group_VAR = "cluster_id", n_clusters = 6, iter.max = 30){
     message("groupRegionsBySignalCluster ...")
     args = get_args()
-    prof_dt = getTidyProfile(ct2)
-    clust_dt = suppressMessages({
-        seqsetvis::ssvSignalClustering(
-            prof_dt,
-            cluster_ = group_VAR,
-            nclust = n_clusters,
-            fill_ =ct2@value_VAR,
-            facet_ = ct2@name_VAR,
-            column_ = ct2@position_VAR,
-            row_ = ct2@region_VAR,
-            max_rows = Inf,
-            max_cols = Inf)
-    })
-    assign_dt = clust_dt %>%
-        dplyr::select(dplyr::all_of(c(group_VAR, ct2@region_VAR))) %>%
-        unique
+    # prof_dt = getTidyProfile(ct2)
+    # clust_dt = suppressMessages({
+    #     seqsetvis::ssvSignalClustering(
+    #         prof_dt,
+    #         cluster_ = group_VAR,
+    #         nclust = n_clusters,
+    #         fill_ =ct2@value_VAR,
+    #         facet_ = ct2@name_VAR,
+    #         column_ = ct2@position_VAR,
+    #         row_ = ct2@region_VAR,
+    #         max_rows = Inf,
+    #         max_cols = Inf)
+    # })
+    # assign_dt = clust_dt %>%
+    #     dplyr::select(dplyr::all_of(c(group_VAR, ct2@region_VAR))) %>%
+    #     unique
+    assign_dt = seqsetvis::clusteringKmeansNestedHclust(ct2@rowToRowMat,
+                                             nclust = n_clusters,
+                                             iter.max = iter.max)
+    data.table::setnames(assign_dt, c(ct2@region_VAR, group_VAR))
+
 
     history_item = list(groupRegionsBySignalCluster = list(FUN = .groupRegionsBySignalCluster, ARG = args))
     cloneChIPtsne2_fromTidy(
@@ -43,7 +48,7 @@
 #' ct2 = groupRegionsBySignalCluster(ct2)
 #' ct2 = groupRegionsBySignalCluster(ct2)
 setGeneric("groupRegionsBySignalCluster",
-           function(ct2, group_VAR = "cluster_id", n_clusters = 6)
+           function(ct2, group_VAR = "cluster_id", n_clusters = 6, iter.max = 30)
                standardGeneric("groupRegionsBySignalCluster"),
            signature = "ct2")
 

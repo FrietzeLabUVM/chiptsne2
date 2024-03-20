@@ -85,3 +85,128 @@ subsetCol = function(ct2, expr){
 #     subset(.data, ...)
 # }
 
+#
+
+#' mutateSamples
+#'
+#' Should work just like [dplyr::mutate] but applied to colData/sample metadata of ChIPtsne2 objects.
+#'
+#' @param .data See [dplyr::mutate]
+#' @param ... Passed to [dplyr::mutate]
+#'
+#' @return A `r doc_ct2_nrr()` with modified colData/sample metadata.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' colData(ct2)
+#' getSampleMetaData(ct2)
+#' ct2 = mutateSamples(ct2, cell_mark = paste(cell, mark))
+#' colData(ct2)
+#' getSampleMetaData(ct2)
+mutateSamples = function(.data, ...){
+    colData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(.data)), ...))
+    .data
+}
+
+#' mutateRegions
+#'
+#' Should work just like [dplyr::mutate] but applied to rowData/region metadata of ChIPtsne2 objects.
+#'
+#' @param .data See [dplyr::mutate]
+#' @param ... Passed to [dplyr::mutate]
+#'
+#' @return A `r doc_ct2_nrr()` with modified rowData/region metadata.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' rowData(ct2)
+#' getRegionMetaData(ct2)
+#' ct2 = mutateRegions(ct2, new_col = peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
+#' rowData(ct2)
+#' getRegionMetaData(ct2)
+mutateRegions = function(.data, ...){
+    rowData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(rowData(.data)), ...))
+    .data
+}
+
+#' separateSamples
+#'
+#' Should work just like [tidyr::separate] but applied to colData/sample metadata of ChIPtsne2 objects.
+#'
+#' @param data See [tidyr::separate]
+#' @param col See [tidyr::separate]
+#' @param into See [tidyr::separate]
+#' @param sep See [tidyr::separate]
+#' @param remove See [tidyr::separate]
+#' @param convert See [tidyr::separate]
+#' @param extra See [tidyr::separate]
+#' @param fill See [tidyr::separate]
+#' @param ... Passed to [tidyr::separate]
+#'
+#' @return A `r doc_ct2_nrr()` with modified colData/sample metadata.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' colData(ct2)
+#' getSampleMetaData(ct2)
+#' ct2 = separateSamples(ct2, "cell_mark", c("v1", "v2"), sep = " ", remove = FALSE)
+#' colData(ct2)
+#' getSampleMetaData(ct2)
+separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
+                        convert = FALSE, extra = "warn", fill = "warn", ...){
+    colData(data) = S4Vectors::DataFrame(tidyr::separate(
+        as.data.frame(colData(data)),
+        col = col,
+        into = into,
+        sep = sep,
+        remove = remove,
+        convert = convert,
+        extra = extra,
+        fill = fill,
+        ...))
+    data
+}
+
+#' separateRegions
+#'
+#' Should work just like [tidyr::separate] but applied to rowData/region metadata of ChIPtsne2 objects.
+#'
+#' @param data See [tidyr::separate]
+#' @param col See [tidyr::separate]
+#' @param into See [tidyr::separate]
+#' @param sep See [tidyr::separate]
+#' @param remove See [tidyr::separate]
+#' @param convert See [tidyr::separate]
+#' @param extra See [tidyr::separate]
+#' @param fill See [tidyr::separate]
+#' @param ... Passed to [tidyr::separate]
+#'
+#' @return A `r doc_ct2_nrr()` with modified rowData/region metadata.
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' rowData(ct2)
+#' getRegionMetaData(ct2)
+#' ct2 = mutateRegions(ct2, col_ab = paste("a", "b"))
+#' ct2 = separateRegions(ct2, "col_ab", c("a", "b"), sep = " ", remove = FALSE)
+#' rowData(ct2)
+#' getRegionMetaData(ct2)
+separateRegions = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
+                        convert = FALSE, extra = "warn", fill = "warn", ...){
+    rowData(data) = S4Vectors::DataFrame(tidyr::separate(
+        as.data.frame(rowData(data)),
+        col = col,
+        into = into,
+        sep = sep,
+        remove = remove,
+        convert = convert,
+        extra = extra,
+        fill = fill,
+        ...))
+    data
+}
+

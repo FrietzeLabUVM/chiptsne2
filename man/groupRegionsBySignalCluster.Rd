@@ -4,7 +4,12 @@
 \alias{groupRegionsBySignalCluster}
 \title{groupRegionsBySignalCluster}
 \usage{
-groupRegionsBySignalCluster(ct2, group_VAR = "cluster_id", n_clusters = 6)
+groupRegionsBySignalCluster(
+  ct2,
+  group_VAR = "cluster_id",
+  n_clusters = 6,
+  iter.max = 30
+)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object.}

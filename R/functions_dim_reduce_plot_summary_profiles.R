@@ -21,11 +21,9 @@
     value_VAR = ct2@value_VAR
     region_VAR = ct2@region_VAR
 
-    profile_dt = getTidyProfile(ct2, meta_VARS = TRUE)
-    cn = colnames(getSampleMetaData(ct2))
+    profile_dt = getTidyProfile(ct2, meta_VARS = unique(c(ct2@name_VAR, extra_VARS, color_VAR)))
     profile_dt = profile_dt[order(get(ct2@position_VAR))]
-    position_dt = data.table::as.data.table(getRegionMetaData(ct2))
-    extra_VARS = union(extra_VARS, cn)
+    position_dt = data.table::as.data.table(getRegionMetaData(ct2, select_VARS = c("tx", "ty")))
 
     stopifnot(length(value_limits) == 2)
     if(is.na(value_limits[1])){
@@ -49,7 +47,6 @@
         msg = paste0(round(100*(top_wasted + bottom_wasted)/limits_total, 2), "% of value_limits spans no signal value. Please verify.")
         warning(msg)
     }
-
     plot_summary_profiles(
         profile_dt = profile_dt,
         position_dt = position_dt,
@@ -213,12 +210,13 @@ prep_summary = function (profile_dt,
                        by = intersect(colnames(profile_dt), c(region_VAR)))
     if (is.null(summary_dt[[color_VAR]]))
         summary_dt[[color_VAR]] = "signal"
-    if (is.null(facet_by)) {
-        summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, extra_VARS)))]
-    }
-    else {
+    # think NULL facet_by is fine here
+    # if (is.null(facet_by)) {
+    #     summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, extra_VARS)))]
+    # }
+    # else {
         summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, facet_by, extra_VARS)))]
-    }
+    # }
     data.table::setnames(summary_dt, "y_tmp_", value_VAR)
 
     merge_var_names = c(unique(c("bx", "by", intersect(extra_VARS, colnames(position_dt)))))
@@ -230,7 +228,7 @@ prep_summary = function (profile_dt,
     summary_dt = summary_dt[order(get(position_VAR))][order(get(color_VAR))][order(plot_id)]
 
     if(ma_size > 1){
-        summary_dt[, y_ := applyMovingAverage(x = get(value_VAR), ma_size), c("plot_id", color_VAR)]
+        summary_dt[, y_ := applyMovingAverage(x = get(value_VAR), ma_size), c("plot_id", color_VAR, facet_by, extra_VARS)]
         summary_dt[[value_VAR]] = NULL
         data.table::setnames(summary_dt, "y_", value_VAR)
     }
@@ -241,7 +239,7 @@ prep_summary = function (profile_dt,
                 n_splines,
                 x_ = position_VAR,
                 y_ = value_VAR,
-                by_ = c("plot_id", color_VAR))
+                by_ = c("plot_id", color_VAR, facet_by, extra_VARS))
         })
     }
 

@@ -115,11 +115,48 @@ setReplaceMethod("$", "FetchConfig",
 #' @export
 #' @rdname FetchConfig
 #' @examples
+#' #loading a config from a file
+#' bam_config_file = exampleBamConfigFile()
+#' bam_config = FetchConfig.load_config(bam_config_file)
+#' #FetchConfig.save_config(bam_config, "bam_config.csv")
+#'
+#' bigwig_config_file = exampleBigWigConfigFile()
+#' bigwig_config = FetchConfig.load_config(bigwig_config_file)
+#' #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
+#'
+#' #creating config from a new data.frame
 #' bam_config_df = exampleBam_data.frame()
 #' sig_conf = FetchConfig(bam_config_df)
 #'
 #' bigwig_config_df = exampleBigWig_data.frame()
 #' sig_conf.bw = FetchConfig(bigwig_config_df)
+#'
+#' cfg.null = FetchConfig.null()
+#' isFetchConfigNull(cfg.null)
+#'
+#' #creating a config from simple file paths
+#'
+#' bam_files = dir(
+#'   system.file(
+#'     package = "ssvQC",
+#'     "extdata"),
+#'   pattern = "CTCF.+bam$",
+#'   full.names = TRUE
+#' )
+#'
+#' FetchConfig.from_files(bam_files)
+#'
+#' FetchConfig.from_files(bam_files,
+#'   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
+#' )
+#'
+#' Using a config to fetch
+#' bam_config_file = exampleBamConfigFile()
+#' fetch_config = FetchConfig.load_config(bam_config_file)
+#'
+#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
+#'
 FetchConfig = function(config_df,
                        read_mode = NULL,
                        view_size = 3e3,
@@ -152,8 +189,6 @@ FetchConfig = function(config_df,
 #' @return A null/empty FetchConfig object
 #' @export
 #' @rdname FetchConfig
-#' @examples
-#' FetchConfig.null()
 FetchConfig.null = function(){
     qc = suppressWarnings({FetchConfig(data.frame(file = "null", name = "null", name_split = "null", stringsAsFactors = FALSE), is_null = TRUE)})
     qc
@@ -166,10 +201,6 @@ FetchConfig.null = function(){
 #' @return TRUE if object is null placeholder
 #' @export
 #' @rdname FetchConfig
-#'
-#' @examples
-#' cfg.null = FetchConfig.null()
-#' isFetchConfigNull(cfg.null)
 isFetchConfigNull = function(fetch_config){
     fetch_config@is_null
 }
@@ -179,12 +210,6 @@ isFetchConfigNull = function(fetch_config){
 #' @return A FetchConfig object
 #' @export
 #' @rdname FetchConfig
-#' @examples
-#' bam_config_file = exampleBamConfigFile()
-#' FetchConfig.load_config(bam_config_file)
-#'
-#' bigwig_config_file = exampleBigWigConfigFile()
-#' FetchConfig.load_config(bigwig_config_file)
 FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
     cfg_vals = .parse_config_header(signal_config_file)
     if(!is.null(cfg_vals$name_VAR)){
@@ -240,19 +265,6 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 #' @return a FetchConfig object
 #' @export
 #' @rdname FetchConfig
-#' @examples
-#' bam_files = dir(
-#'   system.file(
-#'     package = "ssvQC",
-#'     "extdata"),
-#'   pattern = "CTCF.+bam$",
-#'   full.names = TRUE
-#' )
-#' object = FetchConfig.from_files(bam_files)
-#'
-#' object2 = FetchConfig.from_files(bam_files,
-#'   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
-#' )
 FetchConfig.from_files = function(file_paths,
                                   group_names = NULL,
                                   name_VAR = "name",
@@ -305,12 +317,6 @@ get_fetch_fun = function(read_mode){
 #'   center_signal_at_max or flip_signal_mode in the signal config.
 #' @rdname FetchConfig
 #' @export
-#' @examples
-#' bam_config_file = exampleBamConfigFile()
-#' fetch_config = FetchConfig.load_config(bam_config_file)
-#'
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
 fetch_signal_at_features = function(fetch_config, query_gr, bfc = NULL){
     extra_args = fetch_config@fetch_options
     ### JRB commenting out for now. user provided fragLens should be used.
@@ -360,14 +366,6 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = NULL){
 #' @return Invisibly returns path to saved config file.
 #' @export
 #' @rdname FetchConfig
-#' @examples
-#' bam_config_file = exampleBamConfigFile()
-#' bam_config = FetchConfig.load_config(bam_config_file)
-#' #FetchConfig.save_config(bam_config, "bam_config.csv")
-#'
-#' bigwig_config_file = exampleBigWigConfigFile()
-#' bigwig_config = FetchConfig.load_config(bigwig_config_file)
-#' #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
 FetchConfig.save_config = function(object, file){
     slots_to_save = c(
         "view_size",

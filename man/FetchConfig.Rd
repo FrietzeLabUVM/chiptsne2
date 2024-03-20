@@ -126,36 +126,7 @@ fetch function.}
 }}
 
 \examples{
-bam_config_df = exampleBam_data.frame()
-sig_conf = FetchConfig(bam_config_df)
-
-bigwig_config_df = exampleBigWig_data.frame()
-sig_conf.bw = FetchConfig(bigwig_config_df)
-FetchConfig.null()
-cfg.null = FetchConfig.null()
-isFetchConfigNull(cfg.null)
-bam_config_file = exampleBamConfigFile()
-FetchConfig.load_config(bam_config_file)
-
-bigwig_config_file = exampleBigWigConfigFile()
-FetchConfig.load_config(bigwig_config_file)
-bam_files = dir(
-  system.file(
-    package = "ssvQC",
-    "extdata"),
-  pattern = "CTCF.+bam$",
-  full.names = TRUE
-)
-object = FetchConfig.from_files(bam_files)
-
-object2 = FetchConfig.from_files(bam_files,
-  group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
-)
-bam_config_file = exampleBamConfigFile()
-fetch_config = FetchConfig.load_config(bam_config_file)
-
-query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
+#loading a config from a file
 bam_config_file = exampleBamConfigFile()
 bam_config = FetchConfig.load_config(bam_config_file)
 #FetchConfig.save_config(bam_config, "bam_config.csv")
@@ -163,4 +134,38 @@ bam_config = FetchConfig.load_config(bam_config_file)
 bigwig_config_file = exampleBigWigConfigFile()
 bigwig_config = FetchConfig.load_config(bigwig_config_file)
 #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
+
+#creating config from a new data.frame
+bam_config_df = exampleBam_data.frame()
+sig_conf = FetchConfig(bam_config_df)
+
+bigwig_config_df = exampleBigWig_data.frame()
+sig_conf.bw = FetchConfig(bigwig_config_df)
+
+cfg.null = FetchConfig.null()
+isFetchConfigNull(cfg.null)
+
+#creating a config from simple file paths
+
+bam_files = dir(
+  system.file(
+    package = "ssvQC",
+    "extdata"),
+  pattern = "CTCF.+bam$",
+  full.names = TRUE
+)
+
+FetchConfig.from_files(bam_files)
+
+FetchConfig.from_files(bam_files,
+  group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
+)
+
+Using a config to fetch
+bam_config_file = exampleBamConfigFile()
+fetch_config = FetchConfig.load_config(bam_config_file)
+
+query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
+
 }

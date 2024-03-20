@@ -1,7 +1,7 @@
 .prep_color_scale = function(values, has_symmetrical_limits = NULL, color_scale = NULL){
     if(is.numeric(values)){
         if(is.null(color_scale)){
-            apply_symm = any(values < 0)
+            apply_symm = any(values < 0, na.rm = TRUE)
             if(!is.null(has_symmetrical_limits)){
                 apply_symm = has_symmetrical_limits
             }
@@ -58,12 +58,19 @@
     if(is(color_scale, "Scale")){
         p = p + color_scale
     }else{
-        if(fill){
-            p = p + ggplot2::scale_fill_gradientn(colours = color_scale, limits = scale_limits)
+        if(!is.null(names(color_scale))){
+            if(fill){
+                p = p + scale_fill_manual(values = color_scale)
+            }else{
+                p = p + scale_color_manual(values = color_scale)
+            }
         }else{
-            p = p + ggplot2::scale_color_gradientn(colours = color_scale, limits = scale_limits)
+            if(fill){
+                p = p + ggplot2::scale_fill_gradientn(colours = color_scale, limits = scale_limits)
+            }else{
+                p = p + ggplot2::scale_color_gradientn(colours = color_scale, limits = scale_limits)
+            }
         }
-
     }
     p
 }

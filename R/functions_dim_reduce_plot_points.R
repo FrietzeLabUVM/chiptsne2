@@ -48,7 +48,6 @@
         }
         df
     }
-
     background_FUN = function(p){
         if(!is.null(background_annotation_color)){
             bg_df = unique(xy_df[, c("tx", "ty")])
@@ -56,7 +55,6 @@
         }
         p
     }
-
     if(all(is.na(color_VAR))){
         xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
         p = ggplot(xy_df, aes(x = tx, y = ty))
@@ -70,8 +68,8 @@
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = "group")
         xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
         point_colors = .prep_color_scale(xy_df$value, color_scale = point_colors)
-        p = ggplot(xy_df, aes(x = tx, y = ty, color = value)) +
-            scale_color_manual(values = point_colors)
+        p = ggplot(xy_df, aes(x = tx, y = ty, color = value))
+        p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
         p = underlayer_FUN(p)
         p = background_FUN(p)
         p = p +
@@ -84,6 +82,7 @@
         signal_df[[ct2@region_VAR]] = rownames(signal_df)
         xy_df = merge(xy_df, signal_df, by = ct2@region_VAR)
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = ct2@name_VAR, values_to = "max")
+        xy_df[[ct2@name_VAR]] = factor(xy_df[[ct2@name_VAR]], levels = colnames(ct2))
         point_colors = .prep_color_scale(xy_df$max, has_symmetrical_limits, point_colors)
         point_color_limits = .prep_symmetrical(xy_df$max, has_symmetrical_limits, point_color_limits)
         xy_df$max = .apply_limits(xy_df$max, point_color_limits)

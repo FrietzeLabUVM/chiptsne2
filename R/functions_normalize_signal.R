@@ -137,7 +137,12 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2_no_rowRanges"), .normalizeSign
                                  by1 = ct2@region_VAR,
                                  by2 = ct2@name_VAR,
                                  aggFUN2 = function(x)stats::quantile(x, cap_quantile))
-    new_meta_dt = merge(getSampleMetaData(ct2), cap_dt, by = ct2@name_VAR)
+
+    # remove signal_cap_VAR if present to overwrite
+    old_meta_dt = getSampleMetaData(ct2)
+    old_meta_dt = old_meta_dt[, setdiff(colnames(old_meta_dt), signal_cap_VAR), drop = FALSE]
+
+    new_meta_dt = merge(old_meta_dt, cap_dt, by = ct2@name_VAR)
     new_meta_dt = new_meta_dt[order(new_meta_dt[[ct2@name_VAR]]), ]
 
     history_item = list(calculateSignalCapValue = list(FUN = .calculateSignalCapValue, ARG = args))
