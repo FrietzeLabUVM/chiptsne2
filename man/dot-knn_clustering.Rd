@@ -24,5 +24,5 @@ cluster assignment table for xy_df based on tx and ty coordinates
 \examples{
 xy_df = data.frame(tx = runif(100), ty = runif(100))
 xy_df$id = paste0("id_", seq_len(nrow(xy_df)))
-.knn_clustering(xy_df, 20)
+chiptsne2:::.knn_clustering(xy_df, 20)
 }

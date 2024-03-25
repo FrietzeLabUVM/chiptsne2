@@ -39,8 +39,8 @@
     history_item = list(normalizeSignalRPM = list(FUN = .normalizeSignalRPM, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        prof_dt = new_prof_dt,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_prof_dt = new_prof_dt,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
@@ -54,7 +54,7 @@ setGeneric("normalizeSignalRPM",
 setMethod("normalizeSignalRPM", c("ChIPtsne2_no_rowRanges"), .normalizeSignalRPM)
 
 #### cap normalizeSignalCapValue #####
-.normalizeSignalCapValue = function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, minimum_ceiling = NULL){
+.normalizeSignalCapValue = function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, cap_floor = NULL){
     message("normalizeSignalCapValue ...")
     args = get_args()
     if(is.null(signal_cap_data)){
@@ -72,9 +72,9 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2_no_rowRanges"), .normalizeSignalRPM
             stop("Supplied signal_cap_data does not contain ", signal_cap_VAR)
         }
     }
-    if(!is.null(minimum_ceiling)){
-        k = signal_cap_data[[signal_cap_VAR]] < minimum_ceiling
-        signal_cap_data[[signal_cap_VAR]][k] = minimum_ceiling
+    if(!is.null(cap_floor)){
+        k = signal_cap_data[[signal_cap_VAR]] < cap_floor
+        signal_cap_data[[signal_cap_VAR]][k] = cap_floor
     }
 
     if(!signal_cap_VAR %in% colnames(signal_cap_data)){
@@ -110,18 +110,69 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2_no_rowRanges"), .normalizeSignalRPM
     history_item = list(normalizeSignalCapValue = list(FUN = .normalizeSignalCapValue, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        prof_dt = new_prof_dt,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_prof_dt = new_prof_dt,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
+#' normalizeSignalCapValue
+#'
+#' Applies a cap value for each sample. Meant to be run after
+#' [calculateSignalCapValue] or after creating a data.frame to supply to
+#' `signal_cap_data`.
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param signal_cap_data An optional data.frame containing name_VAR in `ct2`
+#'   and `signal_cap_VAR`. Useful if you have calculated cap values outside of
+#'   ChIPtsne2 functions or are reapplying previously calculated values. Does
+#'   not require [calculateSignalCapValue] to be run.
+#' @param signal_cap_VAR The attribute name in colData/sample metadata where cap
+#'   data results have been added. Should be added with
+#'   [calculateSignalCapValue]
+#' @param norm_to_1 If TRUE, all values will be divided by cap_VAR values.
+#'   Default is TRUE.
+#' @param trim_values_to_cap If TRUE, all values will be capped at cap value
+#'   prior to dividing. Default is TRUE.
+#' @param cap_floor Optional floor for cap values. Useful when input or control
+#'   samples are present that should not have true signal. Their calculated cap
+#'   values would be so low they'd only magnify background noise. Default of
+#'   NULL does nothing.
+#' @rdname ct2-normcap
+#'
+#' @return `r doc_ct2_nrr()` where value_VAR has been normalized according to
+#'   `signal_cap_VAR`
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = calculateSignalCapValue(ct2, signal_cap_VAR = "higher_cap_value", cap_quantile = .98)
+#' ct2.norm1 = normalizeSignalCapValue(
+#'   ct2,
+#'   signal_cap_VAR = "higher_cap_value"
+#' )
+#'
+#' # we can extract sample meta data and modify cap value
+#' # then manually supply using the signal_cap_data parameter
+#' cap_df = getSampleMetaData(ct2)
+#' # by lowering the cap value we'll increase the final normalized values across the board.
+#' cap_df$higher_cap_value = cap_df$higher_cap_value / 2
+#' ct2.norm2 = normalizeSignalCapValue(
+#'   ct2,
+#'   signal_cap_VAR = "higher_cap_value",
+#'   signal_cap_data = cap_df
+#' )
+#'
+#' # see the impact of each normalization
+#' plotSignalLinePlot(ct2)
+#' plotSignalLinePlot(ct2.norm1)
+#' plotSignalLinePlot(ct2.norm2)
 setGeneric("normalizeSignalCapValue",
-           function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, minimum_ceiling = NULL)
+           function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, cap_floor = NULL)
                standardGeneric("normalizeSignalCapValue"),
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-normcap
 setMethod("normalizeSignalCapValue", c("ChIPtsne2_no_rowRanges"), .normalizeSignalCapValue)
 
 #### calculateSignalCapValue ####
@@ -148,16 +199,33 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2_no_rowRanges"), .normalizeSign
     history_item = list(calculateSignalCapValue = list(FUN = .calculateSignalCapValue, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        sample_metadata = new_meta_dt,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_sample_metadata = new_meta_dt,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
+#' calculateSignalCapValue
+#'
+#' Calculates but does not apply a cap value for each sample. Meant to be run before [normalizeSignalCapValue].
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param signal_cap_VAR The attribute name to store results in colData/sample metadata. Will be overwritten if present.
+#' @param cap_quantile The quantile at which to set cap value. Default is .95.
+#'
 #' @export
+#' @return `r doc_ct2_nrr()` where colData/sample metadata has had `signal_cap_VAR` added.
+#' @rdname ct2-calccap
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2 = calculateSignalCapValue(ct2)
+#' ct2 = calculateSignalCapValue(ct2, signal_cap_VAR = "higher_cap_value", cap_quantile = .98)
+#' colData(ct2)
 setGeneric("calculateSignalCapValue",
            function(ct2, signal_cap_VAR = "cap_value", cap_quantile = .95)
                standardGeneric("calculateSignalCapValue"),
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-calccap
 setMethod("calculateSignalCapValue", c("ChIPtsne2_no_rowRanges"), .calculateSignalCapValue)

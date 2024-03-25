@@ -47,7 +47,7 @@ ct2_validity = function(object) {
     msg <- NULL
 
     # 2D
-    if (NROW(rowToRowMat(object, withDimnames=FALSE)) != NR) {
+    if (NROW(rowToRowMat(object)) != NR) {
         msg <- c(
             msg, "'nrow(rowToRowMat)' should be equal to the number of rows"
         )
@@ -91,6 +91,7 @@ S4Vectors::setValidity2("ChIPtsne2", ct2_validity)
 #' @export
 #'
 #' @examples
+#' library(GenomicRanges)
 #' ct2 = exampleChIPtsne2.with_meta()
 #' anno_gr = rowRanges(ct2)
 #' anno_gr = subset(anno_gr, seqnames == "chr1")

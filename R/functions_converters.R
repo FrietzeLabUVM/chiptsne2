@@ -42,9 +42,12 @@
     data.table::as.data.table(df)
 }
 
-setGeneric("getTidyProfile.with_meta", function(ct2, sample_meta_VARS = NULL, region_meta_VARS = NULL) standardGeneric("getTidyProfile.with_meta"), signature = "ct2")
 
-setMethod("getTidyProfile.with_meta", c("ChIPtsne2_no_rowRanges"), .getTidyProfile.with_meta)
+# setGeneric("getTidyProfile.with_meta", function(ct2, sample_meta_VARS = NULL, region_meta_VARS = NULL) standardGeneric("getTidyProfile.with_meta"), signature = "ct2")
+#
+# #' @export
+# #' @rdname ct2-tidy
+# setMethod("getTidyProfile.with_meta", c("ChIPtsne2_no_rowRanges"), .getTidyProfile.with_meta)
 
 .getTidyProfile = function(ct2, meta_VARS = NULL){
     if(length(meta_VARS) == 1 && meta_VARS == TRUE){
@@ -69,9 +72,22 @@ setMethod("getTidyProfile.with_meta", c("ChIPtsne2_no_rowRanges"), .getTidyProfi
                           region_meta_VARS = region_meta_VARS)
 }
 
+
+#' getTidyProfile
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param meta_VARS Attributes from either sample metadata/colData or region metadata/rowData to include.
+#'
+#' @return A tidy data represenation of profiles stored in `ct2`.
 #' @export
+#' @rdname ct2-tidy
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' getTidyProfile(ct2)
 setGeneric("getTidyProfile", function(ct2, meta_VARS = NULL) standardGeneric("getTidyProfile"), signature = "ct2")
 
 #' @export
+#' @rdname ct2-tidy
 setMethod("getTidyProfile", c("ChIPtsne2_no_rowRanges"), .getTidyProfile)
 

@@ -39,27 +39,41 @@ ChIPtsne2_no_rowRanges = function(
 }
 
 #### Getters ####
-#' @export
-setGeneric("rowToRowMat", function(x, ...) standardGeneric("rowToRowMat"))
 
-ct2_nrr_get_rowToRowMat = function(x, withDimnames=TRUE) {
+#' rowToRowMat
+#'
+#' Contains the signal for all samples. Each row is a region and blocks of
+#' columns per sample are defined in `colToRowMatCols`.
+#'
+#' @export
+#' @rdname ct2-getset
+setGeneric("rowToRowMat", function(x) standardGeneric("rowToRowMat"))
+
+ct2_nrr_get_rowToRowMat = function(x) {
     out <- x@rowToRowMat
-    if (withDimnames)
-        rownames(out) <- rownames(x)
     out
 }
 
 #' @export
+#' @rdname ct2-getset
 setMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", ct2_nrr_get_rowToRowMat)
 
+#' colToRowMatCols
+#'
+#' maps ChIPtsne2 column names to columns in rowToRowMat
+#'
+#' @param x `r doc_ct2_nrr()`
+#'
 #' @export
-setGeneric("colToRowMatCols", function(x, ...) standardGeneric("colToRowMatCols"))
+#' @rdname ct2-getset
+setGeneric("colToRowMatCols", function(x) standardGeneric("colToRowMatCols"))
 
-ct2_nrr_get_colToRowMatCols =  function(x, withDimnames=TRUE) {
+ct2_nrr_get_colToRowMatCols =  function(x) {
     out <- x@colToRowMatCols
     out
 }
 #' @export
+#' @rdname ct2-getset
 setMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", ct2_nrr_get_colToRowMatCols)
 
 #### Validity ####
@@ -70,7 +84,7 @@ ct2_nrr_validity = function(object) {
     msg <- NULL
 
     # 2D
-    if (NROW(rowToRowMat(object, withDimnames=FALSE)) != NR) {
+    if (NROW(rowToRowMat(object)) != NR) {
         msg <- c(
             msg, "'nrow(rowToRowMat)' should be equal to the number of rows"
         )
@@ -121,8 +135,13 @@ ct2_nrr_set_rowToRowMat = function(x, value) {
 #' @export
 setReplaceMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", ct2_nrr_set_rowToRowMat)
 
+#' colToRowMatCols<-
+#'
+#' @param value New value for colToRowMatCols slot. A named list where names equals colnames of x and list values are colnames of rowToRowMat.
+#'
+#' @rdname ct2-getset
 #' @export
-setGeneric("colToRowMatCols<-", function(x, ..., value)
+setGeneric("colToRowMatCols<-", function(x, value)
     standardGeneric("colToRowMatCols<-")
 )
 
@@ -132,13 +151,15 @@ ct2_nrr_set_colToRowMatCols = function(x, value) {
     x
 }
 
+
 #' @export
+#' @rdname ct2-getset
 setReplaceMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", ct2_nrr_set_colToRowMatCols)
 
 #### Subsetting by index ####
 
 ct2_nrr_index_accessor = function(x, i, j, drop=TRUE) {
-    rrm <- rowToRowMat(x, withDimnames=FALSE)
+    rrm <- rowToRowMat(x)
     c2rrm = colToRowMatCols(x)
 
     if (!missing(j)) {
@@ -254,8 +275,8 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
     .validate_names_match(args, rownames, "Row")
 
 
-    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
-    all.c2rrm <- lapply(args, colToRowMatCols, withDimnames=FALSE)
+    all.rrm <- lapply(args, rowToRowMat)
+    all.c2rrm <- lapply(args, colToRowMatCols)
 
     all.rrm <- do.call(cbind, all.rrm)
     names(all.c2rrm) = NULL
@@ -263,9 +284,9 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
 
     # Checks for identical column state.
     ref <- args[[1]]
-    ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
+    ref.rrm <- rowToRowMat(ref)
     for (x in args[-1]) {
-        if (!identical(rownames(ref.rrm), rownames(rowToRowMat(x, withDimnames=FALSE))))
+        if (!identical(rownames(ref.rrm), rownames(rowToRowMat(x))))
         {
             stop("per-row values are not compatible")
         }
@@ -305,15 +326,15 @@ ct2_nrr_rbind = function(..., deparse.level=1) {
     .validate_names_unique(args, rownames, "Row")
     .validate_names_match(args, colnames, "Column")
 
-    all.rrm <- lapply(args, rowToRowMat, withDimnames=FALSE)
+    all.rrm <- lapply(args, rowToRowMat)
 
     all.rrm <- do.call(rbind, all.rrm)
 
     # Checks for identical column state.
     ref <- args[[1]]
-    ref.rrm <- rowToRowMat(ref, withDimnames=FALSE)
+    ref.rrm <- rowToRowMat(ref)
     for (x in args[-1]) {
-        if (!identical(colnames(ref.rrm), colnames(rowToRowMat(x, withDimnames=FALSE))))
+        if (!identical(colnames(ref.rrm), colnames(rowToRowMat(x))))
         {
             stop("per-row values are not compatible")
         }
@@ -356,5 +377,8 @@ ct2_nrr_set_dimnames =  function(x, value){
     x
 }
 
+#' dimnames<-
+#'
+#' Sets dimnames of a `r doc_ct2_nrr()` using a list of 2 items, 1: rownames and 2: colnames.
 setReplaceMethod("dimnames", c("ChIPtsne2_no_rowRanges", "list"), ct2_nrr_set_dimnames)
 

@@ -33,6 +33,7 @@
 #'
 #' @importFrom seqsetvis centerGRangesAtMax
 #' @export
+#' @rdname ct2-center-refetch
 #'
 #' @examples
 #' bam_cfg_f = exampleBamConfigFile()
@@ -44,6 +45,7 @@
 setGeneric("centerProfilesAndRefetch", function(ct2) standardGeneric("centerProfilesAndRefetch"))
 
 #' @export
+#' @rdname ct2-center-refetch
 setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 
 #### centerProfilesAndTrim ####
@@ -63,9 +65,9 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
     history_item = list(centerProfilesAndTrim = list(FUN = .centerProfilesAndTrim, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        prof_dt = new_prof_dt,
-        query_gr = new_query_gr,
-        obj_history = c(ChIPtsne2.history(ct2), history_item),
+        new_prof_dt = new_prof_dt,
+        new_query_gr = new_query_gr,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item),
         init = FALSE
     )
 }
@@ -80,21 +82,22 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 #'   values will have been lost.
 #' @importFrom GenomicRanges resize width
 #' @export
+#' @rdname ct2-center-trim
 #'
 #' @examples
 #' library(magrittr)
-#' library(tidyr)
 #' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 #' query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
 #' prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
 #' meta_dt = prof_dt %>%
-#'   select(sample) %>%
+#'   dplyr::select(sample) %>%
 #'   unique %>%
-#'   separate(sample, c("cell", "mark"), remove = FALSE)
+#'   tidyr::separate(sample, c("cell", "mark"), remove = FALSE)
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 #' ct2.c = centerProfilesAndTrim(ct2, view_size = 500)
 setGeneric("centerProfilesAndTrim", function(ct2, view_size) standardGeneric("centerProfilesAndTrim"))
 
 #' @export
+#' @rdname ct2-center-trim
 setMethod("centerProfilesAndTrim", c("ChIPtsne2_no_rowRanges", "numeric"), .centerProfilesAndTrim)
 

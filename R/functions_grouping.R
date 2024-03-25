@@ -28,8 +28,8 @@
     history_item = list(groupRegionsBySignalCluster = list(FUN = .groupRegionsBySignalCluster, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        region_metadata = assign_dt,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_region_metadata = assign_dt,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
@@ -42,6 +42,7 @@
 #'
 #' @return `r doc_return_group()`
 #' @export
+#' @rdname ct2-group-regions
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -53,6 +54,7 @@ setGeneric("groupRegionsBySignalCluster",
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-group-regions
 setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegionsBySignalCluster)
 
 
@@ -74,7 +76,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 #' @examples
 #' xy_df = data.frame(tx = runif(100), ty = runif(100))
 #' xy_df$id = paste0("id_", seq_len(nrow(xy_df)))
-#' .knn_clustering(xy_df, 20)
+#' chiptsne2:::.knn_clustering(xy_df, 20)
 .knn_clustering = function(xy_df,
                            nn = 100,
                            id_var = "id",
@@ -133,8 +135,8 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
     history_item = list(groupRegionsByDimReduceCluster = list(FUN = .groupRegionsByDimReduceCluster, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        region_metadata = knn_res,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_region_metadata = knn_res,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
@@ -149,6 +151,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 #'
 #' @return `r doc_return_group()`
 #' @export
+#' @rdname ct2-group-regions
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2()
@@ -162,6 +165,7 @@ setGeneric("groupRegionsByDimReduceCluster",
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-group-regions
 setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupRegionsByDimReduceCluster)
 
 #### region overlap ####
@@ -277,8 +281,8 @@ setMethod("groupRegionsByOverlap", c("ChIPtsne2"), .groupRegionsByOverlap)
     history_item = list(groupRegionsByMembershipTable = list(FUN = .groupRegionsByMembershipTable, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        region_metadata = group_df,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_region_metadata = group_df,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
@@ -320,8 +324,8 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRe
     history_item = list(groupRegionsManually = list(FUN = .groupRegionsManually, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        region_metadata = assignment,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_region_metadata = assignment,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
@@ -354,8 +358,8 @@ setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManu
     history_item = list(sortRegions  = list(FUN = .sortRegions , ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
-        query_gr = new_query_gr,
-        obj_history = c(ChIPtsne2.history(ct2), history_item)
+        new_query_gr = new_query_gr,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 

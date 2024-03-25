@@ -2,9 +2,12 @@
 % Please edit documentation in R/functions_center_signal.R
 \name{centerProfilesAndRefetch}
 \alias{centerProfilesAndRefetch}
+\alias{centerProfilesAndRefetch,ChIPtsne2-method}
 \title{centerSignal}
 \usage{
 centerProfilesAndRefetch(ct2)
+
+\S4method{centerProfilesAndRefetch}{ChIPtsne2}(ct2)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object}

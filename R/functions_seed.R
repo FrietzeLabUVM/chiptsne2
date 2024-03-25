@@ -6,7 +6,7 @@
     args = get_args()
     set.seed(seed)
     history_item = list(setSeed = list(FUN = .setSeed, ARG = args))
-    cloneChIPtsne2(ct2, .metadata = c(ChIPtsne2.history(ct2), history_item))
+    cloneChIPtsne2(ct2, new_metadata = c(ChIPtsne2.history(ct2), history_item))
 }
 
 #' @export

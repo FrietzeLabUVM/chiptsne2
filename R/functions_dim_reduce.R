@@ -52,6 +52,7 @@
 #' @param ... Additional arguments passed to [Rtsne::Rtsne]
 #'
 #' @return `r doc_ct2_nrr()` with tSNE coordinates added to region meta data.
+#' @rdname ct2-dimreduce
 #' @export
 #'
 #' @examples
@@ -61,6 +62,7 @@
 setGeneric("dimReduceTSNE", function(ct2, perplexity = 50, ...) standardGeneric("dimReduceTSNE"), signature = "ct2")
 
 #' @export
+#' @rdname ct2-dimreduce
 setMethod("dimReduceTSNE", c("ChIPtsne2_no_rowRanges"), .dimReduceTSNE)
 
 #### UMAP ####
@@ -107,6 +109,7 @@ setMethod("dimReduceTSNE", c("ChIPtsne2_no_rowRanges"), .dimReduceTSNE)
 #' @param ... Additional arguments passed to [umap::umap]
 #'
 #' @return `r doc_ct2_nrr()` with UMAP coordinates added to region meta data.
+#' @rdname ct2-dimreduce
 #' @export
 #'
 #' @examples
@@ -115,6 +118,7 @@ setMethod("dimReduceTSNE", c("ChIPtsne2_no_rowRanges"), .dimReduceTSNE)
 #' ct2
 setGeneric("dimReduceUMAP", function(ct2, config = umap::umap.defaults, ...) standardGeneric("dimReduceUMAP"), signature = "ct2")
 
+#' @rdname ct2-dimreduce
 #' @export
 setMethod("dimReduceUMAP", c("ChIPtsne2_no_rowRanges"), .dimReduceUMAP)
 
@@ -156,6 +160,7 @@ setMethod("dimReduceUMAP", c("ChIPtsne2_no_rowRanges"), .dimReduceUMAP)
 #' @return `r doc_ct2_nrr()` with PCA coordinates added to region meta data.
 #' @export
 #'
+#' @rdname ct2-dimreduce
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
 #' ct2 = dimReducePCA(ct2)
@@ -163,6 +168,7 @@ setMethod("dimReduceUMAP", c("ChIPtsne2_no_rowRanges"), .dimReduceUMAP)
 setGeneric("dimReducePCA", function(ct2) standardGeneric("dimReducePCA"), signature = "ct2")
 
 #' @export
+#' @rdname ct2-dimreduce
 setMethod("dimReducePCA", c("ChIPtsne2_no_rowRanges"), .dimReducePCA)
 #### helpers ####
 

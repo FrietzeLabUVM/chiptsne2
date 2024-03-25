@@ -150,6 +150,7 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_nam
 
 
 #' @export
+#' @rdname ct2-getset
 setMethod("getNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
     ct2@name_VAR
 })

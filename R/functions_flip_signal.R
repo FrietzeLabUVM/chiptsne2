@@ -40,10 +40,11 @@
     prof_dt = prof_dt[order(get(ct2@position_VAR))]
 
     history_item = list(.flipProfilesToMatch = list(FUN = .flipProfilesToMatch, ARG = args))
-    cloneChIPtsne2_fromTidy(ct2,
-                            prof_dt = prof_dt,
-                            query_gr = new_query_gr,
-                            obj_history = c(ChIPtsne2.history(ct2), history_item))
+    cloneChIPtsne2_fromTidy(
+        ct2,
+        new_prof_dt = prof_dt,
+        new_query_gr = new_query_gr,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item))
 }
 
 
@@ -62,6 +63,7 @@
 #'
 #' @importFrom seqsetvis centerGRangesAtMax
 #' @export
+#' @rdname ct2-flip
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -79,9 +81,12 @@
 #'
 #' prof_dt = rbind(prof_left, prof_right, prof_original)
 #' prof_dt = prof_dt[, list(y = mean(y)), .(x, group)]
+#'
+#' library(ggplot2)
 #' ggplot(prof_dt, aes(x = x, y = y, color = group)) + geom_path()
 setGeneric("flipProfilesToMatch", function(ct2, highest_on_right = TRUE) standardGeneric("flipProfilesToMatch"))
 
 #' @export
+#' @rdname ct2-flip
 setMethod("flipProfilesToMatch", c("ChIPtsne2_no_rowRanges"), .flipProfilesToMatch)
 

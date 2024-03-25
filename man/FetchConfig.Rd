@@ -149,19 +149,18 @@ isFetchConfigNull(cfg.null)
 
 bam_files = dir(
   system.file(
-    package = "ssvQC",
-    "extdata"),
+    package = "chiptsne2",
+    "extdata", mustWork = TRUE),
   pattern = "CTCF.+bam$",
   full.names = TRUE
 )
-
 FetchConfig.from_files(bam_files)
 
 FetchConfig.from_files(bam_files,
   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
 )
 
-Using a config to fetch
+#Using a config to fetch
 bam_config_file = exampleBamConfigFile()
 fetch_config = FetchConfig.load_config(bam_config_file)
 

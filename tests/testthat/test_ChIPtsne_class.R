@@ -56,7 +56,7 @@ test_that("Constructors - invalid", {
 })
 
 test_that("Gettters", {
-    expect_identical(rowToRowMat(ct2, withDimnames=FALSE), prof_mat[levels(prof_dt$id),])
+    expect_identical(rowToRowMat(ct2), prof_mat[levels(prof_dt$id),])
     expect_identical(rownames(rowToRowMat(ct2)), rownames(ct2))
     expect_identical(names(colToRowMatCols(ct2)), colnames(ct2))
 })
@@ -70,7 +70,7 @@ suppressWarnings({
     ct2.cfg = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 })
 test_that("Constructor FetchConfig", {
-    expect_setequal(rownames(rowToRowMat(ct2.cfg, withDimnames=FALSE)), names(query_gr))
-    expect_equal(ncol(rowToRowMat(ct2.cfg, withDimnames=FALSE)), 400)
+    expect_setequal(rownames(rowToRowMat(ct2.cfg)), names(query_gr))
+    expect_equal(ncol(rowToRowMat(ct2.cfg)), 400)
 })
 

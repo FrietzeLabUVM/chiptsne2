@@ -110,8 +110,8 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
 #'
-#' aggregateRegionsByGroup(ct2, c("mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
-#' aggregateSamplesByGroup(ct2, c("mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+#' aggregateRegionsByGroup(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+#' aggregateSamplesByGroup(ct2, c("mark"))
 #' aggregateByGroup(ct2, c("mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
 #'
 #' ct2.r1 = exampleChIPtsne2.with_meta()

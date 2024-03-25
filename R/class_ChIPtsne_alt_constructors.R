@@ -277,96 +277,130 @@ ChIPtsne2.history = function(ct2){
     ct2@metadata
 }
 
-.cloneChIPtsne2 = function(ct2, .rowToRowMat = NULL, .colToRowMatCols = NULL, .name_VAR = NULL, .position_VAR = NULL, .value_VAR = NULL, .region_VAR = NULL, .fetch_config = NULL, .rowRanges = NULL, .colData = NULL, .assays = NULL, .metadata = NULL){
-    if(is.null(.rowToRowMat)) .rowToRowMat = rowToRowMat(ct2)
-    if(is.null(.colToRowMatCols)) .colToRowMatCols = colToRowMatCols(ct2)
-    if(is.null(.name_VAR)) .name_VAR = ct2@name_VAR
-    if(is.null(.position_VAR)) .position_VAR = ct2@position_VAR
-    if(is.null(.value_VAR)) .value_VAR = ct2@value_VAR
-    if(is.null(.region_VAR)) .region_VAR = ct2@region_VAR
-    if(is.null(.fetch_config)) .fetch_config = ct2@fetch_config
-    if(is.null(.rowRanges)) .rowRanges = rowRanges(ct2)
-    if(is.null(.colData)) .colData = colData(ct2)
-    if(is.null(.assays)) .assays = as.list(ct2@assays@data)
-    if(is.null(.metadata)) .metadata = ct2@metadata
+.cloneChIPtsne2 = function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowRanges = NULL, new_colData = NULL, new_assays = NULL, new_metadata = NULL){
+    if(is.null(new_rowToRowMat)) new_rowToRowMat = rowToRowMat(ct2)
+    if(is.null(new_colToRowMatCols)) new_colToRowMatCols = colToRowMatCols(ct2)
+    if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
+    if(is.null(new_position_VAR)) new_position_VAR = ct2@position_VAR
+    if(is.null(new_value_VAR)) new_value_VAR = ct2@value_VAR
+    if(is.null(new_region_VAR)) new_region_VAR = ct2@region_VAR
+    if(is.null(new_fetch_config)) new_fetch_config = ct2@fetch_config
+    if(is.null(new_rowRanges)) new_rowRanges = rowRanges(ct2)
+    if(is.null(new_colData)) new_colData = colData(ct2)
+    if(is.null(new_assays)) new_assays = as.list(ct2@assays@data)
+    if(is.null(new_metadata)) new_metadata = ct2@metadata
 
 
-    ChIPtsne2(rowToRowMat = .rowToRowMat,
-              colToRowMatCols = .colToRowMatCols,
-              name_VAR = .name_VAR,
-              position_VAR = .position_VAR,
-              value_VAR = .value_VAR,
-              region_VAR = .region_VAR,
-              fetch_config = .fetch_config,
-              rowRanges = .rowRanges,
-              colData = .colData,
-              assays = .assays,
-              metadata = .metadata)
+    ChIPtsne2(rowToRowMat = new_rowToRowMat,
+              colToRowMatCols = new_colToRowMatCols,
+              name_VAR = new_name_VAR,
+              position_VAR = new_position_VAR,
+              value_VAR = new_value_VAR,
+              region_VAR = new_region_VAR,
+              fetch_config = new_fetch_config,
+              rowRanges = new_rowRanges,
+              colData = new_colData,
+              assays = new_assays,
+              metadata = new_metadata)
 }
 
-.cloneChIPtsne2_no_rowData = function(ct2, .rowToRowMat = NULL, .colToRowMatCols = NULL, .name_VAR = NULL, .position_VAR = NULL, .value_VAR = NULL, .region_VAR = NULL, .fetch_config = NULL, .rowData = NULL, .colData = NULL, .assays = NULL, .metadata = NULL){
-    if(is.null(.rowToRowMat)) .rowToRowMat = rowToRowMat(ct2)
-    if(is.null(.colToRowMatCols)) .colToRowMatCols = colToRowMatCols(ct2)
-    if(is.null(.name_VAR)) .name_VAR = ct2@name_VAR
-    if(is.null(.position_VAR)) .position_VAR = ct2@position_VAR
-    if(is.null(.value_VAR)) .value_VAR = ct2@value_VAR
-    if(is.null(.region_VAR)) .region_VAR = ct2@region_VAR
-    if(is.null(.fetch_config)) .fetch_config = ct2@fetch_config
-    if(is.null(.rowData)) .rowData = rowData(ct2)
-    if(is.null(.colData)) .colData = colData(ct2)
-    if(is.null(.assays)) .assays = as.list(ct2@assays@data)
-    if(is.null(.metadata)) .metadata = ct2@metadata
+.cloneChIPtsne2_no_rowData = function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowData = NULL, new_colData = NULL, new_assays = NULL, new_metadata = NULL){
+    if(is.null(new_rowToRowMat)) new_rowToRowMat = rowToRowMat(ct2)
+    if(is.null(new_colToRowMatCols)) new_colToRowMatCols = colToRowMatCols(ct2)
+    if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
+    if(is.null(new_position_VAR)) new_position_VAR = ct2@position_VAR
+    if(is.null(new_value_VAR)) new_value_VAR = ct2@value_VAR
+    if(is.null(new_region_VAR)) new_region_VAR = ct2@region_VAR
+    if(is.null(new_fetch_config)) new_fetch_config = ct2@fetch_config
+    if(is.null(new_rowData)) new_rowData = rowData(ct2)
+    if(is.null(new_colData)) new_colData = colData(ct2)
+    if(is.null(new_assays)) new_assays = as.list(ct2@assays@data)
+    if(is.null(new_metadata)) new_metadata = ct2@metadata
 
 
-    ChIPtsne2_no_rowRanges(rowToRowMat = .rowToRowMat,
-              colToRowMatCols = .colToRowMatCols,
-              name_VAR = .name_VAR,
-              position_VAR = .position_VAR,
-              value_VAR = .value_VAR,
-              region_VAR = .region_VAR,
-              fetch_config = .fetch_config,
-              rowData = .rowData,
-              colData = .colData,
-              assays = .assays,
-              metadata = .metadata)
+    ChIPtsne2_no_rowRanges(rowToRowMat = new_rowToRowMat,
+              colToRowMatCols = new_colToRowMatCols,
+              name_VAR = new_name_VAR,
+              position_VAR = new_position_VAR,
+              value_VAR = new_value_VAR,
+              region_VAR = new_region_VAR,
+              fetch_config = new_fetch_config,
+              rowData = new_rowData,
+              colData = new_colData,
+              assays = new_assays,
+              metadata = new_metadata)
 }
 
+#' cloneChIPtsne2
+#'
+#' Create a clone (copy) of a ChIPtsne2 object replacing any specified components.
+#'
+#' @param ct2 `r doc_ct2()` or `r doc_ct2_nrr()`
+#'
+#' @param new_rowToRowMat rowToRowMat slot override
+#' @param new_colToRowMatCols colToRowMatCols slot override
+#' @param new_name_VAR name_VAR slot override
+#' @param new_position_VAR position_VAR slot override
+#' @param new_value_VAR value_VAR slot override
+#' @param new_region_VAR region_VAR slot override
+#' @param new_fetch_config slot override
+#' @param new_rowRanges rowRanges slot override
+#' @param new_colData colData slot override
+#' @param new_assays assays slot override
+#' @param new_metadata metadata slot override
+#'
 #' @export
-setGeneric("cloneChIPtsne2", function(ct2, .rowToRowMat = NULL, .colToRowMatCols = NULL, .name_VAR = NULL, .position_VAR = NULL, .value_VAR = NULL, .region_VAR = NULL, .fetch_config = NULL, .rowRanges = NULL, .colData = NULL, .assays = NULL, .metadata = NULL) standardGeneric("cloneChIPtsne2"))
+#' @return Clone of input `r doc_ct2()` or `r doc_ct2_nrr()` with specified slots modified.
+#' @rdname ct2-clone
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' getNameVariable(ct2)
+#' ct2 = cloneChIPtsne2(ct2, new_name_VAR = "new_name")
+#' getNameVariable(ct2)
+#'
+#'
+setGeneric("cloneChIPtsne2", function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowRanges = NULL, new_colData = NULL, new_assays = NULL, new_metadata = NULL) standardGeneric("cloneChIPtsne2"))
 
 #' @export
+#' @rdname ct2-clone
 setMethod("cloneChIPtsne2", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2)
 
-.cloneChIPtsne2_fromTidy = function(ct2, prof_dt = NULL, obj_history = NULL, name_VAR = NULL, position_VAR = NULL, value_VAR = NULL, region_VAR = NULL, fetch_config = NULL, query_gr = NULL, init = FALSE, sample_metadata = NULL, region_metadata = NULL){
-    if(is.null(prof_dt)) prof_dt = getTidyProfile(ct2)
-    if(is.null(obj_history)) obj_history = ChIPtsne2.history(ct2)
-    if(is.null(name_VAR)) name_VAR = ct2@name_VAR
-    if(is.null(position_VAR)) position_VAR = ct2@position_VAR
-    if(is.null(value_VAR)) value_VAR = ct2@value_VAR
-    if(is.null(region_VAR)) region_VAR = ct2@region_VAR
-    if(is.null(fetch_config)) fetch_config = ct2@fetch_config
+.cloneChIPtsne2_fromTidy = function(ct2, new_prof_dt = NULL, new_obj_history = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_query_gr = NULL, init = FALSE, new_sample_metadata = NULL, new_region_metadata = NULL){
+    if(is.null(new_prof_dt)) new_prof_dt = getTidyProfile(ct2)
+    if(is.null(new_obj_history)) new_obj_history = ChIPtsne2.history(ct2)
+    if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
+    if(is.null(new_position_VAR)) new_position_VAR = ct2@position_VAR
+    if(is.null(new_value_VAR)) new_value_VAR = ct2@value_VAR
+    if(is.null(new_region_VAR)) new_region_VAR = ct2@region_VAR
+    if(is.null(new_fetch_config)) new_fetch_config = ct2@fetch_config
     if(is(ct2, "ChIPtsne2")){
-        if(is.null(query_gr)) query_gr = rowRanges(ct2)
+        if(is.null(new_query_gr)) new_query_gr = rowRanges(ct2)
     }else{
-        query_gr = NULL
+        new_query_gr = NULL
     }
-    if(is.null(sample_metadata)) sample_metadata = getSampleMetaData(ct2)
+    if(is.null(new_sample_metadata)) new_sample_metadata = getSampleMetaData(ct2)
 
-    ChIPtsne2.from_tidy(prof_dt = prof_dt,
-                        query_gr = query_gr,
-                        sample_metadata = sample_metadata,
-                        region_metadata = region_metadata,
-                        name_VAR = name_VAR,
-                        position_VAR = position_VAR,
-                        value_VAR = value_VAR,
-                        region_VAR = region_VAR,
-                        obj_history = obj_history,
-                        fetch_config = fetch_config,
+    ChIPtsne2.from_tidy(prof_dt = new_prof_dt,
+                        query_gr = new_query_gr,
+                        sample_metadata = new_sample_metadata,
+                        region_metadata = new_region_metadata,
+                        name_VAR = new_name_VAR,
+                        position_VAR = new_position_VAR,
+                        value_VAR = new_value_VAR,
+                        region_VAR = new_region_VAR,
+                        obj_history = new_obj_history,
+                        fetch_config = new_fetch_config,
                         init = init)
 }
 
 #' @export
-setGeneric("cloneChIPtsne2_fromTidy", function(ct2, prof_dt = NULL, obj_history = NULL, name_VAR = NULL, position_VAR = NULL, value_VAR = NULL, region_VAR = NULL, fetch_config = NULL, query_gr = NULL, init = FALSE, sample_metadata = NULL, region_metadata = NULL) standardGeneric("cloneChIPtsne2_fromTidy"))
+#' @rdname ct2-clone
+setGeneric("cloneChIPtsne2_fromTidy", function(ct2, new_prof_dt = NULL, new_obj_history = NULL, new_name_VAR = NULL,
+                                               new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL,
+                                               new_fetch_config = NULL, new_query_gr = NULL, init = FALSE, new_sample_metadata = NULL,
+                                               new_region_metadata = NULL) standardGeneric("cloneChIPtsne2_fromTidy"))
 
 #' @export
+#' @rdname ct2-clone
 setMethod("cloneChIPtsne2_fromTidy", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2_fromTidy)

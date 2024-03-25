@@ -2,9 +2,12 @@
 % Please edit documentation in R/functions_flip_signal.R
 \name{flipProfilesToMatch}
 \alias{flipProfilesToMatch}
+\alias{flipProfilesToMatch,ChIPtsne2_no_rowRanges-method}
 \title{flipProfilesToMatch}
 \usage{
 flipProfilesToMatch(ct2, highest_on_right = TRUE)
+
+\S4method{flipProfilesToMatch}{ChIPtsne2_no_rowRanges}(ct2, highest_on_right = FALSE)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object}
@@ -36,5 +39,7 @@ prof_right$group = "flip_right"
 
 prof_dt = rbind(prof_left, prof_right, prof_original)
 prof_dt = prof_dt[, list(y = mean(y)), .(x, group)]
+
+library(ggplot2)
 ggplot(prof_dt, aes(x = x, y = y, color = group)) + geom_path()
 }

@@ -2,9 +2,12 @@
 % Please edit documentation in R/functions_center_signal.R
 \name{centerProfilesAndTrim}
 \alias{centerProfilesAndTrim}
+\alias{centerProfilesAndTrim,ChIPtsne2_no_rowRanges,numeric-method}
 \title{centerProfilesAndTrim}
 \usage{
 centerProfilesAndTrim(ct2, view_size)
+
+\S4method{centerProfilesAndTrim}{ChIPtsne2_no_rowRanges,numeric}(ct2, view_size)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object}
@@ -20,14 +23,13 @@ centerProfilesAndTrim
 }
 \examples{
 library(magrittr)
-library(tidyr)
 query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
 query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
 prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
 meta_dt = prof_dt \%>\%
-  select(sample) \%>\%
+  dplyr::select(sample) \%>\%
   unique \%>\%
-  separate(sample, c("cell", "mark"), remove = FALSE)
+  tidyr::separate(sample, c("cell", "mark"), remove = FALSE)
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 ct2.c = centerProfilesAndTrim(ct2, view_size = 500)
 }
