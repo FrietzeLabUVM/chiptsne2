@@ -4,10 +4,10 @@
 \alias{get_mapped_reads}
 \title{get_mapped_reads}
 \usage{
-get_mapped_reads(bam_file)
+get_mapped_reads(bam_files)
 }
 \arguments{
-\item{bam_file}{A bam file.  Matching .bai file must exist.}
+\item{bam_files}{A bam file.  Matching .bai file must exist.}
 }
 \value{
 The number of mapped reads in bam file.
@@ -16,7 +16,6 @@ The number of mapped reads in bam file.
 get_mapped_reads
 }
 \examples{
-bam_file = exampleBamFiles()[1]
-
-get_mapped_reads(bam_file)
+bam_files = exampleBamFiles()
+get_mapped_reads(bam_files)
 }

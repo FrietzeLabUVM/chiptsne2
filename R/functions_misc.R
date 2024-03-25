@@ -51,21 +51,24 @@ sampleCap = function(x, size = 500){
 
 #' get_mapped_reads
 #'
-#' @param bam_file A bam file.  Matching .bai file must exist.
+#' @param bam_files A bam file.  Matching .bai file must exist.
 #'
 #' @return The number of mapped reads in bam file.
 #' @export
 #' @importFrom Rsamtools idxstatsBam
 #'
 #' @examples
-#' bam_file = exampleBamFiles()[1]
-#'
-#' get_mapped_reads(bam_file)
-get_mapped_reads = function(bam_file){
-    stopifnot(file.exists(bam_file))
-    stopifnot(file.exists(paste0(bam_file, ".bai")))
-    stats = Rsamtools::idxstatsBam(bam_file)
-    sum(stats[,3])
+#' bam_files = exampleBamFiles()
+#' get_mapped_reads(bam_files)
+get_mapped_reads = function(bam_files){
+    if(is.null(names(bam_files))){
+        names(bam_files) = bam_files
+    }
+    .get_mapped_reads.single = function(f){
+        stats = Rsamtools::idxstatsBam(f)
+        sum(stats[,3])
+    }
+    vapply(bam_files, .get_mapped_reads.single, FUN.VALUE = c(1))
 }
 
 .enforce_file_var = function(my_df){

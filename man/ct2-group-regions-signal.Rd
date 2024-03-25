@@ -3,8 +3,6 @@
 \name{groupRegionsBySignalCluster}
 \alias{groupRegionsBySignalCluster}
 \alias{groupRegionsBySignalCluster,ChIPtsne2_no_rowRanges-method}
-\alias{groupRegionsByDimReduceCluster}
-\alias{groupRegionsByDimReduceCluster,ChIPtsne2_no_rowRanges-method}
 \title{groupRegionsBySignalCluster}
 \usage{
 groupRegionsBySignalCluster(
@@ -20,20 +18,6 @@ groupRegionsBySignalCluster(
   n_clusters = 6,
   iter.max = 30
 )
-
-groupRegionsByDimReduceCluster(
-  ct2,
-  group_VAR = "knn_id",
-  nearest_neighbors = 100,
-  ...
-)
-
-\S4method{groupRegionsByDimReduceCluster}{ChIPtsne2_no_rowRanges}(
-  ct2,
-  group_VAR = "knn_id",
-  nearest_neighbors = 100,
-  ...
-)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object.}
@@ -41,28 +25,15 @@ groupRegionsByDimReduceCluster(
 \item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
 
 \item{n_clusters}{Number of clusters specified for k-means.}
-
-\item{nearest_neighbors}{The number of nearest neighbors to use when clustering. Higher numbers result in fewer clusters. Will be automatically reduced if set too high. See documentation of k in \code{\link[RANN:nn2]{RANN::nn2()}}.}
-
-\item{...}{passed to RANN::nn2}
 }
 \value{
-Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.
-
 Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.
 }
 \description{
 groupRegionsBySignalCluster
-
-groupRegionsByDimReduceCluster
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 ct2 = groupRegionsBySignalCluster(ct2)
 ct2 = groupRegionsBySignalCluster(ct2)
-ct2 = exampleChIPtsne2()
-ct2 = dimReduceTSNE(ct2, perplexity = 20)
-ct2 = groupRegionsByDimReduceCluster(ct2, group_VAR = "knn_id", nearest_neighbors = 20)
-rowData(ct2)
-plotDimReducePoints(ct2, color_VAR = "knn_id")
 }

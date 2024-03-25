@@ -42,7 +42,7 @@
 #'
 #' @return `r doc_return_group()`
 #' @export
-#' @rdname ct2-group-regions
+#' @rdname ct2-group-regions-signal
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -54,7 +54,7 @@ setGeneric("groupRegionsBySignalCluster",
            signature = "ct2")
 
 #' @export
-#' @rdname ct2-group-regions
+#' @rdname ct2-group-regions-signal
 setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegionsBySignalCluster)
 
 
@@ -151,7 +151,7 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 #'
 #' @return `r doc_return_group()`
 #' @export
-#' @rdname ct2-group-regions
+#' @rdname ct2-group-regions-dr
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2()
@@ -165,7 +165,7 @@ setGeneric("groupRegionsByDimReduceCluster",
            signature = "ct2")
 
 #' @export
-#' @rdname ct2-group-regions
+#' @rdname ct2-group-regions-dr
 setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupRegionsByDimReduceCluster)
 
 #### region overlap ####
@@ -231,6 +231,7 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupR
 #'
 #' @return `r doc_return_group()`
 #' @export
+#' @rdname ct2-group-regions-olap
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -268,6 +269,7 @@ setGeneric("groupRegionsByOverlap",
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-group-regions-olap
 setMethod("groupRegionsByOverlap", c("ChIPtsne2"), .groupRegionsByOverlap)
 
 #### memb table grouping ####
@@ -287,16 +289,54 @@ setMethod("groupRegionsByOverlap", c("ChIPtsne2"), .groupRegionsByOverlap)
 }
 
 
+#' groupRegionsByMembershipTable
+#'
+#' Adds a single grouping variable to rowData/region metadata based on a region overlap membership table.
+#'
+#' This membership table can be one of 2 different main formats.
+#'
+#' 1) a data.frame as returned from [seqsetvis::ssvMakeMembTable], where rownames are the same as rownames in `ct2` and columns are all logical.
+#'
+#' 2) a GenomicRanges object as returned from [seqsetvis::ssvOverlapIntervalSets] or [seqsetvis::ssvConsensusIntervalSets], where names are the same as rownames in `ct2` and mcols are all logical.
+#'
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param membership Either a data.frame or GenomicRanges. See details.
+#' @param group_VAR `r doc_group_VAR()`
+#'
+#' @return `r doc_return_group()`
+#' @rdname ct2-group-regions-memb
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' rowData(ct2)
+#' np_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+#'
+#' # membership data.frame
+#' memb_df = seqsetvis::ssvMakeMembTable(np_grs)
+#' ct2.with_memb1 = chiptsne2:::.groupRegionsByMembershipTable(ct2, memb_df)
+#' rowData(ct2.with_memb1)
+#'
+#' # membership GRanges
+#' memb_grs = seqsetvis::ssvOverlapIntervalSets(np_grs)
+#' ct2.with_memb2 = chiptsne2:::.groupRegionsByMembershipTable(ct2, memb_grs)
+#' rowData(ct2.with_memb2)
+#'
+#' # rowData of example ct2 is actually a membership table
+#' ct2.with_memb3 = chiptsne2:::.groupRegionsByMembershipTable(ct2, rowData(ct2))
+#' rowData(ct2.with_memb3)
 setGeneric("groupRegionsByMembershipTable",
            function(ct2, membership, group_VAR = "membership_id")
                standardGeneric("groupRegionsByMembershipTable"),
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-group-regions-memb
 setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRegionsByMembershipTable)
 
 #### manual grouping ####
+
 .groupRegionsManually = function(ct2, assignment, group_VAR = "group_id"){
     message("groupRegionsManually ...")
     args = get_args()
@@ -308,7 +348,7 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRe
                 assignment[[ct2@region_VAR]] = rownames(assignment)
             }
         }
-        if(!group_VAR %in% colnames(assignment)){
+        if(!all(group_VAR %in% colnames(assignment))){
             stop("group_VAR:", group_VAR, " must be in colnames of assignment.")
         }
         assignment = assignment[, c(ct2@region_VAR, group_VAR)]
@@ -329,20 +369,57 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRe
     )
 }
 
+#' groupRegionsManually
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param assignment A data.frame or named character vector. See details.
+#' @param group_VAR `r doc_group_VAR()`
+#'
+#' Assignment may be either a data.frame or named character vector.
+#'
+#' If data.frame, must have rownames setequal to rownames of `ct2` or contain the same region variable as `ct2`. Multiple `group_VAR` may be specified and all must be present in data.frame.
+#'
+#' If a named character vector, names must be setequal to rownames of `ct2`. Only a signle `group_VAR` is allowed.
+#'
+#' @return `r doc_return_group()`
+#' @rdname ct2-group-regions-manual
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#'
+#' # data.frame assignment
+#' memb_grs = seqsetvis::ssvOverlapIntervalSets(np_grs)
+#' assign_df = seqsetvis::ssvFactorizeMembTable(memb_grs)
+#' assign_df$not_used = "A"
+#' assign_df$group2 = "B"
+#' ct2.grouped = groupRegionsManually(ct2, assign_df, group_VAR = c("group", "group2"))
+#' rowData(ct2.grouped)
+#'
+#' # character vector assignment
+#' manual_groups = assign_df$group
+#' names(manual_groups) = assign_df$id
+#' ct2.grouped2 = groupRegionsManually(ct2, manual_groups, group_VAR = c("group", "group2"))
+#' rowData(ct2.grouped2)
 setGeneric("groupRegionsManually",
            function(ct2, assignment, group_VAR = "group_id")
                standardGeneric("groupRegionsManually"),
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-group-regions-manual
 setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManually)
 
 #### sort regions ####
+
 .sortRegions = function(ct2, group_VAR = NULL){
     message("sortRegions ...")
     args = get_args()
     prof_dt = getTidyProfile(ct2, meta_VARS = group_VAR)
+    if(length(group_VAR) > 1){
+        prof_dt$TMP_GROUP__ = apply(prof_dt[, group_VAR, with = FALSE], 1, paste, collapse = "_")
+        group_VAR = "TMP_GROUP__"
+    }
     clust_dt = seqsetvis::within_clust_sort(
         prof_dt,
         row_ = ct2@region_VAR,
@@ -351,23 +428,36 @@ setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManu
         facet_ = ct2@name_VAR,
         cluster_ = group_VAR,
         dcast_fill = 0)
-    region_lev = clust_dt[[ct2@region_VAR]]
-
-    new_query_gr = rowRanges(ct2)[region_lev]
-
+    region_lev = levels(clust_dt[[ct2@region_VAR]])
     history_item = list(sortRegions  = list(FUN = .sortRegions , ARG = args))
     cloneChIPtsne2_fromTidy(
-        ct2 = ct2,
-        new_query_gr = new_query_gr,
+        ct2 = ct2[region_lev,],
         new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 
+#' sortRegions
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param group_VAR `r doc_group_VAR()`
+#'
+#' @return `r doc_ct2_nrr()` with rows sorted by `group_VAR` and within groups by signal decreasing.
+#' @rdname ct2-sort
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' rowData(ct2)
+#' ct2.sorted = sortRegions(ct2, group_VAR = "peak_MCF10CA1_CTCF")
+#' rowData(ct2.sorted)
+#'
+#' ct2.sorted2 = sortRegions(ct2, group_VAR = c("peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
+#' rowData(ct2.sorted2)
 setGeneric("sortRegions",
            function(ct2, assignment, group_VAR = NULL)
                standardGeneric("sortRegions"),
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-sort
 setMethod("sortRegions", c("ChIPtsne2_no_rowRanges"), .sortRegions)

@@ -125,6 +125,7 @@ generic_plotDimReducePoints = function(ct2,
 #'
 #' @return ggplot
 #' @export
+#' @rdname plotDimReducePoints
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta() %>%
@@ -160,4 +161,5 @@ setGeneric("plotDimReducePoints",
            signature = "ct2")
 
 #' @export
+#' @rdname plotDimReducePoints
 setMethod("plotDimReducePoints", c("ChIPtsne2_no_rowRanges"), .plotDimReducePoints)

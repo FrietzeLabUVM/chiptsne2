@@ -305,6 +305,7 @@
 #'
 #' @return A grob of ggplots assembled using cowplot::plot_grid
 #' @export
+#' @rdname plotSignalHeatmap
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -446,4 +447,5 @@ setGeneric("plotSignalHeatmap", function(
         signature = "ct2")
 
 #' @export
+#' @rdname plotSignalHeatmap
 setMethod("plotSignalHeatmap", c("ChIPtsne2_no_rowRanges"), .plotSignalHeatmap)

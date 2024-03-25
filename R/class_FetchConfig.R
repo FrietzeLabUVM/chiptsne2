@@ -45,6 +45,7 @@ setMethod("initialize","FetchConfig", function(.Object,...){
     .Object
 })
 
+#' @rdname FetchConfig
 setMethod("names", "FetchConfig",
           function(x)
           {
@@ -89,6 +90,9 @@ setReplaceMethod("$", "FetchConfig",
                              },
                              fetch_options = {
                                  x@fetch_options = value
+                             },
+                             meta_data = {
+                                 x@meta_data = value
                              },
                              warning(warn_msg)
                      )
@@ -380,27 +384,29 @@ FetchConfig.save_config = function(object, file){
 #### show ####
 #### show config ####
 
-#' .show_Config
-#'
-#' used by show
-#'
-#' @param qc A FetchConfig object
-#'
-#' @examples
-#' bam_config_file = exampleBamConfigFile()
-#' fetch_config = FetchConfig.load_config(bam_config_file)
-#' fetch_config
-.show_Config = function(qc){
-    if(qc@is_null){
+
+.show_Config = function(object){
+    if(object@is_null){
         msg = "This FetchConfig is a NULL placeholder."
     }else{
 
         msg = paste(sep = "\n",
-                    paste("Configuration for", nrow(qc@meta_data), "items.")
+                    paste("Configuration for", nrow(object@meta_data), "items.")
         )
     }
     message(msg)
 }
 
+#' show_Config
+#'
+#' used by show
+#'
+#' @param object A FetchConfig object
+#'
 #' @export
-setMethod("show", "FetchConfig", definition = function(object).show_Config(object))
+#'
+#' @examples
+#' bam_config_file = exampleBamConfigFile()
+#' fetch_config = FetchConfig.load_config(bam_config_file)
+#' fetch_config
+setMethod("show", "FetchConfig", definition = .show_Config)

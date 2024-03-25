@@ -2,9 +2,18 @@
 % Please edit documentation in R/functions_grouping.R
 \name{groupRegionsByOverlap}
 \alias{groupRegionsByOverlap}
+\alias{groupRegionsByOverlap,ChIPtsne2-method}
 \title{groupRegionsByOverlap}
 \usage{
 groupRegionsByOverlap(
+  ct2,
+  query,
+  group_VAR = "overlap_id",
+  use_priority = FALSE,
+  ...
+)
+
+\S4method{groupRegionsByOverlap}{ChIPtsne2}(
   ct2,
   query,
   group_VAR = "overlap_id",

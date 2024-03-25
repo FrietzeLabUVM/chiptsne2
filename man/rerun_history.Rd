@@ -2,9 +2,15 @@
 % Please edit documentation in R/functions_history.R
 \name{rerun_history}
 \alias{rerun_history}
+\alias{rerun_history,ChIPtsne2_no_rowRanges,list-method}
+\alias{rerun_history,ChIPtsne2_no_rowRanges,ChIPtsne2_no_rowRanges-method}
 \title{rerun_history}
 \usage{
 rerun_history(ct2, history_source)
+
+\S4method{rerun_history}{ChIPtsne2_no_rowRanges,list}(ct2, history_source)
+
+\S4method{rerun_history}{ChIPtsne2_no_rowRanges,ChIPtsne2_no_rowRanges}(ct2, history_source)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object to apply history too.}

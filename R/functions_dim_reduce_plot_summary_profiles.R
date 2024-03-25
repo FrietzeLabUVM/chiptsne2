@@ -91,6 +91,7 @@
 #'
 #' @return A ggplot2 object summarizing profiles by glyphs at a resolution determined by `x_bins` and `y_bins`.
 #' @export
+#' @rdname plotDimReduceSummaryProfiles
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -119,6 +120,7 @@ setGeneric("plotDimReduceSummaryProfiles", function(
         signature = "ct2")
 
 #' @export
+#' @rdname plotDimReduceSummaryProfiles
 setMethod("plotDimReduceSummaryProfiles", c("ChIPtsne2_no_rowRanges"), .plotDimReduceSummaryProfiles)
 
 plot_summary_profiles = function (profile_dt,

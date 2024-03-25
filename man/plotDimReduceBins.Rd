@@ -2,6 +2,7 @@
 % Please edit documentation in R/functions_dim_reduce_plot_bins.R
 \name{plotDimReduceBins}
 \alias{plotDimReduceBins}
+\alias{plotDimReduceBins,ChIPtsne2_no_rowRanges-method}
 \title{#' plotDimReduceBins}
 \usage{
 plotDimReduceBins(
@@ -12,6 +13,24 @@ plotDimReduceBins(
   xmax = Inf,
   agg_FUN = max,
   x_bins = 50,
+  y_bins = x_bins,
+  bg_color = "gray60",
+  min_size = 1,
+  bin_fill_limits = c(NA, NA),
+  has_symmetrical_limits = NULL,
+  bin_colors = NULL,
+  extra_VARS = character(),
+  return_data = FALSE
+)
+
+\S4method{plotDimReduceBins}{ChIPtsne2_no_rowRanges}(
+  ct2,
+  facet_rows = ct2@name_VAR,
+  facet_columns = NULL,
+  xmin = -Inf,
+  xmax = Inf,
+  agg_FUN = max,
+  x_bins = NULL,
   y_bins = x_bins,
   bg_color = "gray60",
   min_size = 1,

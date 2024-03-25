@@ -19,56 +19,56 @@ selAttribute = "peak_MCF10A_CTCF"
 selIds = character()
 selIds = rownames(plot_ct2)[1:10]
 
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "line_color_selection",
   selAttribute = "peak_MCF10A_CTCF",
   selIds = rownames(plot_ct2)[1:10]
 )
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "line_color_selection",
   selAttribute = "peak_MCF10A_CTCF",
   selIds = character()
 )
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "line_color_annotation",
   selAttribute = "peak_MCF10A_CTCF",
   selIds = rownames(plot_ct2)[1:10]
 )
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "line_color_annotation",
   selAttribute = "peak_MCF10A_CTCF",
   selIds = character()
 )
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "heatmap_cluster_selection",
   selAttribute = "peak_MCF10A_CTCF",
   selIds = rownames(plot_ct2)[1:10]
 )
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "heatmap_cluster_selection",
   selAttribute = "peak_MCF10A_CTCF",
   selIds = character()
 )
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "heatmap_cluster_annotation",
   selAttribute = "peak_MCF10A_CTCF",
   selIds = rownames(plot_ct2)[1:10]
 )
-.shiny_secondary_plot(
+chiptsne2:::.shiny_secondary_plot(
   plot_ct2,
   tx_df,
   "heatmap_cluster_annotation",

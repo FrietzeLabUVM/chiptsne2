@@ -2,9 +2,34 @@
 % Please edit documentation in R/functions_plot_heatmap.R
 \name{plotSignalHeatmap}
 \alias{plotSignalHeatmap}
+\alias{plotSignalHeatmap,ChIPtsne2_no_rowRanges-method}
 \title{plotSignalHeatmap}
 \usage{
 plotSignalHeatmap(
+  ct2,
+  group_VARS = NULL,
+  sort_VAR = NULL,
+  balance_VAR = NULL,
+  max_rows = 500,
+  sort_strategy = c("hclust", "sort", "left", "right")[2],
+  heatmap_fill_limits = c(NA, NA),
+  has_symmetrical_limits = NULL,
+  heatmap_colors = NULL,
+  heatmap_format_FUN = NULL,
+  heatmap_theme = .heatmap_theme.no_y,
+  annotation_colors = NULL,
+  annotation_format_FUN = NULL,
+  annotation_theme = .annotation_theme,
+  annotation_text_size = 8,
+  name_FUN = .prep_names,
+  color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
+  n_legend_rows = 1,
+  relative_heatmap_width = 0.5,
+  relative_heatmap_height = 0.66,
+  return_data = FALSE
+)
+
+\S4method{plotSignalHeatmap}{ChIPtsne2_no_rowRanges}(
   ct2,
   group_VARS = NULL,
   sort_VAR = NULL,

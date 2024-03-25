@@ -29,6 +29,7 @@
 #'
 #' @return Input ct2 with all functions from history_source applied.
 #' @export
+#' @rdname rerun_history
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -45,9 +46,11 @@
 setGeneric("rerun_history", function(ct2, history_source) standardGeneric("rerun_history"))
 
 #' @export
+#' @rdname rerun_history
 setMethod("rerun_history", c("ChIPtsne2_no_rowRanges", "list"), .rerun_history)
 
 #' @export
+#' @rdname rerun_history
 setMethod("rerun_history", c("ChIPtsne2_no_rowRanges", "ChIPtsne2_no_rowRanges"), .rerun_history)
 
 .add_history_entry = function(ct2, entry_name, FUN, ARG){

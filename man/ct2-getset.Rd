@@ -34,6 +34,7 @@
 \alias{rowToRowMat,ChIPtsne2_no_rowRanges-method}
 \alias{colToRowMatCols}
 \alias{colToRowMatCols,ChIPtsne2_no_rowRanges-method}
+\alias{rowToRowMat<-,ChIPtsne2_no_rowRanges-method}
 \alias{colToRowMatCols<-}
 \alias{colToRowMatCols<-,ChIPtsne2_no_rowRanges-method}
 \title{getters and setters for ChIPtsne2 and ChIPtsne2_no_rowRanges objects}
@@ -101,6 +102,8 @@ rowToRowMat(x)
 colToRowMatCols(x)
 
 \S4method{colToRowMatCols}{ChIPtsne2_no_rowRanges}(x)
+
+\S4method{rowToRowMat}{ChIPtsne2_no_rowRanges}(x) <- value
 
 colToRowMatCols(x) <- value
 

@@ -2,11 +2,37 @@
 % Please edit documentation in R/functions_plot_lineplot.R
 \name{plotSignalLinePlot}
 \alias{plotSignalLinePlot}
+\alias{plotSignalLinePlot,ChIPtsne2-method}
+\alias{plotSignalLinePlot,ChIPtsne2_no_rowRanges-method}
 \title{plotSignalLinePlot}
 \usage{
 plotSignalLinePlot(
   ct2,
   group_VAR = NULL,
+  color_VAR = NULL,
+  facet_VAR = ct2@name_VAR,
+  extra_VARS = character(),
+  linewidth = 1.5,
+  moving_average_window = 1,
+  n_splines = 1,
+  return_data = FALSE
+)
+
+\S4method{plotSignalLinePlot}{ChIPtsne2}(
+  ct2,
+  group_VAR = NULL,
+  color_VAR = NULL,
+  facet_VAR = ct2@name_VAR,
+  extra_VARS = character(),
+  linewidth = 1.5,
+  moving_average_window = 1,
+  n_splines = 1,
+  return_data = FALSE
+)
+
+\S4method{plotSignalLinePlot}{ChIPtsne2_no_rowRanges}(
+  ct2,
+  group_VAR = ct2@region_VAR,
   color_VAR = NULL,
   facet_VAR = ct2@name_VAR,
   extra_VARS = character(),

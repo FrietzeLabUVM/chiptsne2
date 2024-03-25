@@ -80,6 +80,7 @@
 #'
 #' @return ggplot2 of averaged signal profiles, potentially faceted in interesting ways.
 #' @export
+#' @rdname plotSignalLinePlot
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -139,9 +140,11 @@ setGeneric("plotSignalLinePlot", function(
     signature = "ct2")
 
 #' @export
+#' @rdname plotSignalLinePlot
 setMethod("plotSignalLinePlot", c("ChIPtsne2"), .plotSignalLinePlot)
 
 #' @export
+#' @rdname plotSignalLinePlot
 setMethod("plotSignalLinePlot", c("ChIPtsne2_no_rowRanges"), .plotSignalLinePlot_meta)
 
 

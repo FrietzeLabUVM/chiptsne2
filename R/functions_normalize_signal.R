@@ -23,6 +23,7 @@
 }
 
 #### RPM ####
+
 .normalizeSignalRPM = function(ct2, mapped_reads_data = NULL, mapped_reads_VAR = "mapped_reads"){
     message("normalizeSignalRPM ...")
     args = get_args()
@@ -44,13 +45,35 @@
     )
 }
 
+#' normalizeSignalRPM
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param mapped_reads_data Optionally, a data.frame containing `ct2`'s name
+#'   variable and specified `mapped_reads_VAR`. Otherwise colData/sample
+#'   metadata will be used.
+#' @param mapped_reads_VAR Variable name in colData/sample metadata or
+#'   `mapped_reads_data` if provided.
+#'
+#' @return `r doc_ct2_nrr()` where value_VAR has been normalized according to
+#'   `mapped_reads_VAR`
 #' @export
+#' @rdname ct2-normrpm
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' # we're going to spoof in mapped reads here, but if you have bam files you can use [get_mapped_reads].
+#' colData(ct2)$mapped_reads = c(3e6, 2e6, 1e6)
+#' plotSignalLinePlot(ct2)
+#' ct2.rpm = normalizeSignalRPM(ct2)
+#' # RPM normalization corrects for depth, reversing magnitude trend in this exampl data.
+#' plotSignalLinePlot(ct2.rpm)
 setGeneric("normalizeSignalRPM",
            function(ct2, mapped_reads_data = NULL, mapped_reads_VAR = "mapped_reads")
                standardGeneric("normalizeSignalRPM"),
            signature = "ct2")
 
 #' @export
+#' @rdname ct2-normrpm
 setMethod("normalizeSignalRPM", c("ChIPtsne2_no_rowRanges"), .normalizeSignalRPM)
 
 #### cap normalizeSignalCapValue #####

@@ -2,9 +2,22 @@
 % Please edit documentation in R/functions_dim_reduce_plot_points.R
 \name{plotDimReducePoints}
 \alias{plotDimReducePoints}
+\alias{plotDimReducePoints,ChIPtsne2_no_rowRanges-method}
 \title{plotDimReducePoints}
 \usage{
 plotDimReducePoints(
+  ct2,
+  color_VAR = NULL,
+  point_size = NULL,
+  point_color_limits = c(NA, NA),
+  has_symmetrical_limits = NULL,
+  point_colors = NULL,
+  extra_VARS = NULL,
+  background_annotation_color = NULL,
+  underlayer_FUN = function(p) p
+)
+
+\S4method{plotDimReducePoints}{ChIPtsne2_no_rowRanges}(
   ct2,
   color_VAR = NULL,
   point_size = NULL,

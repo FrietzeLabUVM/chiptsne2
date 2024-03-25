@@ -4,6 +4,7 @@
 \name{FetchConfig-class}
 \alias{FetchConfig-class}
 \alias{.FetchConfig}
+\alias{names,FetchConfig-method}
 \alias{$,FetchConfig-method}
 \alias{$<-,FetchConfig-method}
 \alias{FetchConfig}
@@ -15,6 +16,8 @@
 \alias{FetchConfig.save_config}
 \title{FetchConfig}
 \usage{
+\S4method{names}{FetchConfig}(x)
+
 \S4method{$}{FetchConfig}(x, name)
 
 \S4method{$}{FetchConfig}(x, name) <- value

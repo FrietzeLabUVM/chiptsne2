@@ -177,6 +177,7 @@ setGeneric("plotDimReduceBins",
            signature = "ct2")
 
 #' @export
+#' @rdname plotDimReduceBins
 setMethod("plotDimReduceBins", c("ChIPtsne2_no_rowRanges"), .plotDimReduceBins)
 
 aggregate_signals = function(profile_dt,

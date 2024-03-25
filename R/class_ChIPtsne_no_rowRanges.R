@@ -115,8 +115,18 @@ ct2_nrr_show = function(object) {
     )
 }
 
+#' show_ChIPtsne2_no_rowRanges
+#'
+#' used by show
+#'
+#' @param object A ChIPtsne2_no_rowRanges object
+#'
 #' @export
 #' @importMethodsFrom SummarizedExperiment show
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' ct2
 setMethod("show", "ChIPtsne2_no_rowRanges", ct2_nrr_show)
 
 #### Setter ####
@@ -133,6 +143,7 @@ ct2_nrr_set_rowToRowMat = function(x, value) {
 }
 
 #' @export
+#' @rdname ct2-getset
 setReplaceMethod("rowToRowMat", "ChIPtsne2_no_rowRanges", ct2_nrr_set_rowToRowMat)
 
 #' colToRowMatCols<-

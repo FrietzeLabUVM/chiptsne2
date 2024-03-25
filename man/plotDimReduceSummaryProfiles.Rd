@@ -2,12 +2,31 @@
 % Please edit documentation in R/functions_dim_reduce_plot_summary_profiles.R
 \name{plotDimReduceSummaryProfiles}
 \alias{plotDimReduceSummaryProfiles}
+\alias{plotDimReduceSummaryProfiles,ChIPtsne2_no_rowRanges-method}
 \title{plotDimReduceSummaryProfiles}
 \usage{
 plotDimReduceSummaryProfiles(
   ct2,
   color_VAR = ct2@name_VAR,
   x_bins = nrow(ct2)^0.5,
+  y_bins = x_bins,
+  extra_VARS = character(),
+  xrng = NULL,
+  yrng = NULL,
+  value_limits = c(0, 1),
+  ma_size = 2,
+  n_splines = 10,
+  p = NULL,
+  N_floor = 0,
+  N_ceiling = NULL,
+  min_size = 0.3,
+  return_data = FALSE
+)
+
+\S4method{plotDimReduceSummaryProfiles}{ChIPtsne2_no_rowRanges}(
+  ct2,
+  color_VAR = ct2@name_VAR,
+  x_bins = min(nrow(ct2)^0.5, 10),
   y_bins = x_bins,
   extra_VARS = character(),
   xrng = NULL,

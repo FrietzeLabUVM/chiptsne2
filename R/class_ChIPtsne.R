@@ -3,7 +3,10 @@
 
 #### Constructor ####
 #https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/Extensions.html
+#' ChIPtsne2
+#'
 #' @export
+#' @rdname ChIPtsne2
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom GenomicRanges mcols
@@ -164,6 +167,10 @@ ct2_replace_rowRanges = function(x, ..., value){
     }
 }
 
+#' rowRanges
+#'
+#' @export
+#' @rdname ChIPtsne2
 setReplaceMethod("rowRanges", c("ChIPtsne2", "NULL"), ct2_replace_rowRanges)
 
 
