@@ -353,6 +353,9 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRe
         }
         assignment = assignment[, c(ct2@region_VAR, group_VAR)]
     }else{
+        if(length(group_VAR) > 1){
+            stop("When assignment is not a data.frame only 1 group_VAR is allowed.")
+        }
         if(is.null(names(assignment))){
             stop("assignment must be a data.frame or named vector.")
         }else{
@@ -389,6 +392,7 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRe
 #' ct2 = exampleChIPtsne2()
 #'
 #' # data.frame assignment
+#' np_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
 #' memb_grs = seqsetvis::ssvOverlapIntervalSets(np_grs)
 #' assign_df = seqsetvis::ssvFactorizeMembTable(memb_grs)
 #' assign_df$not_used = "A"
@@ -399,7 +403,7 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRe
 #' # character vector assignment
 #' manual_groups = assign_df$group
 #' names(manual_groups) = assign_df$id
-#' ct2.grouped2 = groupRegionsManually(ct2, manual_groups, group_VAR = c("group", "group2"))
+#' ct2.grouped2 = groupRegionsManually(ct2, manual_groups, group_VAR = c("group_by_vector"))
 #' rowData(ct2.grouped2)
 setGeneric("groupRegionsManually",
            function(ct2, assignment, group_VAR = "group_id")

@@ -94,7 +94,7 @@ plotDimReduceBins(ct2)
 plotDimReduceBins(ct2, facet_rows = "cell", facet_columns = "mark")
 # alternatively you can use extra_VARS and control facetting yourself
 plotDimReduceBins(ct2, extra_VARS = c("cell", "mark")) +
-  facet_grid(cell~mark)
+  ggplot2::facet_grid(cell~mark)
 
 # attributes from rowData can be used as well
 plotDimReduceBins(
@@ -103,7 +103,7 @@ plotDimReduceBins(
   facet_columns = "mark"
 )
 plotDimReduceBins(ct2, extra_VARS = c("peak_MCF10AT1_CTCF", "mark")) +
-  facet_grid(peak_MCF10AT1_CTCF~mark)
+  ggplot2::facet_grid(peak_MCF10AT1_CTCF~mark)
 
 plotDimReduceBins(ct2, xmin = -300, xmax = 0)
 plotDimReduceBins(

@@ -21,7 +21,7 @@ A ChIPtsne2_no_rowRanges object. with seed stored in histroy
 Calls \link{set.seed}.
 }
 \details{
-Recorded in history to allow reproducibilty with \link{rerurun_history}
+Recorded in history to allow reproducibilty with \link{rerun_history}
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()

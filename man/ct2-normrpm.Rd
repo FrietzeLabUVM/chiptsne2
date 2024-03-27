@@ -36,7 +36,8 @@ normalizeSignalRPM
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
-# we're going to spoof in mapped reads here, but if you have bam files you can use [get_mapped_reads].
+# we're going to spoof in mapped reads here
+# but if you have bam files you can use [get_mapped_reads].
 colData(ct2)$mapped_reads = c(3e6, 2e6, 1e6)
 plotSignalLinePlot(ct2)
 ct2.rpm = normalizeSignalRPM(ct2)

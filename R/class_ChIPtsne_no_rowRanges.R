@@ -132,6 +132,7 @@ setMethod("show", "ChIPtsne2_no_rowRanges", ct2_nrr_show)
 #### Setter ####
 
 #' @export
+#' @rdname ct2-getset
 setGeneric("rowToRowMat<-", function(x, ..., value)
     standardGeneric("rowToRowMat<-")
 )

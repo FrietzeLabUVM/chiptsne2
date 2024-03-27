@@ -32,6 +32,7 @@ groupRegionsManually
 ct2 = exampleChIPtsne2()
 
 # data.frame assignment
+np_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
 memb_grs = seqsetvis::ssvOverlapIntervalSets(np_grs)
 assign_df = seqsetvis::ssvFactorizeMembTable(memb_grs)
 assign_df$not_used = "A"
@@ -42,6 +43,6 @@ rowData(ct2.grouped)
 # character vector assignment
 manual_groups = assign_df$group
 names(manual_groups) = assign_df$id
-ct2.grouped2 = groupRegionsManually(ct2, manual_groups, group_VAR = c("group", "group2"))
+ct2.grouped2 = groupRegionsManually(ct2, manual_groups, group_VAR = c("group_by_vector"))
 rowData(ct2.grouped2)
 }

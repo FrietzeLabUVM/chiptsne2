@@ -68,7 +68,7 @@ exampleChIPtsne2.with_meta = function(){
 #' @examples
 #' exampleBamFiles()
 exampleBamFiles = function(){
-    dir(system.file("extdata", package = "seqsetvis"), pattern = "bam$", full.names = TRUE)
+    dir(system.file("extdata", package = "chiptsne2"), pattern = "MCF.+bam$", full.names = TRUE)
 }
 
 #' exampleBigWigFiles

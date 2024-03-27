@@ -13,7 +13,7 @@
 #'
 #' Calls [set.seed].
 #'
-#' Recorded in history to allow reproducibilty with [rerurun_history]
+#' Recorded in history to allow reproducibilty with [rerun_history]
 #'
 #' @param ct2 `r doc_ct2_nrr()`
 #' @param seed New set.seed value. Default of NULL will use Sys.time. This will still be saved in history.
