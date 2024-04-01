@@ -141,10 +141,6 @@ setGeneric("plotSignalLinePlot", function(
 
 #' @export
 #' @rdname plotSignalLinePlot
-setMethod("plotSignalLinePlot", c("ChIPtsne2"), .plotSignalLinePlot)
-
-#' @export
-#' @rdname plotSignalLinePlot
-setMethod("plotSignalLinePlot", c("ChIPtsne2_no_rowRanges"), .plotSignalLinePlot_meta)
+setMethod("plotSignalLinePlot", c("ChIPtsne2_no_rowRanges"), .plotSignalLinePlot)
 
 

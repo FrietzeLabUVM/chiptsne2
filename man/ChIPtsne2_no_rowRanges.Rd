@@ -15,6 +15,23 @@ ChIPtsne2_no_rowRanges(
   ...
 )
 }
+\arguments{
+\item{rowToRowMat}{Value for rowToRowMat slot. A matrix with profile data where colnames equals items in colToRowMatCols. The rownames are the rownames/region ids.}
+
+\item{colToRowMatCols}{Value for colToRowMatCols slot. A named list where names equals colnames of x and list values are colnames of rowToRowMat.}
+
+\item{name_VAR}{Name variable, a single character.}
+
+\item{position_VAR}{Position variable, a single character.}
+
+\item{value_VAR}{Value variable, a single character.}
+
+\item{region_VAR}{Region variable, a single character.}
+
+\item{fetch_config}{A \link{FetchConfig} object.}
+
+\item{...}{Arguments passed to \link[SummarizedExperiment:RangedSummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}. Must include: rowData, colData, assays, metadata}
+}
 \description{
 This is the base class for ChIPtsne2. Both classes support \code{rowData} but only
 ChIPtsne2 provides \code{rowRanges} and is therefore suitable for \code{GenomicRanges}
@@ -23,4 +40,25 @@ functions.
 \details{
 ChIPtsne2 object may be converted to ChIPtsne2_no_rowRanges simply by NULL
 assignment to rowRagnes. i.e. rowRanges(ct2) = NULL.
+}
+\examples{
+ct2 = exampleChIPtsne2.with_meta()
+# really, never make the ChIPtsne2 object this way.
+# if you must, you may inspect the individual elements below:
+ct2_new = ChIPtsne2_no_rowRanges(
+    rowToRowMat = rowToRowMat(ct2),
+    colToRowMatCols = colToRowMatCols(ct2),
+    name_VAR = getNameVariable(ct2),
+    position_VAR = getPositionVariable(ct2),
+    value_VAR = getValueVariable(ct2),
+    region_VAR = getRegionVariable(ct2),
+    fetch_config = FetchConfig.null(),
+    rowData = rowData(ct2),
+    colData = colData(ct2),
+    assays = assays(ct2),
+    metadata = ChIPtsne2.history(ct2)
+)
+ct2_new
+
+#'
 }

@@ -27,7 +27,8 @@ ChIPtsne2List <- function(
 
 #' cbind-ChIPtsne2List
 #'
-#' @param ChIPtsne2List `r doc_ct2list()`
+#' @param ... A single `r doc_ct2list()`
+#' @param deparse.level Not used.
 #'
 #' @return a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List
 #' @rdname cbind
@@ -49,7 +50,8 @@ setMethod("cbind", "ChIPtsne2List", function(..., deparse.level=1) {
 #### rbind ####
 #' rbind-ChIPtsne2List
 #'
-#' @param ChIPtsne2List `r doc_ct2list()`
+#' @param ... A single `r doc_ct2list()`
+#' @param deparse.level Not used.
 #'
 #' @return a ChIPtsne2 object of concatenated rows/regions of all items in input ChIPtsne2List
 #' @rdname rbind

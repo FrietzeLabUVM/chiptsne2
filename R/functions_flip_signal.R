@@ -6,7 +6,7 @@
     args = get_args()
     message("flipProfilesToMatch ...")
     prof_dt = getTidyProfile(ct2)
-    new_query_gr = rowRanges(ct2)
+    new_rowRanges = rowRanges(ct2)
 
     balance_dt = prof_dt[, list(right_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) > 0]),
                                 left_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) < 0])),
@@ -21,8 +21,8 @@
         most_flipped$needs_flip = !most_flipped$needs_flip
     }
     most_flipped$fraction_flipped = NULL
-    GenomicRanges::strand(new_query_gr) = "+"
-    GenomicRanges::strand(new_query_gr)[most_flipped$needs_flip] = "-"
+    GenomicRanges::strand(new_rowRanges) = "+"
+    GenomicRanges::strand(new_rowRanges)[most_flipped$needs_flip] = "-"
     prof_dt = merge(prof_dt, most_flipped, by = c(ct2@region_VAR))
     prof_dt = prof_dt[order(get(ct2@position_VAR))]
     x_vals = unique(prof_dt[[ct2@position_VAR]])
@@ -43,7 +43,7 @@
     cloneChIPtsne2_fromTidy(
         ct2,
         new_prof_dt = prof_dt,
-        new_query_gr = new_query_gr,
+        new_rowRanges = new_rowRanges,
         new_obj_history = c(ChIPtsne2.history(ct2), history_item))
 }
 
@@ -57,6 +57,7 @@
 #' uaffected regions getting (+) strand
 #'
 #' @param ct2 A ChIPtsne2 object
+#' @param highest_on_right
 #'
 #' @return A chiptsne2 object updated such that signal "tilts" in the same way.
 #'   When signal is flipped, strand of rowRanges is set to negative.
@@ -67,8 +68,24 @@
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
+#' #add a metadata column
+#' colData(ct2)$flip = "none"
 #' ct2_left = flipProfilesToMatch(ct2)
+#' colData(ct2_left)$flip = "left"
+#' #colnames will need to be different
+#' colnames(ct2_left) = paste0(colnames(ct2_left), "_left")
 #' ct2_right = flipProfilesToMatch(ct2, highest_on_right = TRUE)
+#' colData(ct2_right)$flip = "right"
+#' colnames(ct2_right) = paste0(colnames(ct2_right), "_right")
+#'
+#' # flipping imposes strandedness on regions so rowRanges needs to be removed
+#' rowRanges(ct2) = NULL
+#' rowRanges(ct2_left) = NULL
+#' rowRanges(ct2_right) = NULL
+#' ct2.combined = cbind(ct2, ct2_left, ct2_right)
+#'
+#' debug(plotSignalLinePlot)
+#' plotSignalLinePlot(ct2.combined, facet_VAR = "cell", color_VAR = "flip")
 #'
 #' prof_original = getTidyProfile(ct2)
 #' prof_original$group = "original"

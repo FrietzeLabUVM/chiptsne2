@@ -66,9 +66,9 @@
             }
         }else{
             if(fill){
-                p = p + ggplot2::scale_fill_gradientn(colours = color_scale, limits = scale_limits)
+                p = p + scale_fill_gradientn(colours = color_scale, limits = scale_limits)
             }else{
-                p = p + ggplot2::scale_color_gradientn(colours = color_scale, limits = scale_limits)
+                p = p + scale_color_gradientn(colours = color_scale, limits = scale_limits)
             }
         }
     }

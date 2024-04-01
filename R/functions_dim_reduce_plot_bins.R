@@ -145,6 +145,7 @@ generic_plotDimReduceBins = function(ct2,
 #' @export
 #'
 #' @examples
+#' library(ggplot2)
 #' ct2 = exampleChIPtsne2.with_meta()
 #' ct2 = dimReducePCA(ct2)
 #' plotDimReduceBins(ct2)
@@ -153,7 +154,7 @@ generic_plotDimReduceBins = function(ct2,
 #' plotDimReduceBins(ct2, facet_rows = "cell", facet_columns = "mark")
 #' # alternatively you can use extra_VARS and control facetting yourself
 #' plotDimReduceBins(ct2, extra_VARS = c("cell", "mark")) +
-#'   ggplot2::facet_grid(cell~mark)
+#'   facet_grid(cell~mark)
 #'
 #' # attributes from rowData can be used as well
 #' plotDimReduceBins(
@@ -162,7 +163,7 @@ generic_plotDimReduceBins = function(ct2,
 #'   facet_columns = "mark"
 #' )
 #' plotDimReduceBins(ct2, extra_VARS = c("peak_MCF10AT1_CTCF", "mark")) +
-#'   ggplot2::facet_grid(peak_MCF10AT1_CTCF~mark)
+#'   facet_grid(peak_MCF10AT1_CTCF~mark)
 #'
 #' plotDimReduceBins(ct2, xmin = -300, xmax = 0)
 #' plotDimReduceBins(

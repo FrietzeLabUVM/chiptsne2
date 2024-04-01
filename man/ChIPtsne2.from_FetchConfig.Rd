@@ -9,7 +9,8 @@ ChIPtsne2.from_FetchConfig(
   query_gr,
   region_metadata = NULL,
   obj_history = list(),
-  init = TRUE
+  init = TRUE,
+  use_cache = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ ChIPtsne2.from_FetchConfig(
 \item{obj_history}{Existing history for object, may be used to describe origin on prof_dt or query_gr.}
 
 \item{init}{If TRUE, initialize history with birthday, session_info, and chiptsne2_version}
+
+\item{use_cache}{If TRUE, default \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache} will be used. If FALSE no cacheing will be done. You may also supply a user created \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache}.}
 }
 \value{
 A ChIPtsne2 created using profiles fetched used provided FetchConfig

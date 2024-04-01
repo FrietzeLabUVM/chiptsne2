@@ -21,6 +21,7 @@ plotSignalHeatmap(
   annotation_format_FUN = NULL,
   annotation_theme = .annotation_theme,
   annotation_text_size = 8,
+  annotation_legends_to_show = TRUE,
   name_FUN = .prep_names,
   color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
   n_legend_rows = 1,
@@ -45,6 +46,7 @@ plotSignalHeatmap(
   annotation_format_FUN = NULL,
   annotation_theme = .annotation_theme,
   annotation_text_size = 8,
+  annotation_legends_to_show = TRUE,
   name_FUN = .prep_names,
   color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
   n_legend_rows = 1,
@@ -66,7 +68,8 @@ heatmap grouping will not evenly select among all regions but instead try
 to pick comparable numbers of regions between groups defined by
 \code{balance_VAR}.}
 
-\item{max_rows}{The maximum number of rows in the heatmap. Heatmaps should not have rows allocated less than 1 pixel. Default is 500.}
+\item{max_rows}{The maximum number of rows in the heatmap. Heatmaps should
+not have rows allocated less than 1 pixel. Default is 500.}
 
 \item{sort_strategy}{Strategy to use for sorting within groups. Valid choices
 are: 1) "sort", which sorts decreasing top to bottom, 2) "hclust" which
@@ -76,7 +79,9 @@ at top, and 4) "right" which puts most right tilted profiles at top.}
 \item{heatmap_fill_limits}{Passed to limits of scale_fill_gradientn. Default
 of c(NA, NA) uses natural range of the data.}
 
-\item{has_symmetrical_limits}{If TRUE color scale limits will extend to equal magnitude in positive and negative direction. Default is TRUE when negative values are present and FALSE otherwise.}
+\item{has_symmetrical_limits}{If TRUE color scale limits will extend to equal
+magnitude in positive and negative direction. Default is TRUE when negative
+values are present and FALSE otherwise.}
 
 \item{heatmap_colors}{Either a scale_fill_* or vector of R colors passed to
 scale_fill_gradientn.}
@@ -84,7 +89,8 @@ scale_fill_gradientn.}
 \item{heatmap_format_FUN}{A function that applies any additional formatting
 to the heatmap ggplot.}
 
-\item{heatmap_theme}{Theme applied to heatmap. Set to NULL if you wish to disable themeing. This is useful if you set the theme prior to plotting.}
+\item{heatmap_theme}{Theme applied to heatmap. Set to NULL if you wish to
+disable themeing. This is useful if you set the theme prior to plotting.}
 
 \item{annotation_colors}{Colors to use for annotation, should be a character
 vector or list of character vectors mirroring group_VARS for fine control.}
@@ -93,10 +99,15 @@ vector or list of character vectors mirroring group_VARS for fine control.}
 formatting to the annotation ggplots. May be a single function to apply to
 every annotation plot or list mirroring group_VARS for finer control.}
 
-\item{annotation_theme}{Theme applied to annotation plots. Set to NULL if you wish to disable themeing. This is useful if you set the theme prior to plotting.}
+\item{annotation_theme}{Theme applied to annotation plots. Set to NULL if you
+wish to disable themeing. This is useful if you set the theme prior to
+plotting.}
 
 \item{annotation_text_size}{Font size for text appearing in clustered group
 annotations.}
+
+\item{annotation_legends_to_show}{Numeric indexes or names of annotation
+plots to include legends for. Default of TRUE will show all.}
 
 \item{name_FUN}{A function to apply to facet labels (heatmap and annotation
 columns). By default, underscores are replaced with newlines.}
@@ -138,38 +149,23 @@ ct2 = setRegionMetaData(ct2, meta_df)
 
 plotSignalHeatmap(ct2)
 
-plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "chr_num"))
+#sort_VAR defaults to the last item in group_VARS but you can override that
+plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "chr_num"), sort_VAR = "cluster")
 plotSignalHeatmap(ct2, group_VARS = c("cluster", "chr_num", "overlap"), sort_VAR = "chr_num")
-plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
-plotSignalHeatmap(
-    ct2,
-    group_VARS = c(
-        "overlap",
-        "peak_MCF10A_CTCF",
-        "peak_MCF10AT1_CTCF",
-        "peak_MCF10CA1_CTCF",
-        "cluster",
-        "overlap"
-    ),
-    color_key_strategy = "if_not_sorted"
-)
-ct2_diff = subsetCol(ct2, cell == "MCF10AT1") - subsetCol(ct2, cell == "MCF10A")
+
+# if negative value are present, the plot fill scale default is different
+ct2_diff = subsetSamples(ct2, cell == "MCF10AT1") - subsetSamples(ct2, cell == "MCF10A")
+#this does the same thing:
+#ct2_diff = ct2[, "MCF10AT1_CTCF"] - ct2[, "MCF10A_CTCF"]
 plotSignalHeatmap(ct2_diff, group_VARS = c("overlap", "cluster"))
-
+# this can be disabled with has_symmetrical_limits = FALSE
 plotSignalHeatmap(
-    ct2,
-    group_VARS = c(
-        "cluster",
-        "peak_MCF10A_CTCF",
-        "peak_MCF10AT1_CTCF",
-        "peak_MCF10CA1_CTCF",
-        "overlap",
-        "cluster",
-        "cluster"
-    ),
-    color_key_strategy = "all"
+  ct2_diff,
+  group_VARS = c("overlap", "cluster"),
+  has_symmetrical_limits = FALSE
 )
 
+
 plotSignalHeatmap(
     ct2,
     group_VARS = c(
@@ -180,64 +176,44 @@ plotSignalHeatmap(
         "overlap",
         "cluster",
         "cluster"
-    ), n_legend_rows = 2, relative_heatmap_height = .5,
+    ), n_legend_rows = 2,
+    relative_heatmap_height = .5,
     color_key_strategy = "except_sort_VAR"
 )
 
-plotSignalHeatmap(ct2, group_VARS = c("overlap",
-                                       "peak_MCF10A_CTCF",
-                                       "peak_MCF10AT1_CTCF",
-                                       "peak_MCF10CA1_CTCF",
-                                       "cluster",
-                                       "overlap"), sort_VAR = FALSE, n_legend_rows = 2)
 
-plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap"))
-plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
-plotSignalHeatmap(
-    ct2,
-    group_VARS = c(
+ex_group_vars = c(
         "overlap",
         "peak_MCF10A_CTCF",
         "peak_MCF10AT1_CTCF",
         "peak_MCF10CA1_CTCF",
         "cluster",
         "overlap"
-    ),
+)
+
+# color_key_strategy behaves in a few different ways:
+plotSignalHeatmap(
+    ct2,
+    group_VARS = ex_group_vars,
     color_key_strategy = "if_not_sorted"
 )
 
 plotSignalHeatmap(
     ct2,
-    group_VARS = c(
-        "cluster",
-        "peak_MCF10A_CTCF",
-        "peak_MCF10AT1_CTCF",
-        "peak_MCF10CA1_CTCF",
-        "overlap",
-        "cluster",
-        "cluster"
-    ),
+    group_VARS = ex_group_vars,
     color_key_strategy = "all"
 )
 
 plotSignalHeatmap(
     ct2,
-    group_VARS = c(
-        "cluster",
-        "peak_MCF10A_CTCF",
-        "peak_MCF10AT1_CTCF",
-        "peak_MCF10CA1_CTCF",
-        "overlap",
-        "cluster",
-        "cluster"
-    ),
+    group_VARS = ex_group_vars,
     color_key_strategy = "except_sort_VAR"
 )
 
-plotSignalHeatmap(ct2, group_VARS = c("overlap",
-                                       "peak_MCF10A_CTCF",
-                                       "peak_MCF10AT1_CTCF",
-                                       "peak_MCF10CA1_CTCF",
-                                       "cluster",
-                                       "overlap"), sort_VAR = FALSE, n_legend_rows = 2)
+plotSignalHeatmap(
+  ct2,
+  group_VARS = ex_group_vars,
+  sort_VAR = FALSE,
+  n_legend_rows = 2
+)
 }

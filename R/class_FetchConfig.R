@@ -1,3 +1,235 @@
+#### Constructors ####
+
+#' FetchConfig
+#'
+#' This is the primary method for creating new FetchConfig objects.
+#'
+#' Consider loading FetchConfig from a file with [FetchConfig.load_config] or
+#' using [FetchConfig.from_files] to quickly create a basic FetchConfig from a
+#' vector of files.
+#'
+#' @param config_df A data.frame containing configuration information for signal
+#'   (bam or bigwig) files. Must contain a "file" attribute and the attribute
+#'   specified by `name_VAR`. and color_by.
+#' @param read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
+#' @param view_size Consistent size to use when viewing assessment regions. Uses
+#'   3kb as default.
+#' @param window_size The window size used when fetching signal. Lower values
+#'   increase resolution but also RAM usage. Default is 200 bp.
+#' @param fetch_options Named list of additional arguments to pass to signal
+#'   fetch function.
+#' @param is_null If TRUE, this FetchConfig is considered null/empty.
+#' @param name_VAR Name variable. Must be in `config_df`.
+#'
+#' @return A FetchConfig object
+#' @export
+#'
+#' @examples
+#' #loading a config from a file
+#' bam_config_file = exampleBamConfigFile()
+#' bam_config = FetchConfig.load_config(bam_config_file)
+#' #FetchConfig.save_config(bam_config, "bam_config.csv")
+#'
+#' bigwig_config_file = exampleBigWigConfigFile()
+#' bigwig_config = FetchConfig.load_config(bigwig_config_file)
+#' #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
+#'
+#' #creating config from a new data.frame
+#' bam_config_df = exampleBam_data.frame()
+#' sig_conf = FetchConfig(bam_config_df)
+#'
+#' bigwig_config_df = exampleBigWig_data.frame()
+#' sig_conf.bw = FetchConfig(bigwig_config_df)
+#'
+#' cfg.null = FetchConfig.null()
+#' isFetchConfigNull(cfg.null)
+#'
+#' #creating a config from simple file paths
+#'
+#' bam_files = exampleBamFiles()
+#' FetchConfig.from_files(bam_files)
+#'
+#' FetchConfig.from_files(bam_files,
+#'   group_names = c(
+#'     "MCF10A_CTCF", "MCF10A_input",
+#'     "MCF10AT1_CTCF", "MCF10AT1_input",
+#'     "MCF10CA1a_CTCF", "MCF10CA1a_input")
+#' )
+#'
+#' #Using a config to fetch
+#' bam_config_file = exampleBamConfigFile()
+#' fetch_config = FetchConfig.load_config(bam_config_file)
+#'
+#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' runFetchAtRegions(fetch_config, query_gr)
+#'
+FetchConfig = function(config_df,
+                       read_mode = NULL,
+                       view_size = 3e3,
+                       window_size = 200,
+                       fetch_options = list(),
+                       is_null = FALSE,
+                       name_VAR = "name"){
+    config_df = .enforce_file_var(config_df)
+    config_df = .enforce_name_var(config_df, name_VAR = name_VAR)
+
+    #Guess read mode
+    if(is.null(read_mode)){
+        read_mode = guess_read_mode(config_df$file[1])
+    }
+
+    stopifnot(read_mode %in% sqc_read_modes)
+
+    .FetchConfig(
+        meta_data =  config_df,
+        read_mode = read_mode,
+        view_size = view_size,
+        window_size = window_size,
+        fetch_options = fetch_options,
+        name_VAR = name_VAR,
+        is_null = is_null)
+}
+
+#' FetchConfig null placeholder
+#'
+#' @return A null/empty FetchConfig object
+#' @export
+#'
+#' @examples
+#' # example code
+#' FetchConfig.null()
+FetchConfig.null = function(){
+    qc = suppressWarnings({FetchConfig(data.frame(file = "null", name = "null", name_split = "null", stringsAsFactors = FALSE), is_null = TRUE)})
+    qc
+}
+
+#' isFetchConfigNull
+#'
+#' @param fetch_config A FetchConfig object
+#'
+#' @return TRUE if object is null placeholder
+#' @export
+isFetchConfigNull = function(fetch_config){
+    fetch_config@is_null
+}
+
+#' FetchConfig.load_config
+#'
+#' Load a FetchConfig from a file.
+#'
+#' This file consists of a header, with
+#' configuration parameters stored on lines starting with #CFG and a csv body
+#' specifying file paths and metadata.
+#'
+#' Generally you would want to first create
+#' a FetchConfig using [FetchConfig] or [FetchConfig.from_files] then save it
+#' with [FetchConfig.save_config], rather than try to create a config file from scratch.
+#'
+#' @param signal_config_file Configuration file for signal data.
+#' @param name_VAR Name variable. Must be in body of config file. May also be
+#'   defined in header. Setting it here will override specification in config
+#'   file.
+#'
+#' @return A FetchConfig object
+#' @export
+#'
+#' @examples
+#' bam_config_file = exampleBamConfigFile()
+#' bam_config = FetchConfig.load_config(bam_config_file)
+#'
+FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
+    cfg_vals = .parse_config_header(signal_config_file)
+    if(is.null(name_VAR)){
+        if(!is.null(cfg_vals$name_VAR)){
+            name_VAR = cfg_vals$name_VAR
+        }else{
+            name_VAR = "name"
+        }
+    }
+    signal_config_dt = .parse_config_body(signal_config_file, name_VAR = name_VAR)
+    if(any(c("main_dir", "data_dir", "file_prefix") %in% names(cfg_vals))){
+        #ADD PREFIX TO FILE AND REMOVE VAR
+        path_VAR = intersect(c("main_dir", "data_dir", "file_prefix"), names(cfg_vals))
+        if(length(path_VAR) > 1){
+            stop("only one of following allowed: ", paste(path_VAR, collapse = ", "))
+        }
+        path_val = cfg_vals[[path_VAR]]
+        if(path_val == "$SSV_DATA"){ #special value indicating included package data
+            path_val = system.file("extdata", package = "seqsetvis", mustWork = TRUE)
+        }
+        if(path_val == "$PACKAGE_DATA"){ #special value indicating included package data
+            path_val = system.file("extdata", package = "chiptsne2", mustWork = TRUE)
+        }
+        signal_config_dt$file = file.path(path_val, signal_config_dt$file)
+        cfg_vals[[path_VAR]] = NULL
+    }
+
+    tfun = function(config_dt,
+                    read_mode = NULL,
+                    view_size = 3e3,
+                    window_size = getOption("CT_WINDOW_SIZE", 200),
+                    fetch_options = list(),
+                    is_null = FALSE,
+                    name_VAR = "name"){
+        FetchConfig(config_df = config_dt,
+                    read_mode = read_mode,
+                    view_size = view_size,
+                    window_size = window_size,
+                    fetch_options = fetch_options,
+                    is_null = is_null,
+                    name_VAR = name_VAR
+        )
+    }
+    do.call(tfun, c(list(config_dt = signal_config_dt), cfg_vals))
+}
+
+#
+#' FetchConfig.from_files
+#'
+#' @param file_paths character paths to files
+#' @param group_names vector of group names to assign from according to groups
+#' @param name_VAR Name variable.
+#' @param view_size view size in bp to apply. Defaults to 3000.
+#' @param window_size The window size used when fetching signal. Lower values
+#'   increase resolution but also RAM usage. Default is 200 bp.
+#' @param read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
+#' @param fetch_options Named list of additional arguments to pass to signal
+#'   fetch function.
+#'
+#' @return a FetchConfig object
+#' @export
+#'
+#' @examples
+#' bam_files = exampleBamFiles()
+#' FetchConfig.from_files(bam_files)
+FetchConfig.from_files = function(file_paths,
+                                  group_names = NULL,
+                                  name_VAR = "name",
+                                  view_size = 3e3,
+                                  window_size = getOption("CT_WINDOW_SIZE", 200),
+                                  read_mode = NULL,
+                                  fetch_options = list()
+){
+    if(is.null(group_names)){
+        if(is.null(names(file_paths))){
+            group_names = basename(file_paths)
+        }else{
+            group_names = names(file_paths)
+        }
+    }
+    config_df = data.frame(file = as.character(file_paths),
+                           group = group_names,
+                           stringsAsFactors = FALSE)
+    colnames(config_df)[2] = name_VAR
+
+    FetchConfig(config_df,
+                view_size = view_size,
+                window_size = window_size,
+                read_mode =  read_mode,
+                name_VAR = name_VAR,
+                fetch_options = fetch_options
+    )
+}
 
 #### Validity ####
 
@@ -46,6 +278,7 @@ setMethod("initialize","FetchConfig", function(.Object,...){
 })
 
 #' @rdname FetchConfig
+#' @param x A FetchConfig object
 setMethod("names", "FetchConfig",
           function(x)
           {
@@ -60,6 +293,7 @@ setMethod("names", "FetchConfig",
           })
 
 #' @rdname FetchConfig
+#' @param name Name of slot to be replaced/retrieved
 setMethod("$", "FetchConfig",
           function(x, name)
           {
@@ -73,6 +307,7 @@ setMethod("$", "FetchConfig",
           })
 
 #' @rdname FetchConfig
+#' @param value New value for slot.
 setReplaceMethod("$", "FetchConfig",
                  function(x, name, value)
                  {
@@ -100,202 +335,7 @@ setReplaceMethod("$", "FetchConfig",
                      x
                  })
 
-#' FetchConfig
-#'
-#' @param config_df A data.frame containing configuration information for signal
-#'   (bam or bigwig) files. Should contain a "file" attribute and entries for
-#'   and color_by.
-#' @param read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
-#'   Use CT_READ_MODES$.
-#' @param view_size Consistent size to use when viewing assessment regions. Uses
-#'   3kb as default.
-#' @param window_size The window size used when fetching signal. Lower values
-#'   increase resolution but also RAM usage. Default is 200 bp.
-#' @param fetch_options Named list of additional arguments to pass to signal
-#'   fetch function.
-#' @param is_null If TRUE, this FetchConfig is considered null/empty.
-#'
-#' @return A FetchConfig object
-#' @export
-#' @rdname FetchConfig
-#' @examples
-#' #loading a config from a file
-#' bam_config_file = exampleBamConfigFile()
-#' bam_config = FetchConfig.load_config(bam_config_file)
-#' #FetchConfig.save_config(bam_config, "bam_config.csv")
-#'
-#' bigwig_config_file = exampleBigWigConfigFile()
-#' bigwig_config = FetchConfig.load_config(bigwig_config_file)
-#' #FetchConfig.save_config(bigwig_config, "bigwig_config.csv")
-#'
-#' #creating config from a new data.frame
-#' bam_config_df = exampleBam_data.frame()
-#' sig_conf = FetchConfig(bam_config_df)
-#'
-#' bigwig_config_df = exampleBigWig_data.frame()
-#' sig_conf.bw = FetchConfig(bigwig_config_df)
-#'
-#' cfg.null = FetchConfig.null()
-#' isFetchConfigNull(cfg.null)
-#'
-#' #creating a config from simple file paths
-#'
-#' bam_files = dir(
-#'   system.file(
-#'     package = "chiptsne2",
-#'     "extdata", mustWork = TRUE),
-#'   pattern = "CTCF.+bam$",
-#'   full.names = TRUE
-#' )
-#' FetchConfig.from_files(bam_files)
-#'
-#' FetchConfig.from_files(bam_files,
-#'   group_names = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1a_CTCF")
-#' )
-#'
-#' #Using a config to fetch
-#' bam_config_file = exampleBamConfigFile()
-#' fetch_config = FetchConfig.load_config(bam_config_file)
-#'
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-#' chiptsne2:::fetch_signal_at_features(fetch_config, query_gr)
-#'
-FetchConfig = function(config_df,
-                       read_mode = NULL,
-                       view_size = 3e3,
-                       window_size = 200,
-                       fetch_options = list(),
-                       is_null = FALSE,
-                       name_VAR = "name"){
-    config_df = .enforce_file_var(config_df)
-    config_df = .enforce_name_var(config_df, name_VAR = name_VAR)
 
-    #Guess read mode
-    if(is.null(read_mode)){
-        read_mode = guess_read_mode(config_df$file[1])
-    }
-
-    stopifnot(read_mode %in% sqc_read_modes)
-
-    .FetchConfig(
-        meta_data =  config_df,
-        read_mode = read_mode,
-        view_size = view_size,
-        window_size = window_size,
-        fetch_options = fetch_options,
-        name_VAR = name_VAR,
-        is_null = is_null)
-}
-
-#' FetchConfig null placeholder
-#'
-#' @return A null/empty FetchConfig object
-#' @export
-#' @rdname FetchConfig
-FetchConfig.null = function(){
-    qc = suppressWarnings({FetchConfig(data.frame(file = "null", name = "null", name_split = "null", stringsAsFactors = FALSE), is_null = TRUE)})
-    qc
-}
-
-#' isFetchConfigNull
-#'
-#' @param cfg A FetchConfig object
-#'
-#' @return TRUE if object is null placeholder
-#' @export
-#' @rdname FetchConfig
-isFetchConfigNull = function(fetch_config){
-    fetch_config@is_null
-}
-
-#' @param signal_config_file Configuration file for signal data.
-#'
-#' @return A FetchConfig object
-#' @export
-#' @rdname FetchConfig
-FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
-    cfg_vals = .parse_config_header(signal_config_file)
-    if(!is.null(cfg_vals$name_VAR)){
-        name_VAR = cfg_vals$name_VAR
-    }else{
-        name_VAR = "name"
-    }
-    signal_config_dt = .parse_config_body(signal_config_file, name_VAR = name_VAR)
-    if(any(c("main_dir", "data_dir", "file_prefix") %in% names(cfg_vals))){
-        #ADD PREFIX TO FILE AND REMOVE VAR
-        path_VAR = intersect(c("main_dir", "data_dir", "file_prefix"), names(cfg_vals))
-        if(length(path_VAR) > 1){
-            stop("only one of following allowed: ", paste(path_VAR, collapse = ", "))
-        }
-        path_val = cfg_vals[[path_VAR]]
-        if(path_val == "$SSV_DATA"){ #special value indicating included package data
-            path_val = system.file("extdata", package = "seqsetvis", mustWork = TRUE)
-        }
-        if(path_val == "$PACKAGE_DATA"){ #special value indicating included package data
-            path_val = system.file("extdata", package = "chiptsne2", mustWork = TRUE)
-        }
-        signal_config_dt$file = file.path(path_val, signal_config_dt$file)
-        cfg_vals[[path_VAR]] = NULL
-    }
-
-    tfun = function(config_dt,
-                    read_mode = NULL,
-                    view_size = 3e3,
-                    window_size = getOption("CT_WINDOW_SIZE", 200),
-                    fetch_options = list(),
-                    is_null = FALSE,
-                    name_VAR = "name"){
-        FetchConfig(config_df = config_dt,
-                    read_mode = read_mode,
-                    view_size = view_size,
-                    window_size = window_size,
-                    fetch_options = fetch_options,
-                    is_null = is_null,
-                    name_VAR = name_VAR
-        )
-    }
-    do.call(tfun, c(list(config_dt = signal_config_dt), cfg_vals))
-}
-
-#
-#' FetchConfig.from_files
-#'
-#' @param file_paths character paths to files
-#' @param group_names vector of group names to assign from according to groups
-#' @param group_colors vector of colors to use per group
-#' @param view_size view size in bp to apply. Defaults to 3000.
-#'
-#' @return a FetchConfig object
-#' @export
-#' @rdname FetchConfig
-FetchConfig.from_files = function(file_paths,
-                                  group_names = NULL,
-                                  name_VAR = "name",
-                                  view_size = 3e3,
-                                  window_size = getOption("CT_WINDOW_SIZE", 200),
-                                  read_mode = NULL,
-                                  fetch_options = list()
-){
-    if(is.null(group_names)){
-        if(is.null(names(file_paths))){
-            group_names = basename(file_paths)
-        }else{
-            group_names = names(file_paths)
-        }
-    }
-    config_df = data.frame(file = as.character(file_paths),
-                           group = group_names,
-                           stringsAsFactors = FALSE)
-    colnames(config_df)[2] = name_VAR
-
-    FetchConfig(config_df,
-                view_size = view_size,
-                window_size = window_size,
-                read_mode =  read_mode,
-                name_VAR = name_VAR,
-                fetch_options = fetch_options
-    )
-}
 
 get_fetch_fun = function(read_mode){
     stopifnot(read_mode %in% c("bam_SE", "bam_PE", "bigwig"))
@@ -311,16 +351,18 @@ get_fetch_fun = function(read_mode){
            })
 }
 
+#' runFetchAtRegions
+#'
 #' @param fetch_config A FetchConfig object
 #' @param query_gr A GRanges to fetch data for
+#' @param use_cache If TRUE, default [BiocFileCache::BiocFileCache] will be used. If FALSE no cacheing will be done. You may also supply a user created [BiocFileCache::BiocFileCache].
 #'
 #' @return A list of 2 items prof_dt and query_gr.  prof_dt is a tidy data.table
 #'   of signal profiles.  query_gr is a GRanges that may have been modified from
 #'   input query_gr if signal profiles are flipped or centered according to
 #'   center_signal_at_max or flip_signal_mode in the signal config.
-#' @rdname FetchConfig
 #' @export
-fetch_signal_at_features = function(fetch_config, query_gr, bfc = NULL){
+runFetchAtRegions = function(fetch_config, query_gr, use_cache = FALSE){
     extra_args = fetch_config@fetch_options
     ### JRB commenting out for now. user provided fragLens should be used.
     # if(!is.null(fetch_config@meta_data$fragLens)){ # fragLens is in meta data
@@ -355,20 +397,39 @@ fetch_signal_at_features = function(fetch_config, query_gr, bfc = NULL){
         names_variable = fetch_config@name_VAR),
         extra_args)
     fetch_FUN = get_fetch_fun(fetch_config@read_mode)
-    prof_dt = bfcif(
-        FUN = function(){
-            do.call(fetch_FUN, call_args)
-        },
-        rname = digest::digest(list(fetch_FUN, call_args)),
-        bfc = bfc)
+    if(is.logical(use_cache)){
+        if(use_cache){
+            # NULL results in auto cache from bfcif
+            use_cache = NULL
+        }
+    }
+    if(is(use_cache, "BiocFileCache") | is.null(use_cache)){
+        prof_dt = bfcif(
+            FUN = function(){
+                do.call(fetch_FUN, call_args)
+            },
+            rname = digest::digest(list(fetch_FUN, call_args)),
+            bfc = use_cache)
+    }else{
+        message("Fetching with no cache...")
+        prof_dt = do.call(fetch_FUN, call_args)
+    }
+
     list(prof_dt = prof_dt, query_gr = query_gr)
 }
 
 #' FetchConfig.save_config
 #'
+#' @param object FetchConfig object to save.
+#' @param file File path to save FetchConfig object too.
+#'
 #' @return Invisibly returns path to saved config file.
 #' @export
-#' @rdname FetchConfig
+#'
+#' @examples
+#' bam_config_file = exampleBamConfigFile()
+#' bam_config = FetchConfig.load_config(bam_config_file)
+#' #FetchConfig.save_config(bam_config, "bam_config.csv")
 FetchConfig.save_config = function(object, file){
     slots_to_save = c(
         "view_size",

@@ -12,6 +12,10 @@
 \S4method{rbind}{ChIPtsne2_no_rowRanges}(..., deparse.level = 1)
 }
 \arguments{
+\item{...}{A single A ChIPtsne2_no_rowRanges object.}
+
+\item{deparse.level}{Not used.}
+
 \item{ChIPtsne2_no_rowRanges}{A ChIPtsne2_no_rowRanges object.}
 }
 \value{

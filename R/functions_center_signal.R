@@ -60,15 +60,14 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
     rng_min = min(abs(rng))
     new_prof_dt = dplyr::filter(new_prof_dt, get(ct2@position_VAR) <= rng_min & get(ct2@position_VAR) >= -rng_min)
     new_w = new_prof_dt[[ct2@position_VAR]] %>% range %>% diff
-    new_query_gr = GenomicRanges::resize(rowRanges(ct2), new_w, fix = "center")
+    new_rowRanges = GenomicRanges::resize(rowRanges(ct2), new_w, fix = "center")
 
     history_item = list(centerProfilesAndTrim = list(FUN = .centerProfilesAndTrim, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2 = ct2,
         new_prof_dt = new_prof_dt,
-        new_query_gr = new_query_gr,
-        new_obj_history = c(ChIPtsne2.history(ct2), history_item),
-        init = FALSE
+        new_rowRanges = new_rowRanges,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
 

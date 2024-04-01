@@ -3,8 +3,6 @@
 \name{cloneChIPtsne2}
 \alias{cloneChIPtsne2}
 \alias{cloneChIPtsne2,ChIPtsne2_no_rowRanges-method}
-\alias{cloneChIPtsne2_fromTidy}
-\alias{cloneChIPtsne2_fromTidy,ChIPtsne2_no_rowRanges-method}
 \title{cloneChIPtsne2}
 \usage{
 cloneChIPtsne2(
@@ -19,7 +17,7 @@ cloneChIPtsne2(
   new_rowRanges = NULL,
   new_colData = NULL,
   new_assays = NULL,
-  new_metadata = NULL
+  new_obj_history = NULL
 )
 
 \S4method{cloneChIPtsne2}{ChIPtsne2_no_rowRanges}(
@@ -34,37 +32,7 @@ cloneChIPtsne2(
   new_rowRanges = NULL,
   new_colData = NULL,
   new_assays = NULL,
-  new_metadata = NULL
-)
-
-cloneChIPtsne2_fromTidy(
-  ct2,
-  new_prof_dt = NULL,
-  new_obj_history = NULL,
-  new_name_VAR = NULL,
-  new_position_VAR = NULL,
-  new_value_VAR = NULL,
-  new_region_VAR = NULL,
-  new_fetch_config = NULL,
-  new_query_gr = NULL,
-  init = FALSE,
-  new_sample_metadata = NULL,
-  new_region_metadata = NULL
-)
-
-\S4method{cloneChIPtsne2_fromTidy}{ChIPtsne2_no_rowRanges}(
-  ct2,
-  new_prof_dt = NULL,
-  new_obj_history = NULL,
-  new_name_VAR = NULL,
-  new_position_VAR = NULL,
-  new_value_VAR = NULL,
-  new_region_VAR = NULL,
-  new_fetch_config = NULL,
-  new_query_gr = NULL,
-  init = FALSE,
-  new_sample_metadata = NULL,
-  new_region_metadata = NULL
+  new_obj_history = NULL
 )
 }
 \arguments{
@@ -90,7 +58,7 @@ cloneChIPtsne2_fromTidy(
 
 \item{new_assays}{assays slot override}
 
-\item{new_metadata}{metadata slot override}
+\item{new_obj_history}{object history, aka metadata, slot override}
 }
 \value{
 Clone of input A ChIPtsne2 object. or A ChIPtsne2_no_rowRanges object. with specified slots modified.

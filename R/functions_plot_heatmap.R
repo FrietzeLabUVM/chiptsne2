@@ -16,6 +16,7 @@
                               annotation_format_FUN = NULL,
                               annotation_theme = .annotation_theme,
                               annotation_text_size = 8,
+                              annotation_legends_to_show = TRUE,
                               name_FUN = .prep_names,
                               color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
                               n_legend_rows = 1,
@@ -33,7 +34,7 @@
     stopifnot(relative_heatmap_height > 0 & relative_heatmap_height < 1)
     stopifnot(n_legend_rows >= 1)
 
-    meta_dt = getRegionMetaData(ct2)
+    meta_dt = as.data.table(getRegionMetaData(ct2))
     req_vars = unique(c(group_VARS, sort_VAR, balance_VAR))
     req_vars = setdiff(req_vars, FALSE)
     if(!all(req_vars %in% colnames(meta_dt))){
@@ -101,7 +102,6 @@
             within_order_strategy = sort_strategy)
     }
 
-
     x_ = ct2@position_VAR
     x_ = ensym(x_)
     y_ = ct2@region_VAR
@@ -143,11 +143,12 @@
     }
     # cowplot::get_legend() now returning warning
     p_heat.leg = cowplot::get_plot_component(p_heat, "guide-box", return_all = TRUE)[[1]]
-    p_heat = p_heat + guides(fill = "none")
+    p_heat = p_heat + guides(fill = "none") + labs(y = "")
 
     #### annotation ####
     anno_VARS = group_VARS
     anno_VARS = anno_VARS[!anno_VARS %in% fake_VAR]
+    names(anno_VARS) = anno_VARS
     anno_df = getRegionMetaData(ct2, anno_VARS)[, c(ct2@region_VAR, anno_VARS), drop = FALSE]
     # anno_df = anno_df[anno_df[[ct2@region_VAR]] %in% assign_dt[[ct2@region_VAR]], , drop = FALSE]
     anno_df = dplyr::filter(anno_df, get(ct2@region_VAR) %in% assign_dt[[ct2@region_VAR]])
@@ -169,8 +170,27 @@
             annotation_colors
         })
     }
+    if(length(annotation_colors) != length(anno_VARS)){
+        if(is.null(names(annotation_colors))){
+            stop("annotation_colors must be either the same length as anno_VARS or have names set.")
+        }else{
+            .validate_allowed_input(
+                input = names(annotation_colors),
+                allowed = anno_VARS,
+                msg_prefix = "Some/all names of annotation_colors are not found in anno_VARS:"
+            )
+            default_annotation_colors = lapply(seq_along(anno_VARS), function(i){
+                NULL
+            })
+            names(default_annotation_colors) = names(anno_VARS)
+            for(name in names(annotation_colors)){
+                is_match = names(default_annotation_colors) == name
+                default_annotation_colors[is_match] = list(annotation_colors[[name]])
+            }
+            annotation_colors = default_annotation_colors
+        }
+    }
     stopifnot(length(annotation_colors) == length(anno_VARS))
-
     anno_plots = list()
     legend_plots = list()
     for(i in seq_along(anno_VARS)){
@@ -232,6 +252,12 @@
         }
         anno_plots[[length(anno_plots) + 1]] = p_anno
     }
+    if(length(legend_plots) > 0){
+        legend_plots = legend_plots[annotation_legends_to_show]
+        if(!all(sapply(legend_plots, is, class2 = "grob"))){
+            stop("annotation_legends_to_show values are not compatible with legend_plots.")
+        }
+    }
     legend_plots = c(legend_plots, list(p_heat.leg))
     rel_widths = c(1 - relative_heatmap_width, relative_heatmap_width)
     rel_widths = c(rep(rel_widths[1] / length(anno_plots), length(anno_plots)), rel_widths[2])
@@ -278,6 +304,8 @@
 #'   every annotation plot or list mirroring group_VARS for finer control.
 #' @param annotation_text_size Font size for text appearing in clustered group
 #'   annotations.
+#' @param annotation_legends_to_show Numeric indexes or names of annotation
+#'   plots to include legends for. Default of TRUE will show all.
 #' @param name_FUN A function to apply to facet labels (heatmap and annotation
 #'   columns). By default, underscores are replaced with newlines.
 #' @param color_key_strategy Strategy to use for selection of annotation method.
@@ -298,10 +326,16 @@
 #'   heatmap grouping will not evenly select among all regions but instead try
 #'   to pick comparable numbers of regions between groups defined by
 #'   `balance_VAR`.
-#' @param max_rows The maximum number of rows in the heatmap. Heatmaps should not have rows allocated less than 1 pixel. Default is 500.
-#' @param has_symmetrical_limits If TRUE color scale limits will extend to equal magnitude in positive and negative direction. Default is TRUE when negative values are present and FALSE otherwise.
-#' @param heatmap_theme Theme applied to heatmap. Set to NULL if you wish to disable themeing. This is useful if you set the theme prior to plotting.
-#' @param annotation_theme Theme applied to annotation plots. Set to NULL if you wish to disable themeing. This is useful if you set the theme prior to plotting.
+#' @param max_rows The maximum number of rows in the heatmap. Heatmaps should
+#'   not have rows allocated less than 1 pixel. Default is 500.
+#' @param has_symmetrical_limits If TRUE color scale limits will extend to equal
+#'   magnitude in positive and negative direction. Default is TRUE when negative
+#'   values are present and FALSE otherwise.
+#' @param heatmap_theme Theme applied to heatmap. Set to NULL if you wish to
+#'   disable themeing. This is useful if you set the theme prior to plotting.
+#' @param annotation_theme Theme applied to annotation plots. Set to NULL if you
+#'   wish to disable themeing. This is useful if you set the theme prior to
+#'   plotting.
 #'
 #' @return A grob of ggplots assembled using cowplot::plot_grid
 #' @export
@@ -319,38 +353,23 @@
 #'
 #' plotSignalHeatmap(ct2)
 #'
-#' plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "chr_num"))
+#' #sort_VAR defaults to the last item in group_VARS but you can override that
+#' plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap", "chr_num"), sort_VAR = "cluster")
 #' plotSignalHeatmap(ct2, group_VARS = c("cluster", "chr_num", "overlap"), sort_VAR = "chr_num")
-#' plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
-#' plotSignalHeatmap(
-#'     ct2,
-#'     group_VARS = c(
-#'         "overlap",
-#'         "peak_MCF10A_CTCF",
-#'         "peak_MCF10AT1_CTCF",
-#'         "peak_MCF10CA1_CTCF",
-#'         "cluster",
-#'         "overlap"
-#'     ),
-#'     color_key_strategy = "if_not_sorted"
-#' )
-#' ct2_diff = subsetCol(ct2, cell == "MCF10AT1") - subsetCol(ct2, cell == "MCF10A")
+#'
+#' # if negative value are present, the plot fill scale default is different
+#' ct2_diff = subsetSamples(ct2, cell == "MCF10AT1") - subsetSamples(ct2, cell == "MCF10A")
+#' #this does the same thing:
+#' #ct2_diff = ct2[, "MCF10AT1_CTCF"] - ct2[, "MCF10A_CTCF"]
 #' plotSignalHeatmap(ct2_diff, group_VARS = c("overlap", "cluster"))
-#'
+#' # this can be disabled with has_symmetrical_limits = FALSE
 #' plotSignalHeatmap(
-#'     ct2,
-#'     group_VARS = c(
-#'         "cluster",
-#'         "peak_MCF10A_CTCF",
-#'         "peak_MCF10AT1_CTCF",
-#'         "peak_MCF10CA1_CTCF",
-#'         "overlap",
-#'         "cluster",
-#'         "cluster"
-#'     ),
-#'     color_key_strategy = "all"
+#'   ct2_diff,
+#'   group_VARS = c("overlap", "cluster"),
+#'   has_symmetrical_limits = FALSE
 #' )
 #'
+#'
 #' plotSignalHeatmap(
 #'     ct2,
 #'     group_VARS = c(
@@ -361,66 +380,46 @@
 #'         "overlap",
 #'         "cluster",
 #'         "cluster"
-#'     ), n_legend_rows = 2, relative_heatmap_height = .5,
+#'     ), n_legend_rows = 2,
+#'     relative_heatmap_height = .5,
 #'     color_key_strategy = "except_sort_VAR"
 #' )
 #'
-#' plotSignalHeatmap(ct2, group_VARS = c("overlap",
-#'                                        "peak_MCF10A_CTCF",
-#'                                        "peak_MCF10AT1_CTCF",
-#'                                        "peak_MCF10CA1_CTCF",
-#'                                        "cluster",
-#'                                        "overlap"), sort_VAR = FALSE, n_legend_rows = 2)
 #'
-#' plotSignalHeatmap(ct2, group_VARS = c("cluster", "overlap"))
-#' plotSignalHeatmap(ct2, group_VARS = c("overlap", "cluster"))
-#' plotSignalHeatmap(
-#'     ct2,
-#'     group_VARS = c(
+#' ex_group_vars = c(
 #'         "overlap",
 #'         "peak_MCF10A_CTCF",
 #'         "peak_MCF10AT1_CTCF",
 #'         "peak_MCF10CA1_CTCF",
 #'         "cluster",
 #'         "overlap"
-#'     ),
+#' )
+#'
+#' # color_key_strategy behaves in a few different ways:
+#' plotSignalHeatmap(
+#'     ct2,
+#'     group_VARS = ex_group_vars,
 #'     color_key_strategy = "if_not_sorted"
 #' )
 #'
 #' plotSignalHeatmap(
 #'     ct2,
-#'     group_VARS = c(
-#'         "cluster",
-#'         "peak_MCF10A_CTCF",
-#'         "peak_MCF10AT1_CTCF",
-#'         "peak_MCF10CA1_CTCF",
-#'         "overlap",
-#'         "cluster",
-#'         "cluster"
-#'     ),
+#'     group_VARS = ex_group_vars,
 #'     color_key_strategy = "all"
 #' )
 #'
 #' plotSignalHeatmap(
 #'     ct2,
-#'     group_VARS = c(
-#'         "cluster",
-#'         "peak_MCF10A_CTCF",
-#'         "peak_MCF10AT1_CTCF",
-#'         "peak_MCF10CA1_CTCF",
-#'         "overlap",
-#'         "cluster",
-#'         "cluster"
-#'     ),
+#'     group_VARS = ex_group_vars,
 #'     color_key_strategy = "except_sort_VAR"
 #' )
 #'
-#' plotSignalHeatmap(ct2, group_VARS = c("overlap",
-#'                                        "peak_MCF10A_CTCF",
-#'                                        "peak_MCF10AT1_CTCF",
-#'                                        "peak_MCF10CA1_CTCF",
-#'                                        "cluster",
-#'                                        "overlap"), sort_VAR = FALSE, n_legend_rows = 2)
+#' plotSignalHeatmap(
+#'   ct2,
+#'   group_VARS = ex_group_vars,
+#'   sort_VAR = FALSE,
+#'   n_legend_rows = 2
+#' )
 setGeneric("plotSignalHeatmap", function(
         ct2,
         group_VARS = NULL,
@@ -437,6 +436,7 @@ setGeneric("plotSignalHeatmap", function(
         annotation_format_FUN = NULL,
         annotation_theme = .annotation_theme,
         annotation_text_size = 8,
+        annotation_legends_to_show = TRUE,
         name_FUN = .prep_names,
         color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
         n_legend_rows = 1,

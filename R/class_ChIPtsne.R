@@ -3,14 +3,49 @@
 
 #### Constructor ####
 #https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/Extensions.html
+
 #' ChIPtsne2
+#'
+#' This is not the recommended function for user generation of a ChIPtsne2
+#' object. Users should use either [ChIPtsne2.from_FetchConfig] or
+#' [ChIPtsne2.from_tidy] in the majority of cases.
+#'
+#' @param rowToRowMat Value for rowToRowMat slot. A matrix with profile data where colnames equals items in colToRowMatCols. The rownames are the rownames/region ids.
+#' @param colToRowMatCols Value for colToRowMatCols slot. A named list where names equals colnames of x and list values are colnames of rowToRowMat.
+#' @param name_VAR Name variable, a single character.
+#' @param position_VAR Position variable, a single character.
+#' @param value_VAR Value variable, a single character.
+#' @param region_VAR Region variable, a single character.
+#' @param fetch_config A [FetchConfig] object.
+#' @param ... Arguments passed to [SummarizedExperiment::SummarizedExperiment]. Must include: rowRanges, colData, assays, metadata
 #'
 #' @export
 #' @rdname ChIPtsne2
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom GenomicRanges mcols
-ChIPtsne2 <- function(
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' # really, never make the ChIPtsne2 object this way.
+#' # if you must, you may inspect the individual elements below:
+#' ct2_new = ChIPtsne2(
+#'     rowToRowMat = rowToRowMat(ct2),
+#'     colToRowMatCols = colToRowMatCols(ct2),
+#'     name_VAR = getNameVariable(ct2),
+#'     position_VAR = getPositionVariable(ct2),
+#'     value_VAR = getValueVariable(ct2),
+#'     region_VAR = getRegionVariable(ct2),
+#'     fetch_config = FetchConfig.null(),
+#'     rowRanges = rowRanges(ct2),
+#'     colData = colData(ct2),
+#'     assays = assays(ct2),
+#'     metadata = ChIPtsne2.history(ct2)
+#' )
+#' ct2_new
+#'
+#'
+ChIPtsne2 = function(
         rowToRowMat=matrix(0,0,0),
         colToRowMatCols=list(),
         name_VAR = "sample",
@@ -20,7 +55,7 @@ ChIPtsne2 <- function(
         fetch_config = FetchConfig.null(),
         ...)
 {
-    se <- SummarizedExperiment(...)
+    se <- SummarizedExperiment::SummarizedExperiment(...)
     if(!is.null(rowRanges(se))){
         k = colnames(GenomicRanges::mcols(rowRanges(se))) %in% colnames(se)
         if(any(k)){
@@ -167,10 +202,22 @@ ct2_replace_rowRanges = function(x, ..., value){
     }
 }
 
-#' rowRanges
+#' rowRanges accessor of ChIPtsne2
+#'
+#' @param x `r doc_ct2()`
+#' @param ... not used
+#' @param value Only NULL is allowed.
 #'
 #' @export
-#' @rdname ChIPtsne2
+#' @rdname ct2-rowRanges
+#' @return `r doc_ct2_nrr()` that is the same as input ChIPtsne2 object but with rowRanges removed.
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' class(ct2)
+#' rowRanges(ct2) = NULL
+#' #class has changed to ChIPtsne2_no_rowRanges
+#' class(ct2)
 setReplaceMethod("rowRanges", c("ChIPtsne2", "NULL"), ct2_replace_rowRanges)
 
 

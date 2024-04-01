@@ -128,6 +128,7 @@ generic_plotDimReducePoints = function(ct2,
 #' @rdname plotDimReducePoints
 #'
 #' @examples
+#' library(ggplot2)
 #' ct2 = exampleChIPtsne2.with_meta() %>%
 #'    dimReduceUMAP() %>%
 #'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%

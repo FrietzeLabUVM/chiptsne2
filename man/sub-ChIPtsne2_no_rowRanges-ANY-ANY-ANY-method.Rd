@@ -4,8 +4,31 @@
 \alias{[,ChIPtsne2_no_rowRanges,ANY,ANY,ANY-method}
 \title{ChIPtsne2_no_rowRanges array-like access}
 \usage{
-\S4method{[}{ChIPtsne2_no_rowRanges,ANY,ANY,ANY}(x, i, j, drop = TRUE)
+\S4method{[}{ChIPtsne2_no_rowRanges,ANY,ANY,ANY}(x, i, j, drop = FALSE)
+}
+\arguments{
+\item{x}{A ChIPtsne2_no_rowRanges object.}
+
+\item{i}{row numbers or names to select.}
+
+\item{j}{column numbers or names to select.}
+
+\item{drop}{must be FALSE.}
+}
+\value{
+Subset of input \code{ct2} based on i and j.
 }
 \description{
 ChIPtsne2_no_rowRanges array-like access
+}
+\examples{
+ct2 = exampleChIPtsne2.with_meta()
+# integer indexes work
+ct2[5:10, 1:2]
+# as do column names and row names
+ct2[c("1", "2"), "MCF10A_CTCF"]
+# omitting either rows or columns selector is fine
+# and results in all being selected
+ct2[1:2, ]
+ct2[, 1:2]
 }

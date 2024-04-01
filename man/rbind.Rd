@@ -7,7 +7,9 @@
 \S4method{rbind}{ChIPtsne2List}(..., deparse.level = 1)
 }
 \arguments{
-\item{ChIPtsne2List}{A ChIPtsne2List object.}
+\item{...}{A single A ChIPtsne2List object.}
+
+\item{deparse.level}{Not used.}
 }
 \value{
 a ChIPtsne2 object of concatenated rows/regions of all items in input ChIPtsne2List

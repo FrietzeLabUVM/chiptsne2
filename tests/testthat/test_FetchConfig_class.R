@@ -115,9 +115,9 @@ test_that("fragLens", {
     cfg.bam_no_fragLens = FetchConfig.load_config(bam_cfg_f.no_fragLens)
     cfg.bam_no_fragLens@meta_data = cfg.bam_no_fragLens$meta_data[1,]
 
-    res.bam = suppressWarnings({fetch_signal_at_features(cfg.bam, query_gr)})
-    res.bam_fragLens = fetch_signal_at_features(cfg.bam_fragLens, query_gr)
-    res.bam_no_fragLens = fetch_signal_at_features(cfg.bam_no_fragLens, query_gr)
+    res.bam = suppressWarnings({runFetchAtRegions(cfg.bam, query_gr, use_cache = FALSE)})
+    res.bam_fragLens = runFetchAtRegions(cfg.bam_fragLens, query_gr, use_cache = FALSE)
+    res.bam_no_fragLens = runFetchAtRegions(cfg.bam_no_fragLens, query_gr, use_cache = FALSE)
 
     # plot(
     #     res.bam$prof_dt$y,

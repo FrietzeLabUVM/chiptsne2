@@ -50,6 +50,14 @@ N_floor to N_ceiling.}
 
 \item{return_data}{if TRUE, data.table that would have been used to create
 ggplot is returned instead.}
+
+\item{position_VAR}{position variable in \code{summary_dt}}
+
+\item{value_VAR}{value variable in \code{summary_dt}}
+
+\item{color_VAR}{color variable in \code{summary_dt}}
+
+\item{extra_VARS}{extra variables to carry forward from \code{summary_dt} to be available for facetting etc.}
 }
 \value{
 a ggplot containing glyphs of local profile summaries arranged in

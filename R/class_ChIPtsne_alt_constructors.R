@@ -224,6 +224,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
 #' @param region_metadata Metadata to append to rowRanges, mcols of query_gr will also be used.
 #' @param obj_history Existing history for object, may be used to describe origin on prof_dt or query_gr.
 #' @param init If TRUE, initialize history with birthday, session_info, and chiptsne2_version
+#' @param use_cache If TRUE, default [BiocFileCache::BiocFileCache] will be used. If FALSE no cacheing will be done. You may also supply a user created [BiocFileCache::BiocFileCache].
 #'
 #' @return A ChIPtsne2 created using profiles fetched used provided FetchConfig
 #' @export
@@ -238,7 +239,8 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
                                       query_gr,
                                       region_metadata = NULL,
                                       obj_history = list(),
-                                      init = TRUE
+                                      init = TRUE,
+                                      use_cache = TRUE
 ){
     name_VAR = fetch_config@name_VAR
     sample_metadata = fetch_config@meta_data
@@ -246,7 +248,7 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
     query_gr = GenomicRanges::resize(query_gr, width = fetch_config@view_size, fix = "center")
     query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = fetch_config$window_size)
 
-    fetch_res = fetch_signal_at_features(fetch_config, query_gr)
+    fetch_res = runFetchAtRegions(fetch_config, query_gr, use_cache = use_cache)
     prof_dt = fetch_res$prof_dt
 
     ct2 = ChIPtsne2.from_tidy(prof_dt = prof_dt,
@@ -277,7 +279,20 @@ ChIPtsne2.history = function(ct2){
     ct2@metadata
 }
 
-.cloneChIPtsne2 = function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowRanges = NULL, new_colData = NULL, new_assays = NULL, new_metadata = NULL){
+.cloneChIPtsne2 = function(
+        ct2,
+        new_rowToRowMat = NULL,
+        new_colToRowMatCols = NULL,
+        new_name_VAR = NULL,
+        new_position_VAR = NULL,
+        new_value_VAR = NULL,
+        new_region_VAR = NULL,
+        new_fetch_config = NULL,
+        new_rowRanges = NULL,
+        new_colData = NULL,
+        new_assays = NULL,
+        new_obj_history = NULL
+){
     if(is.null(new_rowToRowMat)) new_rowToRowMat = rowToRowMat(ct2)
     if(is.null(new_colToRowMatCols)) new_colToRowMatCols = colToRowMatCols(ct2)
     if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
@@ -288,7 +303,7 @@ ChIPtsne2.history = function(ct2){
     if(is.null(new_rowRanges)) new_rowRanges = rowRanges(ct2)
     if(is.null(new_colData)) new_colData = colData(ct2)
     if(is.null(new_assays)) new_assays = as.list(ct2@assays@data)
-    if(is.null(new_metadata)) new_metadata = ct2@metadata
+    if(is.null(new_obj_history)) new_obj_history = ct2@metadata
 
 
     ChIPtsne2(rowToRowMat = new_rowToRowMat,
@@ -301,10 +316,10 @@ ChIPtsne2.history = function(ct2){
               rowRanges = new_rowRanges,
               colData = new_colData,
               assays = new_assays,
-              metadata = new_metadata)
+              metadata = new_obj_history)
 }
 
-.cloneChIPtsne2_no_rowData = function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowData = NULL, new_colData = NULL, new_assays = NULL, new_metadata = NULL){
+.cloneChIPtsne2_no_rowData = function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowData = NULL, new_colData = NULL, new_assays = NULL, new_obj_history = NULL){
     if(is.null(new_rowToRowMat)) new_rowToRowMat = rowToRowMat(ct2)
     if(is.null(new_colToRowMatCols)) new_colToRowMatCols = colToRowMatCols(ct2)
     if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
@@ -315,20 +330,20 @@ ChIPtsne2.history = function(ct2){
     if(is.null(new_rowData)) new_rowData = rowData(ct2)
     if(is.null(new_colData)) new_colData = colData(ct2)
     if(is.null(new_assays)) new_assays = as.list(ct2@assays@data)
-    if(is.null(new_metadata)) new_metadata = ct2@metadata
+    if(is.null(new_obj_history)) new_obj_history = ct2@metadata
 
 
     ChIPtsne2_no_rowRanges(rowToRowMat = new_rowToRowMat,
-              colToRowMatCols = new_colToRowMatCols,
-              name_VAR = new_name_VAR,
-              position_VAR = new_position_VAR,
-              value_VAR = new_value_VAR,
-              region_VAR = new_region_VAR,
-              fetch_config = new_fetch_config,
-              rowData = new_rowData,
-              colData = new_colData,
-              assays = new_assays,
-              metadata = new_metadata)
+                           colToRowMatCols = new_colToRowMatCols,
+                           name_VAR = new_name_VAR,
+                           position_VAR = new_position_VAR,
+                           value_VAR = new_value_VAR,
+                           region_VAR = new_region_VAR,
+                           fetch_config = new_fetch_config,
+                           rowData = new_rowData,
+                           colData = new_colData,
+                           assays = new_assays,
+                           metadata = new_obj_history)
 }
 
 #' cloneChIPtsne2
@@ -336,7 +351,6 @@ ChIPtsne2.history = function(ct2){
 #' Create a clone (copy) of a ChIPtsne2 object replacing any specified components.
 #'
 #' @param ct2 `r doc_ct2()` or `r doc_ct2_nrr()`
-#'
 #' @param new_rowToRowMat rowToRowMat slot override
 #' @param new_colToRowMatCols colToRowMatCols slot override
 #' @param new_name_VAR name_VAR slot override
@@ -347,7 +361,7 @@ ChIPtsne2.history = function(ct2){
 #' @param new_rowRanges rowRanges slot override
 #' @param new_colData colData slot override
 #' @param new_assays assays slot override
-#' @param new_metadata metadata slot override
+#' @param new_obj_history object history, aka metadata, slot override
 #'
 #' @export
 #' @return Clone of input `r doc_ct2()` or `r doc_ct2_nrr()` with specified slots modified.
@@ -360,13 +374,38 @@ ChIPtsne2.history = function(ct2){
 #' getNameVariable(ct2)
 #'
 #'
-setGeneric("cloneChIPtsne2", function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowRanges = NULL, new_colData = NULL, new_assays = NULL, new_metadata = NULL) standardGeneric("cloneChIPtsne2"))
+setGeneric("cloneChIPtsne2",
+           function(ct2,
+                    new_rowToRowMat = NULL,
+                    new_colToRowMatCols = NULL,
+                    new_name_VAR = NULL,
+                    new_position_VAR = NULL,
+                    new_value_VAR = NULL,
+                    new_region_VAR = NULL,
+                    new_fetch_config = NULL,
+                    new_rowRanges = NULL,
+                    new_colData = NULL,
+                    new_assays = NULL,
+                    new_obj_history = NULL){
+               standardGeneric("cloneChIPtsne2")
+           }
+)
 
 #' @export
 #' @rdname ct2-clone
 setMethod("cloneChIPtsne2", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2)
 
-.cloneChIPtsne2_fromTidy = function(ct2, new_prof_dt = NULL, new_obj_history = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_query_gr = NULL, init = FALSE, new_sample_metadata = NULL, new_region_metadata = NULL){
+.cloneChIPtsne2_fromTidy = function(ct2,
+                                    new_prof_dt = NULL,
+                                    new_name_VAR = NULL,
+                                    new_position_VAR = NULL,
+                                    new_value_VAR = NULL,
+                                    new_region_VAR = NULL,
+                                    new_fetch_config = NULL,
+                                    new_rowRanges = NULL,
+                                    new_sample_metadata = NULL,
+                                    new_region_metadata = NULL,
+                                    new_obj_history = NULL){
     if(is.null(new_prof_dt)) new_prof_dt = getTidyProfile(ct2)
     if(is.null(new_obj_history)) new_obj_history = ChIPtsne2.history(ct2)
     if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
@@ -375,14 +414,14 @@ setMethod("cloneChIPtsne2", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2)
     if(is.null(new_region_VAR)) new_region_VAR = ct2@region_VAR
     if(is.null(new_fetch_config)) new_fetch_config = ct2@fetch_config
     if(is(ct2, "ChIPtsne2")){
-        if(is.null(new_query_gr)) new_query_gr = rowRanges(ct2)
+        if(is.null(new_rowRanges)) new_rowRanges = rowRanges(ct2)
     }else{
-        new_query_gr = NULL
+        new_rowRanges = NULL
     }
     if(is.null(new_sample_metadata)) new_sample_metadata = getSampleMetaData(ct2)
 
     ChIPtsne2.from_tidy(prof_dt = new_prof_dt,
-                        query_gr = new_query_gr,
+                        query_gr = new_rowRanges,
                         sample_metadata = new_sample_metadata,
                         region_metadata = new_region_metadata,
                         name_VAR = new_name_VAR,
@@ -391,16 +430,57 @@ setMethod("cloneChIPtsne2", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2)
                         region_VAR = new_region_VAR,
                         obj_history = new_obj_history,
                         fetch_config = new_fetch_config,
-                        init = init)
+                        init = FALSE)
 }
 
+#' cloneChIPtsne2_fromTidy
+#'
+#' @param ct2 `r doc_ct2()` or `r doc_ct2_nrr()`
+#' @param new_prof_dt tidy representation of rowToRowMat and colToRowMatCols.
+#'   Could be modified output of [getTidyProfile].
+#' @param new_name_VAR name_VAR slot override
+#' @param new_position_VAR position_VAR slot override
+#' @param new_value_VAR value_VAR slot override
+#' @param new_region_VAR region_VAR slot override
+#' @param new_fetch_config slot override
+#' @param new_rowRanges rowRanges slot override
+#' @param new_sample_metadata Could be modified output of [getSampleMetaData] to
+#'   override colData
+#' @param new_region_metadata Could be modified output of [getRegionMetaData] to
+#'   override rowData
+#' @param new_obj_history object history, aka metadata, slot override
+#'
+#' @return Clone of input `r doc_ct2()` or `r doc_ct2_nrr()` with specified
+#'   slots modified.
 #' @export
-#' @rdname ct2-clone
-setGeneric("cloneChIPtsne2_fromTidy", function(ct2, new_prof_dt = NULL, new_obj_history = NULL, new_name_VAR = NULL,
-                                               new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL,
-                                               new_fetch_config = NULL, new_query_gr = NULL, init = FALSE, new_sample_metadata = NULL,
-                                               new_region_metadata = NULL) standardGeneric("cloneChIPtsne2_fromTidy"))
+#' @rdname ct2-clonetidy
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' plotSignalLinePlot(ct2)
+#'
+#' # one applicatation of cloning would be to extract tidy profiles,
+#' # modify somehow, and then reinsert.
+#' prof_dt = getTidyProfile(ct2)
+#' prof_dt[sample == "MCF10A_CTCF", y := y/4]
+#' ct2.clone1 = cloneChIPtsne2_fromTidy(ct2, new_prof_dt = prof_dt)
+#' plotSignalLinePlot(ct2.clone1)
+setGeneric("cloneChIPtsne2_fromTidy",
+           function(ct2,
+                    new_prof_dt = NULL,
+                    new_name_VAR = NULL,
+                    new_position_VAR = NULL,
+                    new_value_VAR = NULL,
+                    new_region_VAR = NULL,
+                    new_fetch_config = NULL,
+                    new_rowRanges = NULL,
+                    new_sample_metadata = NULL,
+                    new_region_metadata = NULL,
+                    new_obj_history = NULL){
+               standardGeneric("cloneChIPtsne2_fromTidy")
+           }
+)
 
 #' @export
-#' @rdname ct2-clone
+#' @rdname ct2-clonetidy
 setMethod("cloneChIPtsne2_fromTidy", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2_fromTidy)

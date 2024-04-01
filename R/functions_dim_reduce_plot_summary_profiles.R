@@ -268,6 +268,10 @@ prep_summary = function (profile_dt,
 #'   N_floor to N_ceiling.
 #' @param return_data if TRUE, data.table that would have been used to create
 #'   ggplot is returned instead.
+#' @param position_VAR position variable in `summary_dt`
+#' @param value_VAR  value variable in `summary_dt`
+#' @param color_VAR  color variable in `summary_dt`
+#' @param extra_VARS  extra variables to carry forward from `summary_dt` to be available for facetting etc.
 #'
 #' @return a ggplot containing glyphs of local profile summaries arranged in
 #'   t-sne space.

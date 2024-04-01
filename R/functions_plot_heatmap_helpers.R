@@ -18,7 +18,8 @@ COLOR_KEY_STRAT = list(
     panel.grid = element_blank(),
     axis.ticks = element_blank(),
     axis.text = element_blank(),
-    axis.title = element_blank()
+    axis.title = element_blank(),
+    plot.margin = unit(c(.01,0,.01,0), "npc")
 )
 
 .prep_names = function(name){
@@ -59,26 +60,28 @@ add_group_annotation = function(anno_ids,
                                 annotation_theme = .annotation_theme,
                                 name_FUN = .prep_names,
                                 show_legend = FALSE){
+    argg <- as.list(environment())
     #visible binding NOTE
     xmin = xmax = ymin = ymax = grp = NULL
     if(is.data.frame(anno_ids)){#yes this could be replaced with S4 method dispatch
         if(is.numeric(anno_ids[[cluster_]])){
-            argg <- as.list(environment())
             return(do.call(add_cluster_annotation.numeric, argg))
         }
     }
+    anno_ids = .prep_ids(anno_ids, row_, cluster_)
+    n_grps = length(unique(anno_ids))
     if(is.null(rect_colors)){
-        rect_colors = RColorBrewer::brewer.pal(8, "Dark2")
+        rect_colors = seqsetvis::safeBrew(anno_ids, "Dark2")
 
     }
     if(is.null(text_colors)){
         text_colors = rep("black", length(rect_colors))
     }
-    anno_ids = .prep_ids(anno_ids, row_, cluster_)
-    n_grps = length(unique(anno_ids))
-    if(n_grps > length(rect_colors)){
-        stop("Not enough rect_colors provided for number of unique anno_ids. Default supports up to 8 groups.")
-    }
+
+
+    # if(n_grps > length(rect_colors)){
+    #     stop("Not enough rect_colors provided for number of unique anno_ids. Default supports up to 8 groups.")
+    # }
     if(is.null(names(rect_colors))){
         rect_colors = rect_colors[seq(n_grps)]
         names(rect_colors) = unique(anno_ids)
@@ -193,7 +196,8 @@ add_cluster_annotation.numeric = function(anno_ids,
                           xmax = xright,
                           ymin = starts,
                           ymax = ends,
-                          grp = cluster_)
+                          grp = cluster_,
+                          row.names = NULL)
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
     df_rects[[cluster_]] = name_FUN(cluster_)
     df_rects[["grp"]] = anno_rle$values
@@ -230,11 +234,11 @@ add_cluster_annotation = function(anno_ids,
                                   annotation_theme = .annotation_theme,
                                   name_FUN = .prep_names,
                                   show_legend = FALSE){
+    argg <- as.list(environment())
     #visible binding NOTE
     xmin = xmax = ymin = ymax = grp = NULL
     if(is.data.frame(anno_ids)){#yes this could be replaced with S4 method dispatch
         if(is.numeric(anno_ids[[cluster_]])){
-            argg <- as.list(environment())
             return(do.call(add_cluster_annotation.numeric, argg))
         }
     }
@@ -256,7 +260,8 @@ add_cluster_annotation = function(anno_ids,
                           xmax = xright,
                           ymin = starts,
                           ymax = ends,
-                          grp = cluster_)
+                          grp = cluster_,
+                          row.names = NULL)
     if(setequal(names(rect_colors), rownames(df_rects))){
     }else{
         rect_colors = rect_colors[seq_len(nrow(df_rects))%%length(rect_colors)+1]

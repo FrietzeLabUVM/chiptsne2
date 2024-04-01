@@ -1,4 +1,4 @@
-#' FetchConfig
+#' FetchConfig-class
 #'
 #' @slot view_size Consistent size to use when viewing assessment regions. Uses
 #'   3kb as default.
@@ -6,8 +6,6 @@
 #'   Use CT_READ_MODES$.
 #' @slot fetch_options Named list of additional arguments to pass to signal
 #'   fetch function.
-#'
-#' @rdname FetchConfig
 .FetchConfig = setClass("FetchConfig",
                         representation = list(
                             meta_data = "data.frame",

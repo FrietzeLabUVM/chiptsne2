@@ -12,10 +12,40 @@
 #' ChIPtsne2 object may be converted to ChIPtsne2_no_rowRanges simply by NULL
 #' assignment to rowRagnes. i.e. rowRanges(ct2) = NULL.
 #'
+#' @param rowToRowMat Value for rowToRowMat slot. A matrix with profile data where colnames equals items in colToRowMatCols. The rownames are the rownames/region ids.
+#' @param colToRowMatCols Value for colToRowMatCols slot. A named list where names equals colnames of x and list values are colnames of rowToRowMat.
+#' @param name_VAR Name variable, a single character.
+#' @param position_VAR Position variable, a single character.
+#' @param value_VAR Value variable, a single character.
+#' @param region_VAR Region variable, a single character.
+#' @param fetch_config A [FetchConfig] object.
+#' @param ... Arguments passed to [SummarizedExperiment::SummarizedExperiment]. Must include: rowData, colData, assays, metadata
+#'
 #' @export
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom GenomicRanges mcols
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' # really, never make the ChIPtsne2 object this way.
+#' # if you must, you may inspect the individual elements below:
+#' ct2_new = ChIPtsne2_no_rowRanges(
+#'     rowToRowMat = rowToRowMat(ct2),
+#'     colToRowMatCols = colToRowMatCols(ct2),
+#'     name_VAR = getNameVariable(ct2),
+#'     position_VAR = getPositionVariable(ct2),
+#'     value_VAR = getValueVariable(ct2),
+#'     region_VAR = getRegionVariable(ct2),
+#'     fetch_config = FetchConfig.null(),
+#'     rowData = rowData(ct2),
+#'     colData = colData(ct2),
+#'     assays = assays(ct2),
+#'     metadata = ChIPtsne2.history(ct2)
+#' )
+#' ct2_new
+#'
+#'#'
 ChIPtsne2_no_rowRanges = function(
         rowToRowMat=matrix(0,0,0),
         colToRowMatCols=list(),
@@ -26,7 +56,7 @@ ChIPtsne2_no_rowRanges = function(
         fetch_config = FetchConfig.null(),
         ...)
 {
-    se <- SummarizedExperiment(...)
+    se <- SummarizedExperiment::SummarizedExperiment(...)
     .ChIPtsne2_no_rowRanges(se,
                rowToRowMat = rowToRowMat,
                colToRowMatCols = colToRowMatCols,
@@ -131,6 +161,9 @@ setMethod("show", "ChIPtsne2_no_rowRanges", ct2_nrr_show)
 
 #### Setter ####
 
+#'
+#' @param value New value for rowToRowMat slot. A matrix with profile data where colnames equals items in colToRowMatCols. The rownames are the rownames/region ids.
+#'
 #' @export
 #' @rdname ct2-getset
 setGeneric("rowToRowMat<-", function(x, ..., value)
@@ -170,7 +203,10 @@ setReplaceMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", ct2_nrr_set_colToR
 
 #### Subsetting by index ####
 
-ct2_nrr_index_accessor = function(x, i, j, drop=TRUE) {
+ct2_nrr_index_accessor = function(x, i, j, drop=FALSE) {
+    if(drop == TRUE){
+        stop("'drop' must be FALSE when accessing ChIPtsne2 objects.")
+    }
     rrm <- rowToRowMat(x)
     c2rrm = colToRowMatCols(x)
 
@@ -205,7 +241,24 @@ ct2_nrr_index_accessor = function(x, i, j, drop=TRUE) {
 }
 #' ChIPtsne2_no_rowRanges array-like access
 #'
+#' @param x `r doc_ct2_nrr()`
+#' @param i row numbers or names to select.
+#' @param j column numbers or names to select.
+#' @param drop must be FALSE.
+#'
+#' @return Subset of input `ct2` based on i and j.
 #' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' # integer indexes work
+#' ct2[5:10, 1:2]
+#' # as do column names and row names
+#' ct2[c("1", "2"), "MCF10A_CTCF"]
+#' # omitting either rows or columns selector is fine
+#' # and results in all being selected
+#' ct2[1:2, ]
+#' ct2[, 1:2]
 setMethod("[", "ChIPtsne2_no_rowRanges", ct2_nrr_index_accessor)
 
 #### split ####
@@ -318,7 +371,8 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
 
 #' cbind-ChIPtsne2_no_rowRanges
 #'
-#' @param ChIPtsne2_no_rowRanges `r doc_ct2_nrr()`
+#' @param ... A single `r doc_ct2_nrr()`
+#' @param deparse.level Not used.
 #'
 #' @return a ChIPtsne2 object of concatenated columns/samples of all items in input ChIPtsne2List
 #' @export
