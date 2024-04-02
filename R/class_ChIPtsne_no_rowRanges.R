@@ -446,7 +446,7 @@ ct2_nrr_set_dimnames =  function(x, value){
 #' dimnames<- for ChIPtsne2
 #'
 #' @param x `r doc_ct2_nrr()`
-#' @param list List containing row and column names matching original dim lengths.
+#' @param value List containing row and column names matching original dim lengths.
 #'
 #' Sets dimnames of a `r doc_ct2_nrr()` using a list of 2 items, 1: rownames and 2: colnames.
 setReplaceMethod("dimnames", c("ChIPtsne2_no_rowRanges", "list"), ct2_nrr_set_dimnames)

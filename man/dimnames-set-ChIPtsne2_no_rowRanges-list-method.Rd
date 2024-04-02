@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A ChIPtsne2_no_rowRanges object.}
 
-\item{list}{List containing row and column names matching original dim lengths.
+\item{value}{List containing row and column names matching original dim lengths.
 
 Sets dimnames of a A ChIPtsne2_no_rowRanges object. using a list of 2 items, 1: rownames and 2: colnames.}
 }

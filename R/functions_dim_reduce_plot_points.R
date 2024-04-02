@@ -155,7 +155,8 @@ generic_plotDimReducePoints = function(ct2,
 #'   subsetSamples(ct2, cell == "MCF10AT1")
 #' plotDimReducePoints(ct2_diff)
 #' plotDimReducePoints(ct2, "umap_cluster")
-#' plotDimReducePoints(ct2, "umap_cluster", point_colors = safeBrew(8, "Dark2))
+#' #a named vector of colors for point_colors
+#' plotDimReducePoints(ct2, "umap_cluster", point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
 #' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 #' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 #'

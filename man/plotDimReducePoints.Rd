@@ -61,3 +61,40 @@ ggplot
 \description{
 plotDimReducePoints
 }
+\examples{
+library(ggplot2)
+ct2 = exampleChIPtsne2.with_meta() \%>\%
+   dimReduceUMAP() \%>\%
+   groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") \%>\%
+   groupRegionsBySignalCluster(group_VAR = "signal_cluster")
+
+# default is max signal value per sample
+plotDimReducePoints(ct2)
+plotDimReducePoints(ct2, point_colors = c("gray", "red"))
+
+#NA disable color
+plotDimReducePoints(ct2, color_VAR = NA)
+ct2_diff = subsetSamples(ct2, cell == "MCF10A") -
+  subsetSamples(ct2, cell == "MCF10AT1")
+plotDimReducePoints(ct2_diff)
+plotDimReducePoints(ct2, "umap_cluster")
+#a named vector of colors for point_colors
+plotDimReducePoints(ct2, "umap_cluster", point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
+plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
+plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
+
+# layer plot elements beneath the final plot with a function like this:
+base_plot = function(p){
+  p +
+    annotate("rect",
+             xmin = 0, xmax = .3,
+             ymin = -.05, ymax = .13,
+             fill = "gray80", color = "red")
+}
+
+plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
+  background_annotation_color = "gray50",
+  underlayer_FUN = base_plot) +
+    facet_grid(peak_MCF10CA1_CTCF~sample) +
+    labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
+}
