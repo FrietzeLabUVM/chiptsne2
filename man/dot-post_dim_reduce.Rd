@@ -2,10 +2,19 @@
 % Please edit documentation in R/functions_dim_reduce.R
 \name{.post_dim_reduce}
 \alias{.post_dim_reduce}
-\title{importFrom scales rescale}
+\title{called after dim reduce has been calculated for general post-processing.}
 \usage{
 .post_dim_reduce(xy_df, prof_mat, norm1 = TRUE, high_topright = TRUE)
 }
+\arguments{
+\item{xy_df}{data.table with tx and ty.}
+
+\item{prof_mat}{profiled matrix on which dim reduction was calculated.}
+
+\item{norm1}{rescales domain of tx and ty to be -.5 to .5}
+
+\item{high_topright}{If TRUE, strongest signal will be in the top-right of dim reduction space.}
+}
 \description{
-importFrom scales rescale
+called after dim reduce has been calculated for general post-processing.
 }

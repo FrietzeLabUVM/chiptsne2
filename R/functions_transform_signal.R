@@ -22,7 +22,14 @@
     args = get_args()
     for(cn in names(ct2@colToRowMatCols)){
         sel_cols = ct2@colToRowMatCols[[cn]]
-        ct2@rowToRowMat[, sel_cols] = transform_FUN(ct2@rowToRowMat[, sel_cols], getSampleMetaData(ct2)[cn,])
+        new_mat = transform_FUN(ct2@rowToRowMat[, sel_cols], getSampleMetaData(ct2)[cn,])
+        if(!is.matrix(new_mat)){
+            stop("Output of transformation must be a matrix. Was: ", class(new_mat))
+        }
+        if(!all(dim(new_mat) == dim(ct2@rowToRowMat[, sel_cols]))){
+            stop("Dimensions of transformation result (", paste(dim(new_mat), collapse = "x"), ") not equal to input matrix (", paste(dim(ct2@rowToRowMat[, sel_cols]), collapse = "x"),").")
+        }
+        ct2@rowToRowMat[, sel_cols] = new_mat
     }
     ct2 = .recalculateMax_ct2(ct2)
 
@@ -37,7 +44,8 @@
 #' @rdname ct2-trans
 #' @aliases transformSignal-ChIPtsne2_no_rowRanges transformSignal,ChIPtsne2_no_rowRanges-method
 #'
-#' @param x A \code{ChIPtsne2_no_rowRanges} object.
+#' @param ct2 A \code{ChIPtsne2_no_rowRanges} object.
+#' @param transform_FUN A function to apply to each sample's profile matrix individually. Must accept 2 arguments. Arg1 is the profile matrix and the output matrix must be the same dimensions. Arg2 is a 1 row data.frame of column/sample metadata for that matrix.
 #' @export
 #'
 #' @examples

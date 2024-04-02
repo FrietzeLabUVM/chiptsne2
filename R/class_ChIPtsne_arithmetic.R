@@ -4,6 +4,11 @@
 #' Arithmetic operators are supports for ChIPtsne2 and ChIPtsne2_no_rowRanges objects.
 #'
 #' +, -, *, and /
+#'
+#' @param e1 Left input to operator.
+#' @param e2 Right input to operator.
+#' @param operator The arithmetic operator.
+#'
 #' @rdname ct2-op
 #' @importFrom utils sessionInfo
 #' @examples

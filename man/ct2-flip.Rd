@@ -11,6 +11,8 @@ flipProfilesToMatch(ct2, highest_on_right = TRUE)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object}
+
+\item{highest_on_right}{If TRUE, majority of signal will be on the right half rather than left. Default is FALSE.}
 }
 \value{
 A chiptsne2 object updated such that signal "tilts" in the same way.
@@ -21,12 +23,27 @@ For unstranded data, a peak with higher signal on one side is not
 meaningfully different from its mirror image. This procedure identifies
 "tilted" peaks and flips those with more signal right-of-center. By flipping,
 rowRanges becomes stranded, flipped regions get assigned (-) strand with
-uaffected regions getting (+) strand
+unaffected regions getting (+) strand
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
+#add a metadata column
+colData(ct2)$flip = "none"
 ct2_left = flipProfilesToMatch(ct2)
+colData(ct2_left)$flip = "left"
+#colnames will need to be different
+colnames(ct2_left) = paste0(colnames(ct2_left), "_left")
 ct2_right = flipProfilesToMatch(ct2, highest_on_right = TRUE)
+colData(ct2_right)$flip = "right"
+colnames(ct2_right) = paste0(colnames(ct2_right), "_right")
+
+# flipping imposes strandedness on regions so rowRanges needs to be removed
+rowRanges(ct2) = NULL
+rowRanges(ct2_left) = NULL
+rowRanges(ct2_right) = NULL
+ct2.combined = cbind(ct2, ct2_left, ct2_right)
+
+plotSignalLinePlot(ct2.combined, facet_VAR = "cell", color_VAR = "flip")
 
 prof_original = getTidyProfile(ct2)
 prof_original$group = "original"

@@ -45,18 +45,32 @@
 
 #### Generics ####
 
-#' getters and setters for ChIPtsne2 and ChIPtsne2_no_rowRanges objects
+#' @name getset functions
 #'
+#' @description
+#'  getters and setters for ChIPtsne2 and ChIPtsne2_no_rowRanges objects
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param new_VAR New variable name. If it is already present this is an error.
+#'   Use [swapNameVariable] if you intend to use an existing metadata variable
+#'   as the new name variable.
+#' @param select_VARS Variables to include in metadata. Set to NULL to include
+#'   all, this is the default. Name variable will always be included for samples
+#'   and region variable will always be included for regions.
+#'
+#' @rdname ct2-getset
+NULL
+
 #' @export
 #' @rdname ct2-getset
 setGeneric("setNameVariable",
-           function(ct2, new_name_VAR){
+           function(ct2, new_VAR){
                standardGeneric("setNameVariable")
            })
 #' @export
 #' @rdname ct2-getset
 setGeneric("swapNameVariable",
-           function(ct2, new_name_VAR){
+           function(ct2, new_VAR){
                standardGeneric("swapNameVariable")
            })
 #' @export
@@ -69,7 +83,7 @@ setGeneric("getNameVariable",
 #' @export
 #' @rdname ct2-getset
 setGeneric("setValueVariable",
-           function(ct2, new_value_VAR){
+           function(ct2, new_VAR){
                standardGeneric("setValueVariable")
            })
 #' @export
@@ -81,7 +95,7 @@ setGeneric("getValueVariable",
 #' @export
 #' @rdname ct2-getset
 setGeneric("setRegionVariable",
-           function(ct2, new_region_VAR){
+           function(ct2, new_VAR){
                standardGeneric("setRegionVariable")
            })
 #' @export
@@ -93,7 +107,7 @@ setGeneric("getRegionVariable",
 #' @export
 #' @rdname ct2-getset
 setGeneric("setPositionVariable",
-           function(ct2, new_position_VAR){
+           function(ct2, new_VAR){
                standardGeneric("setPositionVariable")
            })
 #' @export

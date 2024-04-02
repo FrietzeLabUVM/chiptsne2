@@ -39,7 +39,7 @@
     data.table::setnames(prof_dt, "NEW_POS_X__", ct2@position_VAR)
     prof_dt = prof_dt[order(get(ct2@position_VAR))]
 
-    history_item = list(.flipProfilesToMatch = list(FUN = .flipProfilesToMatch, ARG = args))
+    history_item = list(flipProfilesToMatch = list(FUN = .flipProfilesToMatch, ARG = args))
     cloneChIPtsne2_fromTidy(
         ct2,
         new_prof_dt = prof_dt,
@@ -54,10 +54,10 @@
 #' meaningfully different from its mirror image. This procedure identifies
 #' "tilted" peaks and flips those with more signal right-of-center. By flipping,
 #' rowRanges becomes stranded, flipped regions get assigned (-) strand with
-#' uaffected regions getting (+) strand
+#' unaffected regions getting (+) strand
 #'
 #' @param ct2 A ChIPtsne2 object
-#' @param highest_on_right
+#' @param highest_on_right If TRUE, majority of signal will be on the right half rather than left. Default is FALSE.
 #'
 #' @return A chiptsne2 object updated such that signal "tilts" in the same way.
 #'   When signal is flipped, strand of rowRanges is set to negative.
@@ -84,7 +84,6 @@
 #' rowRanges(ct2_right) = NULL
 #' ct2.combined = cbind(ct2, ct2_left, ct2_right)
 #'
-#' debug(plotSignalLinePlot)
 #' plotSignalLinePlot(ct2.combined, facet_VAR = "cell", color_VAR = "flip")
 #'
 #' prof_original = getTidyProfile(ct2)

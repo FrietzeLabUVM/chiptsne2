@@ -6,8 +6,20 @@
 \usage{
 .shiny_secondary_plot(plot_ct2, tx_df, plotType, selAttribute, selIds)
 }
+\arguments{
+\item{plot_ct2}{A ChIPtsne2_no_rowRanges object. to plot}
+
+\item{tx_df}{dim reduction data.frame with region ids, tx, ty, and other metadata}
+
+\item{plotType}{Allowed types: line_color_selection, line_color_annotation, heatmap_cluster_selection, heatmap_cluster_annotation}
+
+\item{selAttribute}{Grouping attribute to facet y by}
+
+\item{selIds}{ids selection. used for color.}
+}
 \description{
-.shiny_secondary_plot
+the secondary plot is meant to compare selections in dim reduces space and
+possibly with group context.
 }
 \examples{
 

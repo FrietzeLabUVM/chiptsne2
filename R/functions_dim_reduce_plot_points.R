@@ -122,6 +122,16 @@ generic_plotDimReducePoints = function(ct2,
 #'   of NULL will plot max signal for all sample profiles. NA will perform no
 #'   color mapping.
 #' @param point_size Size of points in plot.
+#' @param point_color_limits color scale limits for continuous color_VAR.
+#' @param has_symmetrical_limits If TRUE color scale limits will extend to equal
+#'   magnitude in positive and negative direction. Default is TRUE when negative
+#'   values are present and FALSE otherwise.
+#' @param point_colors Either a vectors of colors to pass to
+#'   [ggplot2::scale_colour_gradientn] for continuous data, or a named vector of
+#'   colors for categorical data.
+#' @param extra_VARS `r doc_extra_VARS()`
+#' @param background_annotation_color Color to use for points not in facet. Default of NULL will not draw any background points.
+#' @param underlayer_FUN Function to add to layer below background annotation.
 #'
 #' @return ggplot
 #' @export
@@ -134,12 +144,18 @@ generic_plotDimReducePoints = function(ct2,
 #'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%
 #'    groupRegionsBySignalCluster(group_VAR = "signal_cluster")
 #'
-#' plotDimReducePoints(ct2, NA)
+#' # default is max signal value per sample
 #' plotDimReducePoints(ct2)
+#' plotDimReducePoints(ct2, point_colors = c("gray", "red"))
+#'
+#' #NA disable color
+#' plotDimReducePoints(ct2, color_VAR = NA)
+
 #' ct2_diff = subsetSamples(ct2, cell == "MCF10A") -
 #'   subsetSamples(ct2, cell == "MCF10AT1")
 #' plotDimReducePoints(ct2_diff)
 #' plotDimReducePoints(ct2, "umap_cluster")
+#' plotDimReducePoints(ct2, "umap_cluster", point_colors = safeBrew(8, "Dark2))
 #' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 #' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 #'

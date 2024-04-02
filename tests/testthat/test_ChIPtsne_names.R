@@ -15,11 +15,11 @@ test_that("update_rownames", {
     expect_equal(names(rowRanges(ct2.new_rn)), new_rn)
 })
 
-test_that("update_rownames old_name_VAR and new_name_VAR", {
+test_that("update_rownames old_name_VAR and new_VAR", {
     update_ct2_rownames = chiptsne2:::.update_ct2_rownames
     ct2 = exampleChIPtsne2.with_meta()
     rowData(ct2)$new_id = paste0("new_", rownames(ct2))
-    ct2.new_rn = update_ct2_rownames(ct2, old_name_VAR = "id", new_name_VAR = "new_id")
+    ct2.new_rn = update_ct2_rownames(ct2, old_name_VAR = "id", new_VAR = "new_id")
 
 
     new_rn = paste0("new_", rownames(ct2))
@@ -58,11 +58,11 @@ test_that("update_colnames", {
 
 })
 
-test_that("update_colnames old_name_VAR and new_name_VAR", {
+test_that("update_colnames old_name_VAR and new_VAR", {
     update_ct2_colnames = chiptsne2:::.update_ct2_colnames
     ct2 = exampleChIPtsne2.with_meta()
 
-    ct2.new_cn = update_ct2_colnames(ct2, old_name_VAR = "sample", new_name_VAR = "cell")
+    ct2.new_cn = update_ct2_colnames(ct2, old_name_VAR = "sample", new_VAR = "cell")
     expect_equal(ct2.new_cn@name_VAR, "cell")
     expect_setequal(getTidyProfile(ct2.new_cn)$cell, c("MCF10A", "MCF10AT1", "MCF10CA1"))
     expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c("id", "x", "y", "cell"))

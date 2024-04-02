@@ -160,11 +160,13 @@ get_mapped_reads = function(bam_files){
 #'
 #' @param f a config file
 #' @param valid_config_VARS supported variables to attempt to extract
+#' @param allowed_deprecated_VARS These are allowed but ignored. These are ssvQC
+#'   config variables that are not relevant to chiptsne2. This allows ssvQC
+#'   configs to be reused for chiptsne2.
 #'
 #' @return A named list containing configuration options mapped to values.
 #' @importFrom dplyr filter
 #' @examples
-#'
 #' bam_config_file = exampleBamConfigFile()
 #' chiptsne2:::.parse_config_header(bam_config_file)
 .parse_config_header = function(f,
@@ -264,6 +266,13 @@ is_signal_file = function(files, suff = getOption("SQC_SIGNAL_FILE_SUFF", c("bam
 }
 
 #' internal function used by FetchConfig.save_config FetchConfigSignal.save_config and FetchConfigFeatures.save_config
+#'
+#' @param object FetchConfig object to save
+#' @param file file to save to
+#' @param slots_to_save slots that should be saved
+#' @param kvp_slots kvp slots are saved differently. like a named vector.
+#' @param toss_names these are ignored and will not be saved.
+#'
 #' @importFrom data.table fwrite
 .save_config = function(object, file, slots_to_save, kvp_slots, toss_names = "summary_FUN"){
     hdr1 = sapply(slots_to_save, function(x){

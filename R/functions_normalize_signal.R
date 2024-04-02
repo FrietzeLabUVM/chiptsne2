@@ -191,7 +191,9 @@ setMethod("normalizeSignalRPM", c("ChIPtsne2_no_rowRanges"), .normalizeSignalRPM
 #' plotSignalLinePlot(ct2.norm1)
 #' plotSignalLinePlot(ct2.norm2)
 setGeneric("normalizeSignalCapValue",
-           function(ct2, signal_cap_data = NULL, signal_cap_VAR = "cap_value", norm_to_1 = TRUE, trim_values_to_cap = TRUE, cap_floor = NULL)
+           function(ct2, signal_cap_data = NULL,
+                    signal_cap_VAR = "cap_value", norm_to_1 = TRUE,
+                    trim_values_to_cap = TRUE, cap_floor = NULL)
                standardGeneric("normalizeSignalCapValue"),
            signature = "ct2")
 

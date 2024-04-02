@@ -39,6 +39,7 @@
 #' @param ct2 `r doc_ct2()`
 #' @param group_VAR `r doc_group_VAR()`
 #' @param n_clusters Number of clusters specified for k-means.
+#' @param iter.max Number of max iterations to allow for k-means. Default is 30. Passed to [stats::kmeans].
 #'
 #' @return `r doc_return_group()`
 #' @export
@@ -227,7 +228,8 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupR
 #' @param ct2 `r doc_ct2()`
 #' @param query Either a single GRanges or named list of GRanges.
 #' @param group_VAR `r doc_group_VAR()`
-#' @param ... arguments passed to [IRanges::findOverlaps()], i.e. maxgap, minoverlap, type, select, invert.
+#' @param use_priority If use_priority is TRUE, then query must be a list of GRanges and the order is important. Instead of combinations of items overlapping, the final group assignment will be the item closest to the first position in the list that overlaps. Default is FALSE.
+#' @param ... Arguments passed to [IRanges::findOverlaps()], i.e. maxgap, minoverlap, type, select, invert.
 #'
 #' @return `r doc_return_group()`
 #' @export
@@ -458,7 +460,7 @@ setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManu
 #' ct2.sorted2 = sortRegions(ct2, group_VAR = c("peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
 #' rowData(ct2.sorted2)
 setGeneric("sortRegions",
-           function(ct2, assignment, group_VAR = NULL)
+           function(ct2, group_VAR = NULL)
                standardGeneric("sortRegions"),
            signature = "ct2")
 

@@ -179,7 +179,14 @@ setMethod("dimReducePCA", c("ChIPtsne2_no_rowRanges"), .dimReducePCA)
     y
 }
 
-#' importFrom scales rescale
+#' called after dim reduce has been calculated for general post-processing.
+#'
+#' @param xy_df data.table with tx and ty.
+#' @param prof_mat profiled matrix on which dim reduction was calculated.
+#' @param norm1 rescales domain of tx and ty to be -.5 to .5
+#' @param high_topright If TRUE, strongest signal will be in the top-right of dim reduction space.
+#'
+#' @importFrom scales rescale
 .post_dim_reduce = function(xy_df, prof_mat, norm1 = TRUE, high_topright = TRUE){
     #visible binding NOTE
     tx = ty = NULL

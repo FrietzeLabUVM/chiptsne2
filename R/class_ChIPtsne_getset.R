@@ -3,65 +3,65 @@
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name_VAR){
+setMethod("setNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR){
     args = get_args()
     history_item = list(setNameVariable = list(FUN = setNameVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
-    if(new_name_VAR %in% colnames(colData(ct2))){
+    if(new_VAR %in% colnames(colData(ct2))){
         .Deprecated("swapNameVariable", msg = "Specified sample metadata variable already exists. In the future, swapping to this variable must be explicit using 'swapNameVariable'.")
-        cn = colData(ct2)[[new_name_VAR]]
+        cn = colData(ct2)[[new_VAR]]
         if(any(duplicated(cn))){
             bad_cn = unique(cn[duplicated(cn)])
             stop("New name variable is already present in colData(ct2). This is only allowed when all values are unique. Offending values: ", paste(bad_cn, collapse = ", "))
         }else{
             #swap old and new
             old_name_VAR = ct2@name_VAR
-            ct2 = .update_ct2_colnames(ct2, old_name_VAR = old_name_VAR, new_name_VAR = new_name_VAR)
+            ct2 = .update_ct2_colnames(ct2, old_name_VAR = old_name_VAR, new_VAR = new_VAR)
         }
     }else{
         #no special considerations if name_VAR isn't otherwise present.
     }
-    ct2@name_VAR = new_name_VAR
+    ct2@name_VAR = new_VAR
     ct2
 })
 
 #' @export
 #' @rdname ct2-getset
-setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_name_VAR){
+setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR){
     args = get_args()
     history_item = list(swapNameVariable = list(FUN = swapNameVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
-    if(new_name_VAR %in% colnames(colData(ct2))){
-        cn = colData(ct2)[[new_name_VAR]]
+    if(new_VAR %in% colnames(colData(ct2))){
+        cn = colData(ct2)[[new_VAR]]
         if(any(duplicated(cn))){
             bad_cn = unique(cn[duplicated(cn)])
             stop("All values of new name variable are not unique. Offending values: ", paste(bad_cn, collapse = ", "))
         }else{
             #swap old and new
             old_name_VAR = ct2@name_VAR
-            ct2 = .update_ct2_colnames(ct2, old_name_VAR = old_name_VAR, new_name_VAR = new_name_VAR)
+            ct2 = .update_ct2_colnames(ct2, old_name_VAR = old_name_VAR, new_VAR = new_VAR)
         }
     }else{
         stop("New name variable is not present in colData(ct2). Specify an existing variable or did you mean to use setNameVariable?")
     }
-    ct2@name_VAR = new_name_VAR
+    ct2@name_VAR = new_VAR
     ct2
 })
 
-.update_ct2_rownames = function(ct2, new_names = NULL, old_name_VAR = NULL, new_name_VAR = NULL){
+.update_ct2_rownames = function(ct2, new_names = NULL, old_name_VAR = NULL, new_VAR = NULL){
     old_names = rownames(ct2)
-    if(is.null(new_names) & is.null(new_name_VAR)){
-        stop("One of new_names or new_name_VAR required.")
+    if(is.null(new_names) & is.null(new_VAR)){
+        stop("One of new_names or new_VAR required.")
     }
-    if(!is.null(new_names) & !is.null(new_name_VAR)){
-        stop("Only one of new_names or new_name_VAR is allowed.")
+    if(!is.null(new_names) & !is.null(new_VAR)){
+        stop("Only one of new_names or new_VAR is allowed.")
     }
     if(!is.null(old_name_VAR)){
         rowData(ct2)[[old_name_VAR]] = rownames(ct2)
     }
-    if(!is.null(new_name_VAR)){
-        new_names = rowData(ct2)[[new_name_VAR]]
-        rowData(ct2)[[new_name_VAR]] = NULL
+    if(!is.null(new_VAR)){
+        new_names = rowData(ct2)[[new_VAR]]
+        rowData(ct2)[[new_VAR]] = NULL
     }
     names(new_names) = old_names
     #updating internal data
@@ -85,33 +85,33 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_nam
         rownames(ct2@elementMetadata) = new_rn
         ct2@NAMES = new_rn
     }
-    if(!is.null(new_name_VAR)){
-        ct2@region_VAR = new_name_VAR
+    if(!is.null(new_VAR)){
+        ct2@region_VAR = new_VAR
     }
     ct2
 }
 
-.update_ct2_colnames = function(ct2, new_names = NULL, old_name_VAR = NULL, new_name_VAR = NULL){
+.update_ct2_colnames = function(ct2, new_names = NULL, old_name_VAR = NULL, new_VAR = NULL){
     old_names = rownames(colData(ct2))
-    if(is.null(new_names) & is.null(new_name_VAR)){
-        stop("One of new_names or new_name_VAR required.")
+    if(is.null(new_names) & is.null(new_VAR)){
+        stop("One of new_names or new_VAR required.")
     }
-    if(!is.null(new_names) & !is.null(new_name_VAR)){
-        stop("Only one of new_names or new_name_VAR is allowed.")
+    if(!is.null(new_names) & !is.null(new_VAR)){
+        stop("Only one of new_names or new_VAR is allowed.")
     }
     if(!is.null(old_name_VAR)){
         ct2@colData[[old_name_VAR]] = rownames(colData(ct2))
     }
-    if(!is.null(new_name_VAR)){
-        rownames(ct2@colData) = colData(ct2)[[new_name_VAR]]
+    if(!is.null(new_VAR)){
+        rownames(ct2@colData) = colData(ct2)[[new_VAR]]
         new_names = rownames(ct2@colData)
-        ct2@colData[[new_name_VAR]] = NULL
+        ct2@colData[[new_VAR]] = NULL
     }
     names(new_names) = old_names
     #updating internal data
     r2rm = rowToRowMat(ct2)
     c2rmc = colToRowMatCols(ct2)
-    if(is.null(new_name_VAR)){
+    if(is.null(new_VAR)){
         rownames(colData(ct2)) = new_names[rownames(colData(ct2))]
     }
     all_old_cn = unlist(c2rmc)
@@ -141,8 +141,8 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_nam
 
     rowToRowMat(ct2) = r2rm
     colToRowMatCols(ct2) = c2rmc
-    if(!is.null(new_name_VAR)){
-        ct2@name_VAR = new_name_VAR
+    if(!is.null(new_VAR)){
+        ct2@name_VAR = new_VAR
     }
     ct2
 }
@@ -161,11 +161,11 @@ setMethod("getNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_value_VAR){
+setMethod("setValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR){
     args = get_args()
     history_item = list(setValueVariable = list(FUN = setValueVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
-    ct2@value_VAR = new_value_VAR
+    ct2@value_VAR = new_VAR
     ct2
 })
 
@@ -182,11 +182,11 @@ setMethod("getValueVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_region_VAR){
+setMethod("setRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR){
     args = get_args()
     history_item = list(setRegionVariable = list(FUN = setRegionVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
-    ct2@region_VAR = new_region_VAR
+    ct2@region_VAR = new_VAR
     ct2
 })
 
@@ -201,11 +201,11 @@ setMethod("getRegionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@re
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_position_VAR){
+setMethod("setPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR){
     args = get_args()
     history_item = list(setPositionVariable = list(FUN = setPositionVariable, ARG = args))
     ct2@metadata = c(ct2@metadata, history_item)
-    ct2@position_VAR = new_position_VAR
+    ct2@position_VAR = new_VAR
     ct2
 })
 
@@ -226,6 +226,7 @@ setMethod("getPositionVariable", c("ChIPtsne2_no_rowRanges"), function(ct2){ct2@
 #' @return data.frame with sample meta data, similar to colData but suitable for
 #'   tidyverse operations.
 #' @export
+#' @rdname ct2-getset
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2()

@@ -6,11 +6,18 @@
 \usage{
 \S4method{lapply}{ChIPtsne2List}(X, FUN, ...)
 }
+\arguments{
+\item{X}{A ChIPtsne2List object.}
+
+\item{FUN}{Function to apply to each ChIPtsne2 object.}
+
+\item{...}{Passed to lapply as additional arguments for FUN.}
+}
 \value{
 A ChIPtsne2List if FUN returns a ChIPtsne2 object. Otherwise a simple list.
 }
 \description{
-lapply-ChIPtsne2List
+Ensure when you \link[base:lapply]{base::lapply} on a ChIPtsne2List that a ChIPtsne2List object is returned if FUN returns a ChIPtsne2 object.
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()

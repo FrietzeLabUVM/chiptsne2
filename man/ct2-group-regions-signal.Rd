@@ -25,6 +25,8 @@ groupRegionsBySignalCluster(
 \item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
 
 \item{n_clusters}{Number of clusters specified for k-means.}
+
+\item{iter.max}{Number of max iterations to allow for k-means. Default is 30. Passed to \link[stats:kmeans]{stats::kmeans}.}
 }
 \value{
 Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.

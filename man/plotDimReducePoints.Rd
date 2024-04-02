@@ -38,41 +38,26 @@ of NULL will plot max signal for all sample profiles. NA will perform no
 color mapping.}
 
 \item{point_size}{Size of points in plot.}
+
+\item{point_color_limits}{color scale limits for continuous color_VAR.}
+
+\item{has_symmetrical_limits}{If TRUE color scale limits will extend to equal
+magnitude in positive and negative direction. Default is TRUE when negative
+values are present and FALSE otherwise.}
+
+\item{point_colors}{Either a vectors of colors to pass to
+\link[ggplot2:scale_gradient]{ggplot2::scale_colour_gradientn} for continuous data, or a named vector of
+colors for categorical data.}
+
+\item{extra_VARS}{Extra attributes from rowData or colData to carry through. These attributes will be available for facetting and similar ggplot2 operations.}
+
+\item{background_annotation_color}{Color to use for points not in facet. Default of NULL will not draw any background points.}
+
+\item{underlayer_FUN}{Function to add to layer below background annotation.}
 }
 \value{
 ggplot
 }
 \description{
 plotDimReducePoints
-}
-\examples{
-library(ggplot2)
-ct2 = exampleChIPtsne2.with_meta() \%>\%
-   dimReduceUMAP() \%>\%
-   groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") \%>\%
-   groupRegionsBySignalCluster(group_VAR = "signal_cluster")
-
-plotDimReducePoints(ct2, NA)
-plotDimReducePoints(ct2)
-ct2_diff = subsetSamples(ct2, cell == "MCF10A") -
-  subsetSamples(ct2, cell == "MCF10AT1")
-plotDimReducePoints(ct2_diff)
-plotDimReducePoints(ct2, "umap_cluster")
-plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
-plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
-
-# layer plot elements beneath the final plot with a function like this:
-base_plot = function(p){
-  p +
-    annotate("rect",
-             xmin = 0, xmax = .3,
-             ymin = -.05, ymax = .13,
-             fill = "gray80", color = "red")
-}
-
-plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
-  background_annotation_color = "gray50",
-  underlayer_FUN = base_plot) +
-    facet_grid(peak_MCF10CA1_CTCF~sample) +
-    labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
 }

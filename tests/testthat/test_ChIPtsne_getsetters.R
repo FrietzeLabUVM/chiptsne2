@@ -76,7 +76,7 @@ test_that("Error when existing not unique", {
 
 test_that("Switch name variable to smaller set", {
     ct2.by_cell = split(ct2, "cell")
-    ct2.10a = swapNameVariable(ct2.by_cell$MCF10A, new_name_VAR = "mark")
+    ct2.10a = swapNameVariable(ct2.by_cell$MCF10A, new_VAR = "mark")
     expect_equal(getNameVariable(ct2.10a), "mark")
     expect_equal(getSampleMetaData(ct2.10a)$mark, factor("CTCF"))
     expect_equal(getSampleMetaData(ct2.10a)$sample, "MCF10A_CTCF")
@@ -85,11 +85,11 @@ test_that("Switch name variable to smaller set", {
 
 test_that("When names match for operator", {
     ct2.by_cell = split(ct2, "cell")
-    ct2.by_cell = swapNameVariable(ct2.by_cell, new_name_VAR = "mark")
+    ct2.by_cell = swapNameVariable(ct2.by_cell, new_VAR = "mark")
     ct2.diff = ct2.by_cell$MCF10A - ct2.by_cell$MCF10AT1
     expect_equal(colnames(rowToRowMat(ct2.diff))[1], "CTCF_-325")
-    ct2.diff1 = swapNameVariable(ct2.diff, new_name_VAR = "cell")
-    ct2.diff2 = swapNameVariable(ct2.diff, new_name_VAR = "sample")
+    ct2.diff1 = swapNameVariable(ct2.diff, new_VAR = "cell")
+    ct2.diff2 = swapNameVariable(ct2.diff, new_VAR = "sample")
     expect_equal(colnames(ct2.diff1), "MCF10A - MCF10AT1")
     expect_equal(colnames(rowToRowMat(ct2.diff1))[1], "MCF10A - MCF10AT1_-325")
     expect_equal(colnames(ct2.diff2), "MCF10A_CTCF - MCF10AT1_CTCF")

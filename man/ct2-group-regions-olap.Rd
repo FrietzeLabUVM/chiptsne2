@@ -28,7 +28,9 @@ groupRegionsByOverlap(
 
 \item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
 
-\item{...}{arguments passed to \code{\link[IRanges:findOverlaps-methods]{IRanges::findOverlaps()}}, i.e. maxgap, minoverlap, type, select, invert.}
+\item{use_priority}{If use_priority is TRUE, then query must be a list of GRanges and the order is important. Instead of combinations of items overlapping, the final group assignment will be the item closest to the first position in the list that overlaps. Default is FALSE.}
+
+\item{...}{Arguments passed to \code{\link[IRanges:findOverlaps-methods]{IRanges::findOverlaps()}}, i.e. maxgap, minoverlap, type, select, invert.}
 }
 \value{
 Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.

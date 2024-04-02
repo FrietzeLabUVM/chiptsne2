@@ -5,7 +5,7 @@
 \alias{sortRegions,ChIPtsne2_no_rowRanges-method}
 \title{sortRegions}
 \usage{
-sortRegions(ct2, assignment, group_VAR = NULL)
+sortRegions(ct2, group_VAR = NULL)
 
 \S4method{sortRegions}{ChIPtsne2_no_rowRanges}(ct2, group_VAR = NULL)
 }

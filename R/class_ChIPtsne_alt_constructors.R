@@ -319,7 +319,19 @@ ChIPtsne2.history = function(ct2){
               metadata = new_obj_history)
 }
 
-.cloneChIPtsne2_no_rowData = function(ct2, new_rowToRowMat = NULL, new_colToRowMatCols = NULL, new_name_VAR = NULL, new_position_VAR = NULL, new_value_VAR = NULL, new_region_VAR = NULL, new_fetch_config = NULL, new_rowData = NULL, new_colData = NULL, new_assays = NULL, new_obj_history = NULL){
+.cloneChIPtsne2_no_rowData = function(
+        ct2,
+        new_rowToRowMat = NULL,
+        new_colToRowMatCols = NULL,
+        new_name_VAR = NULL,
+        new_position_VAR = NULL,
+        new_value_VAR = NULL,
+        new_region_VAR = NULL,
+        new_fetch_config = NULL,
+        new_rowData = NULL,
+        new_colData = NULL,
+        new_assays = NULL,
+        new_obj_history = NULL){
     if(is.null(new_rowToRowMat)) new_rowToRowMat = rowToRowMat(ct2)
     if(is.null(new_colToRowMatCols)) new_colToRowMatCols = colToRowMatCols(ct2)
     if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
@@ -407,11 +419,11 @@ setMethod("cloneChIPtsne2", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2)
                                     new_region_metadata = NULL,
                                     new_obj_history = NULL){
     if(is.null(new_prof_dt)) new_prof_dt = getTidyProfile(ct2)
-    if(is.null(new_obj_history)) new_obj_history = ChIPtsne2.history(ct2)
     if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
     if(is.null(new_position_VAR)) new_position_VAR = ct2@position_VAR
     if(is.null(new_value_VAR)) new_value_VAR = ct2@value_VAR
     if(is.null(new_region_VAR)) new_region_VAR = ct2@region_VAR
+    if(is.null(new_position_VAR)) new_position_VAR = ct2@position_VAR
     if(is.null(new_fetch_config)) new_fetch_config = ct2@fetch_config
     if(is(ct2, "ChIPtsne2")){
         if(is.null(new_rowRanges)) new_rowRanges = rowRanges(ct2)

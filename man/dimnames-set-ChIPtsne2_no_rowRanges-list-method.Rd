@@ -2,10 +2,17 @@
 % Please edit documentation in R/class_ChIPtsne_no_rowRanges.R
 \name{dimnames<-,ChIPtsne2_no_rowRanges,list-method}
 \alias{dimnames<-,ChIPtsne2_no_rowRanges,list-method}
-\title{dimnames<-}
+\title{dimnames<- for ChIPtsne2}
 \usage{
 \S4method{dimnames}{ChIPtsne2_no_rowRanges,list}(x) <- value
 }
+\arguments{
+\item{x}{A ChIPtsne2_no_rowRanges object.}
+
+\item{list}{List containing row and column names matching original dim lengths.
+
+Sets dimnames of a A ChIPtsne2_no_rowRanges object. using a list of 2 items, 1: rownames and 2: colnames.}
+}
 \description{
-Sets dimnames of a A ChIPtsne2_no_rowRanges object. using a list of 2 items, 1: rownames and 2: colnames.
+dimnames<- for ChIPtsne2
 }

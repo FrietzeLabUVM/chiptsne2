@@ -152,6 +152,7 @@ mutateRegions = function(.data, ...){
 #' ct2 = exampleChIPtsne2.with_meta()
 #' colData(ct2)
 #' getSampleMetaData(ct2)
+#' ct2 = mutateSamples(ct2, cell_mark = paste(cell, mark))
 #' ct2 = separateSamples(ct2, "cell_mark", c("v1", "v2"), sep = " ", remove = FALSE)
 #' colData(ct2)
 #' getSampleMetaData(ct2)

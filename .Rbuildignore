@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 ^\.Rhistory$
 ^tmp*
-^dev*\\.R$
+^dev*R$
 ^demo_IK*
 workflow_rmd_cache
 docs

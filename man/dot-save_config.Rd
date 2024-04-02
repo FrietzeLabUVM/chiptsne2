@@ -12,6 +12,17 @@
   toss_names = "summary_FUN"
 )
 }
+\arguments{
+\item{object}{FetchConfig object to save}
+
+\item{file}{file to save to}
+
+\item{slots_to_save}{slots that should be saved}
+
+\item{kvp_slots}{kvp slots are saved differently. like a named vector.}
+
+\item{toss_names}{these are ignored and will not be saved.}
+}
 \description{
 internal function used by FetchConfig.save_config FetchConfigSignal.save_config and FetchConfigFeatures.save_config
 }

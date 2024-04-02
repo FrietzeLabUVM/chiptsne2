@@ -12,7 +12,9 @@ transformSignal(ct2, transform_FUN)
 \S4method{transformSignal}{ChIPtsne2_no_rowRanges}(ct2, transform_FUN)
 }
 \arguments{
-\item{x}{A \code{ChIPtsne2_no_rowRanges} object.}
+\item{ct2}{A \code{ChIPtsne2_no_rowRanges} object.}
+
+\item{transform_FUN}{A function to apply to each sample's profile matrix individually. Must accept 2 arguments. Arg1 is the profile matrix and the output matrix must be the same dimensions. Arg2 is a 1 row data.frame of column/sample metadata for that matrix.}
 }
 \description{
 transformSignal method for objects of class \code{ChIPtsne2_no_rowRanges}.

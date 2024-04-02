@@ -16,6 +16,10 @@
 \item{f}{a config file}
 
 \item{valid_config_VARS}{supported variables to attempt to extract}
+
+\item{allowed_deprecated_VARS}{These are allowed but ignored. These are ssvQC
+config variables that are not relevant to chiptsne2. This allows ssvQC
+configs to be reused for chiptsne2.}
 }
 \value{
 A named list containing configuration options mapped to values.
@@ -24,7 +28,6 @@ A named list containing configuration options mapped to values.
 .parse_config_header
 }
 \examples{
-
 bam_config_file = exampleBamConfigFile()
 chiptsne2:::.parse_config_header(bam_config_file)
 }

@@ -73,6 +73,12 @@ setMethod("rbind", "ChIPtsne2List", function(..., deparse.level=1) {
 #### lapply shortcuts for ChIPtsne2 ####
 #' lapply-ChIPtsne2List
 #'
+#' Ensure when you [base::lapply] on a ChIPtsne2List that a ChIPtsne2List object is returned if FUN returns a ChIPtsne2 object.
+#'
+#' @param X A ChIPtsne2List object.
+#' @param FUN Function to apply to each ChIPtsne2 object.
+#' @param ... Passed to lapply as additional arguments for FUN.
+#'
 #' @export
 #'
 #' @rdname lapply
@@ -97,14 +103,14 @@ setMethod("lapply", c("ChIPtsne2List"), function(X, FUN, ...){
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setNameVariable", c("ChIPtsne2List"), function(ct2, new_name_VAR){
-    lapply(ct2, setNameVariable, new_name_VAR)
+setMethod("setNameVariable", c("ChIPtsne2List"), function(ct2, new_VAR){
+    lapply(ct2, setNameVariable, new_VAR)
 })
 
 #' @export
 #' @rdname ct2-getset
-setMethod("swapNameVariable", c("ChIPtsne2List"), function(ct2, new_name_VAR){
-    lapply(ct2, swapNameVariable, new_name_VAR)
+setMethod("swapNameVariable", c("ChIPtsne2List"), function(ct2, new_VAR){
+    lapply(ct2, swapNameVariable, new_VAR)
 })
 
 #' @export
@@ -115,8 +121,8 @@ setMethod("getNameVariable", c("ChIPtsne2List"), function(ct2){
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setValueVariable", c("ChIPtsne2List"), function(ct2, new_value_VAR){
-    lapply(ct2, setValueVariable, new_value_VAR)
+setMethod("setValueVariable", c("ChIPtsne2List"), function(ct2, new_VAR){
+    lapply(ct2, setValueVariable, new_VAR)
 })
 #' @export
 #' @rdname ct2-getset
@@ -126,8 +132,8 @@ setMethod("getValueVariable", c("ChIPtsne2List"), function(ct2){
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setRegionVariable", c("ChIPtsne2List"), function(ct2, new_region_VAR){
-    lapply(ct2, setRegionVariable, new_region_VAR)
+setMethod("setRegionVariable", c("ChIPtsne2List"), function(ct2, new_VAR){
+    lapply(ct2, setRegionVariable, new_VAR)
 })
 #' @export
 #' @rdname ct2-getset
@@ -137,8 +143,8 @@ setMethod("getRegionVariable", c("ChIPtsne2List"), function(ct2){
 
 #' @export
 #' @rdname ct2-getset
-setMethod("setPositionVariable", c("ChIPtsne2List"), function(ct2, new_position_VAR){
-    lapply(ct2, setPositionVariable, new_position_VAR)
+setMethod("setPositionVariable", c("ChIPtsne2List"), function(ct2, new_VAR){
+    lapply(ct2, setPositionVariable, new_VAR)
 })
 #' @export
 #' @rdname ct2-getset

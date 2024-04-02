@@ -41,7 +41,19 @@
 
 }
 
+
+
+
 #' .shiny_secondary_plot
+#'
+#' the secondary plot is meant to compare selections in dim reduces space and
+#' possibly with group context.
+#'
+#' @param plot_ct2 `r doc_ct2_nrr()` to plot
+#' @param tx_df dim reduction data.frame with region ids, tx, ty, and other metadata
+#' @param plotType Allowed types: line_color_selection, line_color_annotation, heatmap_cluster_selection, heatmap_cluster_annotation
+#' @param selAttribute Grouping attribute to facet y by
+#' @param selIds ids selection. used for color.
 #'
 #' @examples
 #'

@@ -46,6 +46,13 @@ apply_ChIPtsne2_operator.num(e1, e2, operator = "-")
 
 \S4method{*}{numeric,ChIPtsne2_no_rowRanges}(e1, e2)
 }
+\arguments{
+\item{e1}{Left input to operator.}
+
+\item{e2}{Right input to operator.}
+
+\item{operator}{The arithmetic operator.}
+}
 \description{
 +, -, *, and /
 }

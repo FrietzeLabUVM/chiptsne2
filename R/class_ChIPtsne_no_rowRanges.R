@@ -166,7 +166,7 @@ setMethod("show", "ChIPtsne2_no_rowRanges", ct2_nrr_show)
 #'
 #' @export
 #' @rdname ct2-getset
-setGeneric("rowToRowMat<-", function(x, ..., value)
+setGeneric("rowToRowMat<-", function(x, value)
     standardGeneric("rowToRowMat<-")
 )
 
@@ -443,7 +443,10 @@ ct2_nrr_set_dimnames =  function(x, value){
     x
 }
 
-#' dimnames<-
+#' dimnames<- for ChIPtsne2
+#'
+#' @param x `r doc_ct2_nrr()`
+#' @param list List containing row and column names matching original dim lengths.
 #'
 #' Sets dimnames of a `r doc_ct2_nrr()` using a list of 2 items, 1: rownames and 2: colnames.
 setReplaceMethod("dimnames", c("ChIPtsne2_no_rowRanges", "list"), ct2_nrr_set_dimnames)
