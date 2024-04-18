@@ -1,3 +1,11 @@
+# v 0.1.38
+
+* bugfix in aggregateRegionsByGroup due to DataFrame apply behavior
+
+# v 0.1.37
+
+* build passing checks
+
 # v 0.1.36
 
 * plotSignalHeatmap bugfixes and prettifying

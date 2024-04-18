@@ -35,7 +35,7 @@ aggregateRegionsByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
     df[[new_meta_VAR]] = factor(df[[new_meta_VAR]], levels = rownames(centroid))
 
     rd = unique(rowData(ct2)[, group_VAR, drop = FALSE])
-    rownames(rd) = apply(rd, 1, paste, collapse = ",")
+    rownames(rd) = apply(as.data.frame(rd), 1, paste, collapse = ",")
     rd[[new_meta_VAR]] = rownames(rd)
 
     ct2.meta = ChIPtsne2.from_tidy(

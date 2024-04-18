@@ -114,13 +114,14 @@ setMethod("groupRegionsBySignalCluster", c("ChIPtsne2_no_rowRanges"), .groupRegi
 }
 
 .groupRegionsByDimReduceCluster = function(ct2, group_VAR = "knn_id", nearest_neighbors = 100, ...){
+    args = get_args()
     #visible binding NOTE
     tx = ty = NULL
     message("groupRegionsByDimReduceCluster ...")
     if(!hasDimReduce(ct2)){
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
     }
-    args = get_args()
+
     xy_df = rowData(ct2) %>%
         as.data.frame() %>%
         dplyr::select(tx, ty)

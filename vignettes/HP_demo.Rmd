@@ -1,0 +1,238 @@
+---
+title: "HP_demo"
+author: "Joe Boyd"
+date: "2024-04-17"
+output:
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+    %\VignetteIndexEntry{Overview and Use Cases}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+# Objective
+
+To demonstrate the general use of ChIPtsne2 in making common ChIP-seq plot types : heatmaps, line plots, etc.
+
+# Set up
+
+## Libraries
+
+```{r libs}
+library(chiptsne2)
+library(GenomicRanges)
+#I'm leaving seqsetvis unloaded
+#all seqsetvis functions will be  called via seqsetvis::
+```
+
+## Data
+
+To use ChIPtsne2, we need 2 things : 
+
+1.  A source of enrichment signals (bam files or bigwig files) to fetch profiles from.
+2.  A set of feature regions (GRanges) at which to analyze signal profiles.
+
+### Signal
+
+Since we have an easy way to load a data.frame connecting bam files to metadata, we'll use that.
+
+```{r data signal}
+bam_cfg_dt = IKdata::chipseq.setup_bam_files()
+DT::datatable(
+    bam_cfg_dt[, .(cell, treatment, mark, rep, round, name)], 
+    options = list(scrollX = TRUE)
+)
+```
+
+While not strictly necessary, creating a `FetchConfig` object
+
+First we'll select for the mark of interest and prune extra attributes.
+
+```{r signal FetchConfig}
+bam_cfg_dt.sel = bam_cfg_dt[mark == "ERG", .(file, cell, treatment, mark, rep, round, name, mapped_reads)]
+fetch_cfg = FetchConfig(bam_cfg_dt.sel, 
+                        read_mode = "bam_SE", 
+                        view_size = 2e3, 
+                        window_size = 50)
+```
+
+That should look a lot like making a ssvQC::QcConfigSignal object if you've done that. In fact, if you've used ssvQC::QcConfigSignal.save_config you can use chiptsne2::FetchConfig.load_config to load it into chiptsne2.
+
+### Regions
+
+We need a single GRanges object to query signal from. This will be created by overlapping the individual peak calls.
+
+Like with the bam files we have an easy way to load a data.frame connecting narrowPeak files to metadata.
+
+```{r data regions}
+np_cfg_dt = IKdata::chipseq.setup_peak_files()
+DT::datatable(
+    np_cfg_dt[, .(cell, treatment, mark, rep, round, name)], 
+    options = list(scrollX = TRUE)
+)
+```
+
+#### overlap
+
+We don't need to look at every ChIP-seq at once, so let's select one mark to demonstrate.
+
+We also need to reduce multiple peak calls to a single GRanges. We'll use *seqsetvis* for this.
+
+```{r load peak overlap}
+np_cfg_dt.sel = np_cfg_dt[mark == "ERG",]
+np_grs = seqsetvis::easyLoad_narrowPeak(np_cfg_dt.sel$file, file_names = np_cfg_dt.sel$name)
+olap_gr = seqsetvis::ssvOverlapIntervalSets(np_grs)
+```
+
+#### plots
+
+bar plot
+
+```{r features bars}        
+seqsetvis::ssvFeatureBars(olap_gr)
+```
+
+binary heatmap
+
+```{r features binary}
+seqsetvis::ssvFeatureBinaryHeatmap(olap_gr)
+```
+
+Euler plot
+
+```{r features euler}
+seqsetvis::ssvFeatureEuler(olap_gr)
+```
+
+Upset plot
+
+```{r features upset}
+seqsetvis::ssvFeatureUpset(olap_gr)
+```
+
+#### final query
+
+```{r final query}
+query_gr = olap_gr
+#subset for regions where replicates agree
+query_gr = subset(query_gr, 
+                  (MXP5_ERG_GFP_rep1 & MXP5_ERG_GFP_rep2) | 
+                      (MXP5_ERG_IK_rep1 & MXP5_ERG_IK_rep2)
+)
+query_gr
+```
+
+This yields about 7k regions, which is a reasonable number.
+
+# ChIPtsne2 object
+
+After setting up our query regions and config for fetching signal we can move onto the main part of ChIPtsne2.
+
+Since we're using a FetchConfig, chiptsne2 will fetch the signal profiles as part of creating this object.
+
+If you already have profiles from a seqsetvis::ssvFetch* call, you can use 
+
+```{r create chiptsne2}
+ct2 = ChIPtsne2.from_FetchConfig(fetch_config = fetch_cfg, query_gr = query_gr)
+# setting the seed ensures any probabilistic functions (k-means, tSNE) return identical results each time
+ct2 = setSeed(ct2, seed = 0)
+```
+
+## heatmap and lineplot
+
+With this object we can go right into a heatmap.
+
+```{r}
+plotSignalHeatmap(ct2)
+```
+Or a lineplot.
+
+```{r}
+plotSignalLinePlot(ct2)
+```
+
+## metadata and grouping
+
+It's important to understand that we haven't added clustering information yet to this ChIptsne2 object. All it knows it what was in the original query.
+
+Let's look at the information that is already present.
+
+```{r}
+rowRanges(ct2)
+```
+
+We can bring any of these into our plots like so:
+
+```{r}
+plotSignalHeatmap(ct2, group_VARS = "region_MXP5_ERG_GFP_rep1")
+plotSignalLinePlot(ct2, group_VAR = "region_MXP5_ERG_GFP_rep1")
+```
+
+And even more than one at once.
+
+```{r}
+plotSignalHeatmap(ct2, group_VARS = 
+                      c("region_MXP5_ERG_GFP_rep1", "region_MXP5_ERG_GFP_rep2", 
+                        "region_MXP5_ERG_IK_rep1", "region_MXP5_ERG_IK_rep2"), 
+                  annotation_colors = c("FALSE" = "gray", "TRUE" = "black"),
+                  color_key_strategy = "all")
+plotSignalLinePlot(ct2, group_VAR = "region_MXP5_ERG_GFP_rep1", color_VAR = "region_MXP5_ERG_IK_rep1")
+```
+
+We can add region metadata like so.
+
+```{r}
+ct2 = mutateRegions(ct2, GFP = region_MXP5_ERG_GFP_rep1 & region_MXP5_ERG_GFP_rep2)
+ct2 = mutateRegions(ct2, IK = region_MXP5_ERG_IK_rep1 & region_MXP5_ERG_IK_rep2)
+ct2 = groupRegionsByMembershipTable(ct2, membership = rowData(ct2)[, c("GFP", "IK")])
+rowData(ct2)
+```
+
+```{r}
+plotSignalHeatmap(ct2, group_VARS = 
+                      c("GFP", "IK", "membership_id"), 
+                  annotation_colors = c("FALSE" = "gray", "TRUE" = "black")
+)
+plotSignalLinePlot(ct2, group_VAR = "GFP", color_VAR = "IK")
+```
+
+## clustering
+
+As far as chiptsne2 is concerned, clustering is just a special kind of grouping based on signal profiles.
+
+This is calling seqsetvis::ssvSignalClustering, i.e. k-means. So you should expect similar results.
+
+```{r kmeans clustering}
+ct2 = groupRegionsBySignalCluster(ct2, group_VAR = "cluster_id", n_clusters = 6)
+#this has added cluster_id to region data
+rowData(ct2)
+```
+
+Now we can use our new group_VAR.
+
+```{r}
+plotSignalHeatmap(ct2, 
+                  group_VARS = c("cluster_id")
+)
+plotSignalLinePlot(ct2, group_VAR = "cluster_id")
+```
+
+Uh oh! Looks like we have a bad cluster there
+
+```{r}
+ct2.sub = subsetRegions(ct2, cluster_id != 1)
+plotSignalHeatmap(ct2.sub, 
+                  group_VARS = c("cluster_id")
+)
+rowData(ct2)
+rowData(ct2.sub)$cluster_id = droplevels(rowData(ct2.sub)$cluster_id)
+all(rownames(rowData(ct2.sub)) == rownames(ct2.sub))
+debug(plotSignalLinePlot)
+plotSignalLinePlot(ct2.sub, 
+                   group_VAR = "cluster_id")
+```
