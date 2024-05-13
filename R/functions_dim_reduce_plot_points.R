@@ -1,13 +1,108 @@
 
+.add_labels = function(p, xy_df, label_VAR, label_FUN, label_size, map_label_colors){
+    if(label_VAR == "group"){
+        # label_VAR = c("group_value")
+        xy_df = dplyr::mutate(xy_df, group_value = paste(group, value))
+        label_VAR = "value"
+        label_ = label_VAR
+        label_ = ensym(label_)
+        lab_df = xy_df %>% dplyr::group_by(group_value) %>% dplyr::summarise(tx = mean(tx), ty = mean(ty), value = unique(value), group = unique(group))
+    }else{
+        label_ = label_VAR
+        label_ = ensym(label_)
+        lab_df = xy_df %>% dplyr::group_by(!!label_) %>% dplyr::summarise(tx = mean(tx), ty = mean(ty))
+    }
+    if(map_label_colors){
+        p = p + label_FUN(data = lab_df,
+                          mapping = aes(label = !!label_, color = !!label_),
+                          show.legend = FALSE,
+                          size = label_size / ggplot2:::.pt)
+    }else{
+        p = p + label_FUN(data = lab_df,
+                          mapping = aes(label = !!label_),
+                          show.legend = FALSE,
+                          size = label_size / ggplot2:::.pt)
+    }
+
+    p
+}
+
+#' .enforce_extra_VARS
+#'
+#' @param ct2 chiptsne2 object
+#' @param df current data.frame to add extra_VARS to
+#' @param extra_VARS extra variables that must be in metadata or in df already
+#' @param expected_missing it's ok if these are in extra_VARS and not present in
+#'   df or meta data
+#'
+#' @return df with extra_VARS added from meta data.
+#'
+.enforce_extra_VARS = function(ct2, df, extra_VARS, expected_missing = NULL){
+    extra_VARS_missed = setdiff(extra_VARS, colnames(df))
+    all_meta_cn = c(
+        colnames(getSampleMetaData(ct2)),
+        colnames(getRegionMetaData(ct2))
+    )
+    .validate_allowed_input(
+        input = extra_VARS_missed,
+        allowed = union(all_meta_cn, expected_missing),
+        msg_prefix = "Some VAR are missing from metadata:")
+
+    if(length(extra_VARS_missed) > 0){
+        if(ct2@region_VAR %in% colnames(df) & ct2@name_VAR %in% colnames(df)){
+            full_region_cn = colnames(getRegionMetaData(ct2))
+            extra_region_cn = intersect(extra_VARS, full_region_cn)
+            if(!is.null(extra_region_cn)){
+                region_df = getRegionMetaData(ct2, select_VARS = extra_region_cn)
+                df = merge(df, region_df, by = ct2@region_VAR)
+            }
+            full_sample_cn = colnames(getSampleMetaData(ct2))
+            extra_sample_cn = intersect(extra_VARS, full_sample_cn)
+            if(!is.null(extra_sample_cn)){
+                sample_df = getSampleMetaData(ct2, select_VARS = extra_sample_cn)
+                df = merge(df, sample_df, by = ct2@name_VAR)
+            }
+        }else if(ct2@region_VAR %in% colnames(df)){
+            full_region_cn = colnames(getRegionMetaData(ct2))
+            extra_region_cn = intersect(extra_VARS, full_region_cn)
+            if(!is.null(extra_region_cn)){
+                region_df = getRegionMetaData(ct2, select_VARS = extra_region_cn)
+                df = merge(df, region_df, by = ct2@region_VAR)
+            }
+        }else if(ct2@name_VAR %in% colnames(df)){
+            full_sample_cn = colnames(getSampleMetaData(ct2))
+            extra_sample_cn = intersect(extra_VARS, full_sample_cn)
+            if(!is.null(extra_sample_cn)){
+                sample_df = getSampleMetaData(ct2, select_VARS = extra_sample_cn)
+                df = merge(df, sample_df, by = ct2@name_VAR)
+            }
+        }else{
+            stop("confusing")
+        }
+    }
+    df
+}
+.background_FUN = function(p, xy_df, point_size, background_annotation_color){
+    if(!is.null(background_annotation_color)){
+        bg_df = unique(xy_df[, c("tx", "ty")])
+        p = p + annotate("point", x = bg_df$tx, y = bg_df$ty, color = background_annotation_color, size = .7*point_size)
+    }
+    p
+}
+
 .plotDimReducePoints = function(ct2,
                                 color_VAR = NULL,
+                                label_VAR = NULL,
+                                label_FUN = geom_label,
+                                label_size = 10,
                                 point_size = NULL,
                                 point_color_limits = c(NA, NA),
                                 has_symmetrical_limits = NULL,
                                 point_colors = NULL,
                                 extra_VARS = NULL,
                                 background_annotation_color = NULL,
-                                underlayer_FUN = function(p)p){
+                                underlayer_FUN = function(p, ...)p,
+                                return_data = FALSE){
     #visible binding NOTE
     tx = ty = value = NULL
     if(!hasDimReduce(ct2)){
@@ -23,59 +118,76 @@
     if(is.null(color_VAR)){
         color_VAR = colnames(ct2)
     }
+    extra_VARS = union(extra_VARS, color_VAR)
+    if(!is.null(label_VAR)){
+        extra_VARS = union(extra_VARS, label_VAR)
+    }
+    map_label_colors = FALSE
+    if(!is.null(label_VAR)){
+        if(label_VAR %in% color_VAR){
+            map_label_colors = TRUE
+        }
+    }
 
-    enforce_extra_VARS = function(ct2, df, ev){
-        ev_missed = setdiff(ev, colnames(df))
-        if(length(ev_missed) > 0){
-            if(ct2@region_VAR %in% colnames(df) & ct2@name_VAR %in% colnames(df)){
-                full_region_df = getRegionMetaData(ct2)
-                region_df = getRegionMetaData(ct2, select_VARS = intersect(extra_VARS, colnames(full_region_df)))
-                full_sample_df = getSampleMetaData(ct2)
-                sample_df = getSampleMetaData(ct2, select_VARS = intersect(extra_VARS, colnames(full_sample_df)))
-                df = merge(df, region_df, by = ct2@region_VAR)
-                df = merge(df, sample_df, by = ct2@name_VAR)
-            }else if(ct2@region_VAR %in% colnames(df)){
-                full_region_df = getRegionMetaData(ct2)
-                region_df = getRegionMetaData(ct2, select_VARS = intersect(extra_VARS, colnames(full_region_df)))
-                df = merge(df, region_df, by = ct2@region_VAR)
-            }else if(ct2@name_VAR %in% colnames(df)){
-                full_sample_df = getSampleMetaData(ct2)
-                sample_df = getSampleMetaData(ct2, select_VARS = intersect(extra_VARS, colnames(full_sample_df)))
-                df = merge(df, sample_df, by = ct2@name_VAR)
-            }else{
-                stop("confusing")
-            }
-        }
-        df
-    }
-    background_FUN = function(p){
-        if(!is.null(background_annotation_color)){
-            bg_df = unique(xy_df[, c("tx", "ty")])
-            p = p + annotate("point", x = bg_df$tx, y = bg_df$ty, color = background_annotation_color, size = .7*point_size)
-        }
-        p
-    }
     if(all(is.na(color_VAR))){
-        xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
+        # no color
+        xy_df = .enforce_extra_VARS(ct2, xy_df, extra_VARS)
+        if(return_data){
+            return(xy_df)
+        }
         p = ggplot(xy_df, aes(x = tx, y = ty))
-        p = underlayer_FUN(p)
-        p = background_FUN(p)
+        p = underlayer_FUN(p, xy_df, point_size, background_annotation_color)
+        p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
             geom_point(size = point_size)
+
     }else if(all(color_VAR %in% colnames(getRegionMetaData(ct2)))){
+        # color with region variable
         xy_df = getRegionMetaData(ct2) %>%
             dplyr::select(dplyr::all_of(c("tx", "ty", ct2@region_VAR, color_VAR)))
+        #color_VAR must (error) all be same class and should (warning) have items in common to make sense
+        xy_df[, color_VAR, drop = FALSE]
+        if(length(color_VAR) > 1){
+            color_classes = sapply(color_VAR, function(cv){
+                class(xy_df[[cv]])
+            })
+            color_is_num = sapply(color_VAR, function(cv){
+                is.numeric(xy_df[[cv]])
+            })
+            if(length(unique(color_classes)) != 1){
+                print(split(names(color_classes), color_classes))
+                stop("Classes of all color_VAR items must match.")
+            }
+            if(!all(color_is_num)){
+                color_values = lapply(color_VAR, function(cv){
+                    as.character(unique(xy_df[[cv]]))
+                })
+                for(i in seq_len(length(color_values) - 1)){
+                    for(j in seq(i + 1, length(color_values))){
+                        in_common = intersect(color_values[[i]], color_values[[j]])
+                        if(length(in_common) == 0){
+                            warning("There are entries in color_VAR with no items in common. The same scale may be inappropriate.:\n",
+                                    names(color_values)[i], " and ", names(color_values)[j])
+                        }
+                    }
+                }
+            }
+        }
         xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = "group")
-        xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
+        xy_df = .enforce_extra_VARS(ct2, xy_df, extra_VARS)
+        if(return_data){
+            return(xy_df)
+        }
         point_colors = .prep_color_scale(xy_df$value, color_scale = point_colors)
-        p = ggplot(xy_df, aes(x = tx, y = ty, color = value))
+        p = ggplot(xy_df, aes(x = tx, y = ty))
         p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
-        p = underlayer_FUN(p)
-        p = background_FUN(p)
+        p = underlayer_FUN(p, xy_df, point_size, background_annotation_color)
+        p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
-            geom_point(size = point_size) +
+            geom_point(aes(color = value), size = point_size) +
             facet_wrap(paste0("~", "group"))
     }else if(all(color_VAR %in% colnames(ct2))){
+        # color by max signal
         signal_df = SummarizedExperiment::assay(ct2, "max") %>%
             as.data.frame
         signal_df = signal_df[, color_VAR, drop = FALSE]
@@ -86,30 +198,47 @@
         point_colors = .prep_color_scale(xy_df$max, has_symmetrical_limits, point_colors)
         point_color_limits = .prep_symmetrical(xy_df$max, has_symmetrical_limits, point_color_limits)
         xy_df$max = .apply_limits(xy_df$max, point_color_limits)
-        xy_df = enforce_extra_VARS(ct2, xy_df, extra_VARS)
-        p = ggplot(xy_df, aes(x = tx, y = ty, color = max))
-        p = underlayer_FUN(p)
-        p = background_FUN(p)
+        xy_df = .enforce_extra_VARS(ct2, xy_df, extra_VARS, expected_missing = colnames(ct2))
+        if(return_data){
+            return(xy_df)
+        }
+        p = ggplot(xy_df, aes(x = tx, y = ty))
+        p = underlayer_FUN(p, xy_df, point_size, background_annotation_color)
+        p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
-            geom_point(size = point_size) +
+            geom_point(aes(color = max), size = point_size) +
             facet_wrap(paste0("~", ct2@name_VAR)) +
             labs(color = paste("max", ct2@value_VAR, "\nper", ct2@region_VAR))
         p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
     }else{
         stop("color_VAR: \"", color_VAR, "\" was not recognized. Check vs colnames of ct2 object or colnames of rowData(ct2).")
     }
+    if(!is.null(label_VAR)){
+        p = .add_labels(
+            p = p,
+            xy_df = xy_df,
+            label_VAR = label_VAR,
+            label_FUN = label_FUN,
+            label_size = label_size,
+            map_label_colors
+        )
+    }
     p
 }
 
 generic_plotDimReducePoints = function(ct2,
                                        color_VAR = NULL,
+                                       label_VAR = NULL,
+                                       label_FUN = geom_label,
+                                       label_size = 10,
                                        point_size = NULL,
                                        point_color_limits = c(NA, NA),
                                        has_symmetrical_limits = NULL,
                                        point_colors = NULL,
                                        extra_VARS = NULL,
                                        background_annotation_color = NULL,
-                                       underlayer_FUN = function(p)p){
+                                       underlayer_FUN = function(p, ...)p,
+                                       return_data = FALSE){
     standardGeneric("plotDimReducePoints")
 }
 
@@ -121,6 +250,9 @@ generic_plotDimReducePoints = function(ct2,
 #'   *either* sample metadata (colnames) or region metadata (rowRanges). Default
 #'   of NULL will plot max signal for all sample profiles. NA will perform no
 #'   color mapping.
+#' @param label_VAR Categorical variable to label the mean position of. Use with `label_FUN` to control geom used.
+#' @param label_FUN Function to add labels to plot. Only used when `label_VAR` is specified. Should be equivalent to geom_label: geom_text, ggrepel::geom_text_repel, or ggrepel::geom_label_repel. Must accept parameters, data, mapping, and show.legend.
+#' @param label_size Font size of label.
 #' @param point_size Size of points in plot.
 #' @param point_color_limits color scale limits for continuous color_VAR.
 #' @param has_symmetrical_limits If TRUE color scale limits will extend to equal
@@ -150,18 +282,22 @@ generic_plotDimReducePoints = function(ct2,
 #'
 #' #NA disable color
 #' plotDimReducePoints(ct2, color_VAR = NA)
-
+#'
+#' # color scale is different when negative values are present
 #' ct2_diff = subsetSamples(ct2, cell == "MCF10A") -
 #'   subsetSamples(ct2, cell == "MCF10AT1")
 #' plotDimReducePoints(ct2_diff)
+#'
+#' # categorical variables
 #' plotDimReducePoints(ct2, "umap_cluster")
+#' plotDimReducePoints(ct2, "umap_cluster", label_VAR = "umap_cluster")
 #' #a named vector of colors for point_colors
 #' plotDimReducePoints(ct2, "umap_cluster", point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
 #' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 #' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 #'
 #' # layer plot elements beneath the final plot with a function like this:
-#' base_plot = function(p){
+#' base_plot = function(p, xy_df, point_size, background_annotation_color){
 #'   p +
 #'     annotate("rect",
 #'              xmin = 0, xmax = .3,

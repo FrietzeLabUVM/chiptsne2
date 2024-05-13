@@ -1,12 +1,13 @@
 
 calculate_centroid_per_group = function(ct2, group_VARS){
     if(length(group_VARS) > 1){
-        tmp_df = data.frame(TMP_GROUP__ = apply(GenomicRanges::mcols(rowRanges(ct2))[,group_VARS], 1, paste, collapse = ","))
-        ct2 = chiptsne2::setRegionMetaData(ct2, tmp_df)
-        rowRanges(ct2)
+        tmp_df = data.frame(TMP_GROUP__ = apply(as.data.frame(GenomicRanges::mcols(rowRanges(ct2)))[,group_VARS], 1, paste, collapse = ","))
+        ct2 = chiptsne2::setRegionMetaData(ct2, tmp_df, silent = TRUE)
         group_VARS = "TMP_GROUP__"
     }
+
     ct2.r_sp = split(ct2, group_VARS)
+    ct2.r_sp = ct2.r_sp[sapply(ct2.r_sp, nrow) > 0]
     centroids = t(sapply(ct2.r_sp, function(x){
         colMeans(rowToRowMat(x))
     }))

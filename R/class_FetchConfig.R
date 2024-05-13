@@ -78,7 +78,9 @@ FetchConfig = function(config_df,
         read_mode = guess_read_mode(config_df$file[1])
     }
 
-    stopifnot(read_mode %in% sqc_read_modes)
+    if(!read_mode %in% sqc_read_modes){
+        stop('read_mode must be one of: "', paste(sqc_read_modes, collapse = '", "'), '"\nInstead it was: "', read_mode, '"')
+    }
 
     .FetchConfig(
         meta_data =  config_df,

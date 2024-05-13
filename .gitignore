@@ -8,3 +8,6 @@ demo_IK_cache*
 demo_IK_output*
 workflow_rmd_cache
 test.save
+/doc/
+/Meta/
+dev_sort.R

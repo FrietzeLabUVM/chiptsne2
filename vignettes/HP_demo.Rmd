@@ -44,8 +44,8 @@ Since we have an easy way to load a data.frame connecting bam files to metadata,
 ```{r data signal}
 bam_cfg_dt = IKdata::chipseq.setup_bam_files()
 DT::datatable(
-    bam_cfg_dt[, .(cell, treatment, mark, rep, round, name)], 
-    options = list(scrollX = TRUE)
+  bam_cfg_dt[, .(cell, treatment, mark, rep, round, name)], 
+  options = list(scrollX = TRUE)
 )
 ```
 
@@ -72,8 +72,8 @@ Like with the bam files we have an easy way to load a data.frame connecting narr
 ```{r data regions}
 np_cfg_dt = IKdata::chipseq.setup_peak_files()
 DT::datatable(
-    np_cfg_dt[, .(cell, treatment, mark, rep, round, name)], 
-    options = list(scrollX = TRUE)
+  np_cfg_dt[, .(cell, treatment, mark, rep, round, name)], 
+  options = list(scrollX = TRUE)
 )
 ```
 
@@ -122,7 +122,7 @@ query_gr = olap_gr
 #subset for regions where replicates agree
 query_gr = subset(query_gr, 
                   (MXP5_ERG_GFP_rep1 & MXP5_ERG_GFP_rep2) | 
-                      (MXP5_ERG_IK_rep1 & MXP5_ERG_IK_rep2)
+                    (MXP5_ERG_IK_rep1 & MXP5_ERG_IK_rep2)
 )
 query_gr
 ```
@@ -141,6 +141,10 @@ If you already have profiles from a seqsetvis::ssvFetch* call, you can use
 ct2 = ChIPtsne2.from_FetchConfig(fetch_config = fetch_cfg, query_gr = query_gr)
 # setting the seed ensures any probabilistic functions (k-means, tSNE) return identical results each time
 ct2 = setSeed(ct2, seed = 0)
+ct2 = ct2 %>% 
+  normalizeSignalRPM() %>%
+  setPositionVariable("bp from peak center") %>% 
+  setValueVariable("RPM pileup")
 ```
 
 ## heatmap and lineplot
@@ -169,7 +173,7 @@ rowRanges(ct2)
 We can bring any of these into our plots like so:
 
 ```{r}
-plotSignalHeatmap(ct2, group_VARS = "region_MXP5_ERG_GFP_rep1")
+plotSignalHeatmap(ct2, group_VARS = "region_MXP5_ERG_GFP_rep1", relative_heatmap_width = .8)
 plotSignalLinePlot(ct2, group_VAR = "region_MXP5_ERG_GFP_rep1")
 ```
 
@@ -177,10 +181,11 @@ And even more than one at once.
 
 ```{r}
 plotSignalHeatmap(ct2, group_VARS = 
-                      c("region_MXP5_ERG_GFP_rep1", "region_MXP5_ERG_GFP_rep2", 
-                        "region_MXP5_ERG_IK_rep1", "region_MXP5_ERG_IK_rep2"), 
+                    c("region_MXP5_ERG_GFP_rep1", "region_MXP5_ERG_GFP_rep2", 
+                      "region_MXP5_ERG_IK_rep1", "region_MXP5_ERG_IK_rep2"), 
                   annotation_colors = c("FALSE" = "gray", "TRUE" = "black"),
-                  color_key_strategy = "all")
+                  color_key_strategy = "all", 
+                  relative_heatmap_width = .7, relative_heatmap_height = .7)
 plotSignalLinePlot(ct2, group_VAR = "region_MXP5_ERG_GFP_rep1", color_VAR = "region_MXP5_ERG_IK_rep1")
 ```
 
@@ -195,10 +200,11 @@ rowData(ct2)
 
 ```{r}
 plotSignalHeatmap(ct2, group_VARS = 
-                      c("GFP", "IK", "membership_id"), 
-                  annotation_colors = c("FALSE" = "gray", "TRUE" = "black")
+                    c("GFP", "IK", "membership_id"), 
+                  annotation_colors = c("FALSE" = "gray", "TRUE" = "black"),
+                  relative_heatmap_width = .7, relative_heatmap_height = .7
 )
-plotSignalLinePlot(ct2, group_VAR = "GFP", color_VAR = "IK")
+plotSignalLinePlot(ct2, color_VAR = "membership_id")
 ```
 
 ## clustering
@@ -222,17 +228,122 @@ plotSignalHeatmap(ct2,
 plotSignalLinePlot(ct2, group_VAR = "cluster_id")
 ```
 
-Uh oh! Looks like we have a bad cluster there
+Uh oh! Looks like we have a bad cluster there. Get 'em out.
 
 ```{r}
-ct2.sub = subsetRegions(ct2, cluster_id != 1)
+ct2.sub = subsetRegions(ct2, ! cluster_id %in% c(1, 2, 3))
 plotSignalHeatmap(ct2.sub, 
-                  group_VARS = c("cluster_id")
+                  group_VARS = c("cluster_id"),
+                  relative_heatmap_width = .7
+                  
 )
+```
+
+```{r}
 rowData(ct2)
 rowData(ct2.sub)$cluster_id = droplevels(rowData(ct2.sub)$cluster_id)
 all(rownames(rowData(ct2.sub)) == rownames(ct2.sub))
-debug(plotSignalLinePlot)
 plotSignalLinePlot(ct2.sub, 
                    group_VAR = "cluster_id")
+```
+## annotation and stuff
+
+Do any sites overlap with the blacklist?
+
+```{r}
+black_gr = rtracklayer::import.bed("/slipstream/home/joeboyd/cutruntools/hg38.blacklist.bed")
+```
+
+```{r}
+subsetByOverlaps(ct2, black_gr)
+```
+Nope! Our object has 0 items after subsetByOverlaps with black_gr
+
+
+Next, let's look for promoters.
+
+```{r}
+tx_gr = rtracklayer::import.gff("/slipstream/home/joeboyd/indexes/HG38canon/GTF/gencode.v36.annotation.gtf", feature.type = "transcript")
+pr_gr = promoters(tx_gr, 5e3, 5e3)
+```
+
+```{r}
+subsetByOverlaps(ct2, pr_gr)
+```
+Yes! Almost 5k overlap with +/-5kb from the TSS.
+
+But how do we use this information?
+
+```{r}
+ct2 = addRegionAnnotation(ct2, tx_gr, anno_VAR = "tss_5kb")
+rowData(ct2)
+```
+
+```{r}
+plotSignalHeatmap(ct2, group_VARS = c("tss_5kb", "cluster_id"), relative_heatmap_width = .7)
+```
+```{r}
+plotSignalLinePlot(ct2, color_VAR = "tss_5kb")
+```
+Let's look at ERG signal around TSSes now.
+
+```{r}
+query_pr_gr = subsetByOverlaps(subset(pr_gr, tag == "basic"), ct2)
+```
+
+```{r}
+#wider view size
+fetch_cfg$view_size = 10e3
+ct2.tss = ChIPtsne2.from_FetchConfig(fetch_cfg, query_pr_gr)
+ct2.tss = ct2.tss %>% 
+  setSeed(seed = 0) %>%
+  normalizeSignalRPM() %>%
+  setPositionVariable("bp from TSS") %>% 
+  setValueVariable("RPM pileup")
+```
+
+```{r}
+ct2.tss = groupRegionsBySignalCluster(ct2.tss)
+plotSignalHeatmap(
+  ct2.tss, 
+  heatmap_fill_limits = c(0, 20), 
+  group_VARS = "cluster_id", 
+  relative_heatmap_width = .7, 
+  sort_strategy = "left"
+)
+```
+
+```{r}
+#drop small clusters
+c_tab = rowData(ct2.tss)$cluster_id %>% table
+keep_cluster = names(c_tab)[c_tab > 50]
+ct2.tss = subsetRegions(ct2.tss, cluster_id %in% keep_cluster)
+```
+
+```{r}
+
+ct2.tss = groupRegionsBySignalCluster(ct2.tss, n_clusters = 6)
+plotSignalHeatmap(
+  ct2.tss, 
+  heatmap_fill_limits = c(0, 20), 
+  group_VARS = "cluster_id", 
+  relative_heatmap_width = .7, 
+  sort_strategy = "left"
+)
+```
+
+```{r}
+plotSignalHeatmap(
+  ct2.tss, 
+  heatmap_fill_limits = c(0, 10), 
+  relative_heatmap_width = .7, 
+  sort_strategy = "left"
+)
+```
+So there's a fair number of these TSS where ERG is right at the TSS and then a large majority where ERG's position varies.
+
+```{r}
+plotSignalLinePlot(ct2.tss, group_VAR = "cluster_id") +
+  ggplot2::coord_cartesian(ylim = c(0, 20)) +
+  ggplot2::geom_vline(xintercept = 0)
 ```

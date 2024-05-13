@@ -8,25 +8,31 @@
 plotDimReducePoints(
   ct2,
   color_VAR = NULL,
+  label_VAR = NULL,
+  label_FUN = geom_label,
   point_size = NULL,
   point_color_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
   point_colors = NULL,
   extra_VARS = NULL,
   background_annotation_color = NULL,
-  underlayer_FUN = function(p) p
+  underlayer_FUN = function(p) p,
+  return_data = FALSE
 )
 
 \S4method{plotDimReducePoints}{ChIPtsne2_no_rowRanges}(
   ct2,
   color_VAR = NULL,
+  label_VAR = NULL,
+  label_FUN = geom_label,
   point_size = NULL,
   point_color_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
   point_colors = NULL,
   extra_VARS = NULL,
   background_annotation_color = NULL,
-  underlayer_FUN = function(p) p
+  underlayer_FUN = function(p) p,
+  return_data = FALSE
 )
 }
 \arguments{

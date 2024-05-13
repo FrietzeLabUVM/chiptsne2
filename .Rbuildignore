@@ -6,3 +6,5 @@
 ^demo_IK*
 workflow_rmd_cache
 docs
+^doc$
+^Meta$

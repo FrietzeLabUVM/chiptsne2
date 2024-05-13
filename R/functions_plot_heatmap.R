@@ -6,7 +6,7 @@
                               sort_VAR = NULL,
                               balance_VAR = NULL,
                               max_rows = 500,
-                              sort_strategy =  c("hclust", "sort", "left", "right")[2],
+                              sort_strategy =  c("hclust", "sort", "left", "right", "none", "reverse")[2],
                               heatmap_fill_limits = c(NA, NA),
                               has_symmetrical_limits = NULL,
                               heatmap_colors = NULL,
@@ -83,7 +83,8 @@
     heatmap_fill_limits = .prep_symmetrical(values = prof_dt[[ct2@value_VAR]], has_symmetrical_limits, heatmap_fill_limits)
 
     if(sort_VAR == fake_VAR){
-        prof_dt[[sort_VAR]] = 1
+        #this has to be a factor or sorting will not be run
+        prof_dt[[sort_VAR]] = factor(1)
     }
     if(is.numeric(prof_dt[[sort_VAR]])){
         id_lev = prof_dt[order(prof_dt[[sort_VAR]]),][[ct2@region_VAR]] %>%
@@ -426,7 +427,7 @@ setGeneric("plotSignalHeatmap", function(
         sort_VAR = NULL,
         balance_VAR = NULL,
         max_rows = 500,
-        sort_strategy =  c("hclust", "sort", "left", "right")[2],
+        sort_strategy =  c("hclust", "sort", "left", "right", "none", "reverse")[2],
         heatmap_fill_limits = c(NA, NA),
         has_symmetrical_limits = NULL,
         heatmap_colors = NULL,
