@@ -38,7 +38,7 @@
 #' @examples
 #' bam_cfg_f = exampleBamConfigFile()
 #' fetch_config = FetchConfig.load_config(bam_cfg_f)
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' query_gr = exampleQueryGR()
 #' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 #' ct2.c = centerProfilesAndRefetch(ct2)
 #' ct2.c
@@ -85,9 +85,9 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 #'
 #' @examples
 #' library(magrittr)
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' query_gr = exampleQueryGR()
 #' query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
-#' prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+#' prof_dt = exampleProfDT()
 #' meta_dt = prof_dt %>%
 #'   dplyr::select(sample) %>%
 #'   unique %>%

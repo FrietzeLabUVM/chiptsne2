@@ -345,7 +345,7 @@
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
 #' ct2 = groupRegionsBySignalCluster(ct2, group_VAR = "cluster")
-#' ct2 = groupRegionsByOverlap(ct2, seqsetvis::CTCF_in_10a_narrowPeak_grs[1:2], group_VAR = "overlap")
+#' ct2 = groupRegionsByOverlap(ct2, examplePeaks()[1:2], group_VAR = "overlap")
 #'
 #' meta_df = getRegionMetaData(ct2)
 #' meta_df = meta_df %>% dplyr::mutate(overlap_num = as.numeric(overlap))

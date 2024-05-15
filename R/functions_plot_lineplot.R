@@ -110,7 +110,7 @@
 #' ct2 = groupRegionsBySignalCluster(ct2, group_VAR = "cluster")
 #' ct2 = groupRegionsByOverlap(
 #'   ct2,
-#'   seqsetvis::CTCF_in_10a_narrowPeak_grs[1:2],
+#'   examplePeaks()[1:2],
 #'   group_VAR = "overlap"
 #' )
 #' plotSignalLinePlot(

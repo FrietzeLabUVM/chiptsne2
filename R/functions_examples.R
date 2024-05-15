@@ -1,5 +1,18 @@
 #### Example data ####
 
+#' examplePeaks
+#'
+#' @return list of GRanges of peak calls
+#' @export
+#'
+#' @examples
+#' examplePeaks()
+examplePeaks = function(){
+    utils::data("CTCF_in_10a_narrowPeak_grs", package = "seqsetvis")
+    peaks_gr = CTCF_in_10a_narrowPeak_grs
+    peaks_gr
+}
+
 #' exampleQueryGR
 #'
 #' @return GRanges example
@@ -17,6 +30,7 @@ exampleQueryGR = function(){
     )
     query_gr
 }
+
 #' exampleProfDT
 #'
 #' @return data.table example

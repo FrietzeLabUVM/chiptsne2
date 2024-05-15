@@ -68,6 +68,8 @@ colors for categorical data.}
 \item{background_annotation_color}{Color to use for points not in facet. Default of NULL will not draw any background points.}
 
 \item{underlayer_FUN}{Function to add to layer below background annotation.}
+
+\item{return_data}{If TRUE, no plot is returned but the final plotted data.frame is returned instead. Default is FALSE.}
 }
 \value{
 ggplot

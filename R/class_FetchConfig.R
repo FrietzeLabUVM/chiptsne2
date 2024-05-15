@@ -60,7 +60,7 @@
 #' bam_config_file = exampleBamConfigFile()
 #' fetch_config = FetchConfig.load_config(bam_config_file)
 #'
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' query_gr = exampleQueryGR()
 #' runFetchAtRegions(fetch_config, query_gr)
 #'
 FetchConfig = function(config_df,

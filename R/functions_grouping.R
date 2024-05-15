@@ -238,7 +238,7 @@ setMethod("groupRegionsByDimReduceCluster", c("ChIPtsne2_no_rowRanges"), .groupR
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
-#' peak_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+#' peak_grs = examplePeaks()
 #' ct2.olap = ct2
 #' ct2.olap = groupRegionsByOverlap(
 #'   ct2.olap,
@@ -314,7 +314,7 @@ setMethod("groupRegionsByOverlap", c("ChIPtsne2"), .groupRegionsByOverlap)
 #' @examples
 #' ct2 = exampleChIPtsne2()
 #' rowData(ct2)
-#' np_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+#' np_grs = examplePeaks()
 #'
 #' # membership data.frame
 #' memb_df = seqsetvis::ssvMakeMembTable(np_grs)
@@ -395,7 +395,7 @@ setMethod("groupRegionsByMembershipTable", c("ChIPtsne2_no_rowRanges"), .groupRe
 #' ct2 = exampleChIPtsne2()
 #'
 #' # data.frame assignment
-#' np_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+#' np_grs = examplePeaks()
 #' memb_grs = seqsetvis::ssvOverlapIntervalSets(np_grs)
 #' assign_df = seqsetvis::ssvFactorizeMembTable(memb_grs)
 #' assign_df$not_used = "A"

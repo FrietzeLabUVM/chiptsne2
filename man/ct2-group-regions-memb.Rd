@@ -32,7 +32,7 @@ This membership table can be one of 2 different main formats.
 \examples{
 ct2 = exampleChIPtsne2()
 rowData(ct2)
-np_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+np_grs = examplePeaks()
 
 # membership data.frame
 memb_df = seqsetvis::ssvMakeMembTable(np_grs)

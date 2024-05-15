@@ -40,7 +40,7 @@ groupRegionsByOverlap
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
-peak_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+peak_grs = examplePeaks()
 ct2.olap = ct2
 ct2.olap = groupRegionsByOverlap(
   ct2.olap,

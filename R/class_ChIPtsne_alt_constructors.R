@@ -235,7 +235,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
 #' @examples
 #' bam_cfg_f = exampleBamConfigFile()
 #' fetch_config = FetchConfig.load_config(bam_cfg_f)
-#' query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+#' query_gr = exampleQueryGR()
 #' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 #' ct2
 ChIPtsne2.from_FetchConfig = function(fetch_config,

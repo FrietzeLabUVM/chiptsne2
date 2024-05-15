@@ -32,7 +32,7 @@ groupRegionsManually
 ct2 = exampleChIPtsne2()
 
 # data.frame assignment
-np_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+np_grs = examplePeaks()
 memb_grs = seqsetvis::ssvOverlapIntervalSets(np_grs)
 assign_df = seqsetvis::ssvFactorizeMembTable(memb_grs)
 assign_df$not_used = "A"
