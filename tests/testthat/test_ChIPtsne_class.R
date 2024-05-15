@@ -64,7 +64,7 @@ test_that("Gettters", {
 bam_cfg_f = system.file("extdata/bam_config.csv", package = "chiptsne2", mustWork = TRUE)
 fetch_config = FetchConfig.load_config(bam_cfg_f)
 fetch_config@meta_data = fetch_config@meta_data[1:2,]
-query_gr = seqsetvis::CTCF_in_10a_overlaps_gr[1:10]
+query_gr = exampleQueryGR()[1:10]
 
 suppressWarnings({
     ct2.cfg = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)

@@ -51,8 +51,11 @@ ChIPtsne2 object with tsne results
 ChIPtsne2.from_tidy
 }
 \examples{
-query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
-prof_dt = seqsetvis::CTCF_in_10a_profiles_dt
+library(seqsetvis)
+data(CTCF_in_10a_overlaps_gr)
+query_gr = CTCF_in_10a_overlaps_gr
+data(CTCF_in_10a_profiles_dt)
+prof_dt = CTCF_in_10a_profiles_dt
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr)
 ct2
 }

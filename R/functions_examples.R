@@ -9,7 +9,8 @@
 #' @examples
 #' exampleQueryGR()
 exampleQueryGR = function(){
-    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+    utils::data("CTCF_in_10a_overlaps_gr", package = "seqsetvis")
+    query_gr = CTCF_in_10a_overlaps_gr
     colnames(GenomicRanges::mcols(query_gr)) = paste0(
         "peak_",
         colnames(GenomicRanges::mcols(query_gr))
@@ -20,11 +21,13 @@ exampleQueryGR = function(){
 #'
 #' @return data.table example
 #' @export
+#' @importFrom utils data
 #'
 #' @examples
 #' exampleProfDT()
 exampleProfDT = function(){
-    seqsetvis::CTCF_in_10a_profiles_dt
+    utils::data("CTCF_in_10a_profiles_dt", package = "seqsetvis")
+    CTCF_in_10a_profiles_dt[]
 }
 
 #' query_gr

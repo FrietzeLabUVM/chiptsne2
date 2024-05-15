@@ -10,13 +10,14 @@ plotDimReducePoints(
   color_VAR = NULL,
   label_VAR = NULL,
   label_FUN = geom_label,
+  label_size = 10,
   point_size = NULL,
   point_color_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
   point_colors = NULL,
   extra_VARS = NULL,
   background_annotation_color = NULL,
-  underlayer_FUN = function(p) p,
+  underlayer_FUN = function(p, ...) p,
   return_data = FALSE
 )
 
@@ -25,13 +26,14 @@ plotDimReducePoints(
   color_VAR = NULL,
   label_VAR = NULL,
   label_FUN = geom_label,
+  label_size = 10,
   point_size = NULL,
   point_color_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
   point_colors = NULL,
   extra_VARS = NULL,
   background_annotation_color = NULL,
-  underlayer_FUN = function(p) p,
+  underlayer_FUN = function(p, ...) p,
   return_data = FALSE
 )
 }
@@ -42,6 +44,12 @@ plotDimReducePoints(
 \emph{either} sample metadata (colnames) or region metadata (rowRanges). Default
 of NULL will plot max signal for all sample profiles. NA will perform no
 color mapping.}
+
+\item{label_VAR}{Categorical variable to label the mean position of. Use with \code{label_FUN} to control geom used.}
+
+\item{label_FUN}{Function to add labels to plot. Only used when \code{label_VAR} is specified. Should be equivalent to geom_label: geom_text, ggrepel::geom_text_repel, or ggrepel::geom_label_repel. Must accept parameters, data, mapping, and show.legend.}
+
+\item{label_size}{Font size of label.}
 
 \item{point_size}{Size of points in plot.}
 
@@ -80,17 +88,22 @@ plotDimReducePoints(ct2, point_colors = c("gray", "red"))
 
 #NA disable color
 plotDimReducePoints(ct2, color_VAR = NA)
+
+# color scale is different when negative values are present
 ct2_diff = subsetSamples(ct2, cell == "MCF10A") -
   subsetSamples(ct2, cell == "MCF10AT1")
 plotDimReducePoints(ct2_diff)
+
+# categorical variables
 plotDimReducePoints(ct2, "umap_cluster")
+plotDimReducePoints(ct2, "umap_cluster", label_VAR = "umap_cluster")
 #a named vector of colors for point_colors
 plotDimReducePoints(ct2, "umap_cluster", point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
 plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 
 # layer plot elements beneath the final plot with a function like this:
-base_plot = function(p){
+base_plot = function(p, xy_df, point_size, background_annotation_color){
   p +
     annotate("rect",
              xmin = 0, xmax = .3,

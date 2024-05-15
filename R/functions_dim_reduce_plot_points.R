@@ -1,5 +1,7 @@
 
 .add_labels = function(p, xy_df, label_VAR, label_FUN, label_size, map_label_colors){
+    #visible binding for global variable
+    group = value = group_value = tx = ty = NULL
     if(label_VAR == "group"){
         # label_VAR = c("group_value")
         xy_df = dplyr::mutate(xy_df, group_value = paste(group, value))
@@ -16,12 +18,12 @@
         p = p + label_FUN(data = lab_df,
                           mapping = aes(label = !!label_, color = !!label_),
                           show.legend = FALSE,
-                          size = label_size / ggplot2:::.pt)
+                          size = label_size / ggplot2::.pt)
     }else{
         p = p + label_FUN(data = lab_df,
                           mapping = aes(label = !!label_),
                           show.legend = FALSE,
-                          size = label_size / ggplot2:::.pt)
+                          size = label_size / ggplot2::.pt)
     }
 
     p
@@ -264,6 +266,7 @@ generic_plotDimReducePoints = function(ct2,
 #' @param extra_VARS `r doc_extra_VARS()`
 #' @param background_annotation_color Color to use for points not in facet. Default of NULL will not draw any background points.
 #' @param underlayer_FUN Function to add to layer below background annotation.
+#' @param return_data `r doc_return_data()`
 #'
 #' @return ggplot
 #' @export

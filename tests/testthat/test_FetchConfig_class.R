@@ -105,7 +105,7 @@ test_that("FetchConfig.save_config", {
 })
 
 test_that("fragLens", {
-    query_gr = seqsetvis::CTCF_in_10a_overlaps_gr
+    query_gr = exampleQueryGR()
     cfg.bam = FetchConfig.load_config(bam_cfg_f)
     cfg.bam@meta_data = cfg.bam$meta_data[1,]
 

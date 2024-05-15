@@ -4,8 +4,10 @@ library(chiptsne2)
 library(testthat)
 
 ct2 = exampleChIPtsne2.with_meta()
-peak_grs = seqsetvis::CTCF_in_10a_narrowPeak_grs
+data(CTCF_in_10a_narrowPeak_grs, package = "seqsetvis")
+peak_grs = CTCF_in_10a_narrowPeak_grs
 ct2.olap = groupRegionsByOverlap(ct2, peak_grs[1:2], group_VAR = "10A_AT1_overlap")
+
 
 test_that("groupRegionsByOverlap list", {
     expect_equal(colnames(rowData(ct2.olap)), c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF", "10A_AT1_overlap"))
