@@ -33,13 +33,12 @@ A modified ChIPtsne2 object with added/overwritten sample metadata.
 An alternative to setRegionMetaData that adds region metadata information based on overlaps with supplied anno_gr.
 }
 \examples{
-library(GenomicRanges)
 ct2 = exampleChIPtsne2.with_meta()
 anno_gr = rowRanges(ct2)
 anno_gr = subset(anno_gr, seqnames == "chr1")
 anno_gr$start_pos = start(anno_gr)
 anno_gr$end_pos = end(anno_gr)
-anno_gr$chr_name = as.character(seqnames(anno_gr))
+anno_gr$chr_name = as.character(GenomicRanges::seqnames(anno_gr))
 ct2.anno = addRegionAnnotation(ct2, anno_gr, anno_VAR = c("start_pos", "end_pos", "chr_name"))
 rowRanges(ct2.anno)
 }

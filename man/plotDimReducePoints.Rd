@@ -81,7 +81,7 @@ plotDimReducePoints
 library(ggplot2)
 ct2 = exampleChIPtsne2.with_meta() \%>\%
    dimReduceUMAP() \%>\%
-   groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") \%>\%
+   groupRegionsByDimReduceCluster(group_VAR = "umap_cluster", nearest_neighbors = 20) \%>\%
    groupRegionsBySignalCluster(group_VAR = "signal_cluster")
 
 # default is max signal value per sample
@@ -100,7 +100,8 @@ plotDimReducePoints(ct2_diff)
 plotDimReducePoints(ct2, "umap_cluster")
 plotDimReducePoints(ct2, "umap_cluster", label_VAR = "umap_cluster")
 #a named vector of colors for point_colors
-plotDimReducePoints(ct2, "umap_cluster", point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
+plotDimReducePoints(ct2, "umap_cluster",
+  point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
 plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 
@@ -110,7 +111,7 @@ base_plot = function(p, xy_df, point_size, background_annotation_color){
     annotate("rect",
              xmin = 0, xmax = .3,
              ymin = -.05, ymax = .13,
-             fill = "gray80", color = "red")
+             fill = "lightblue", color = "red")
 }
 
 plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",

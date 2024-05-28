@@ -1,20 +1,22 @@
 Package: chiptsne2
 Type: Package
 Title: ChIPseq analysis using tSNE
-Version: 0.1.39
+Version: 0.1.40
 Authors@R: person("Joseph R", "Boyd", email = "jrboyd@uvm.edu",
-                  role = c("aut", "cre"))
+                  role = c("aut", "cre"), comment = c(ORCID="0000-0002-8969-9676"))
 Description: chiptsne2 provides support for tSNE and other dimensional 
     reduction techniques for analyzing ChIP-seq profiles.  In addtion, it 
     provides a friendlier and more robust way to work with seqsetvis.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Suggests:
+    BiocStyle,
     knitr,
-    testthat
+    testthat,
+    rmarkdown
 Depends:
-    R (>= 3.6),
+    R (>= 4.3.0),
     shiny
 Imports: 
     BiocFileCache,
@@ -38,10 +40,12 @@ Imports:
     reshape2,
     S4Vectors,
     scales,
-    seqsetvis (>= 1.21.12),
+    seqsetvis (>= 1.25.2),
+    stats,
     SummarizedExperiment,
     tidyr,
-    umap
+    umap,
+    utils
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 VignetteBuilder: knitr
