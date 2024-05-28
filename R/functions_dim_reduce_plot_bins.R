@@ -222,9 +222,9 @@ bin_signals = function(agg_dt,
                     c(unique(c(facet_, extra_VARS, "bx", "by")))]
     data.table::setnames(bin_dt, "y", val)
     bxvc = bin_values_centers(n_bins = x_bins, xrng)
-    w = diff(bxvc[1:2])
+    w = diff(bxvc[seq(1, 2)])
     byvc = bin_values_centers(n_bins = y_bins, yrng)
-    h = diff(byvc[1:2])
+    h = diff(byvc[seq(1, 2)])
     bin_dt[, tx := bxvc[bx]]
     bin_dt[, ty := byvc[by]]
 

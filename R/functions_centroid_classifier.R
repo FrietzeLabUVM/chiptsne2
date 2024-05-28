@@ -32,7 +32,7 @@ classify_by_centroid_distances = function(distances, centroids,
     apply(distances,1 , FUN = function(x){
         rnk = order(x)
 
-        if(diff(x[rnk][1:2]) <= ambiguous_distance){
+        if(diff(x[rnk][seq(1, 2)]) <= ambiguous_distance){
             ambiguous_value
         }else if(x[rnk][1] < match_distance){
             no_match_value
