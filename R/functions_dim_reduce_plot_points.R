@@ -133,7 +133,7 @@
 
     if(all(is.na(color_VAR))){
         # no color
-        xy_df = .enforce_extra_VARS(ct2, xy_df, extra_VARS)
+        xy_df = .enforce_extra_VARS(ct2, xy_df, extra_VARS, expected_missing = NA)
         if(return_data){
             return(xy_df)
         }
@@ -157,7 +157,7 @@
                 is.numeric(xy_df[[cv]])
             })
             if(length(unique(color_classes)) != 1){
-                print(split(names(color_classes), color_classes))
+                .message_list(split(names(color_classes), color_classes))
                 stop("Classes of all color_VAR items must match.")
             }
             if(!all(color_is_num)){
@@ -276,7 +276,7 @@ generic_plotDimReducePoints = function(ct2,
 #' library(ggplot2)
 #' ct2 = exampleChIPtsne2.with_meta() %>%
 #'    dimReduceUMAP() %>%
-#'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%
+#'    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster", nearest_neighbors = 20) %>%
 #'    groupRegionsBySignalCluster(group_VAR = "signal_cluster")
 #'
 #' # default is max signal value per sample
@@ -295,7 +295,8 @@ generic_plotDimReducePoints = function(ct2,
 #' plotDimReducePoints(ct2, "umap_cluster")
 #' plotDimReducePoints(ct2, "umap_cluster", label_VAR = "umap_cluster")
 #' #a named vector of colors for point_colors
-#' plotDimReducePoints(ct2, "umap_cluster", point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
+#' plotDimReducePoints(ct2, "umap_cluster",
+#'   point_colors = seqsetvis::safeBrew(as.character(1:4), "paired"))
 #' plotDimReducePoints(ct2, c("umap_cluster", "signal_cluster"))
 #' plotDimReducePoints(ct2, c("MCF10A_CTCF", "MCF10AT1_CTCF"))
 #'
@@ -305,7 +306,7 @@ generic_plotDimReducePoints = function(ct2,
 #'     annotate("rect",
 #'              xmin = 0, xmax = .3,
 #'              ymin = -.05, ymax = .13,
-#'              fill = "gray80", color = "red")
+#'              fill = "lightblue", color = "red")
 #' }
 #'
 #' plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
