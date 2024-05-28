@@ -383,3 +383,38 @@ get_args = function(env = parent.frame(), to_ignore = "ct2", ...){
     GenomicRanges::mcols(query_gr) = new_mcols
     query_gr
 }
+
+#' message_list
+#'
+#' output message of list contents
+#'
+#' code based on  [base::print.listof].
+#'
+#' @param x named list
+#'
+#' @return Outputs list as a message and returns the character invisibly.
+#'
+#' @examples
+#' x = list(a = 1:3, b = 2:6)
+#' .message_list = chiptsne2:::.message_list
+#' .message_list(x)
+#'
+#' y = list(1:3, 2:6)
+#' .message_list(y)
+.message_list = function(x){
+    nl = TRUE
+    nn <- names(x)
+    if(is.null(nn)){
+        nn = seq_along(x)
+    }
+    ll <- length(x)
+    msg = ""
+    for (i in seq_len(ll)) {
+        msg = paste0(msg, nn[i], ifelse(nl, ":\n", ": "))
+        msg = paste0(msg, paste(x[[i]], collapse = " "))
+        if (nl)
+            msg = paste0(msg, "\n")
+    }
+    message(msg)
+    invisible(msg)
+}
