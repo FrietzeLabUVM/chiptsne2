@@ -8,7 +8,8 @@
 #' @examples
 #' examplePeaks()
 examplePeaks = function(){
-    utils::data("CTCF_in_10a_narrowPeak_grs", package = "seqsetvis")
+    CTCF_in_10a_narrowPeak_grs = NULL
+    utils::data("CTCF_in_10a_narrowPeak_grs", package = "seqsetvis", overwrite = TRUE, envir = environment())
     peaks_gr = CTCF_in_10a_narrowPeak_grs
     peaks_gr
 }
@@ -22,7 +23,8 @@ examplePeaks = function(){
 #' @examples
 #' exampleQueryGR()
 exampleQueryGR = function(){
-    utils::data("CTCF_in_10a_overlaps_gr", package = "seqsetvis")
+    CTCF_in_10a_overlaps_gr = NULL
+    utils::data("CTCF_in_10a_overlaps_gr", package = "seqsetvis", overwrite = TRUE, envir = environment())
     query_gr = CTCF_in_10a_overlaps_gr
     colnames(GenomicRanges::mcols(query_gr)) = paste0(
         "peak_",
@@ -40,7 +42,8 @@ exampleQueryGR = function(){
 #' @examples
 #' exampleProfDT()
 exampleProfDT = function(){
-    utils::data("CTCF_in_10a_profiles_dt", package = "seqsetvis")
+    CTCF_in_10a_profiles_dt = NULL
+    utils::data(list = "CTCF_in_10a_profiles_dt", package = "seqsetvis", overwrite = TRUE, envir = environment())
     CTCF_in_10a_profiles_dt[]
 }
 
