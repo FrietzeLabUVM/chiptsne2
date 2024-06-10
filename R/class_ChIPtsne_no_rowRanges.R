@@ -203,6 +203,8 @@ setReplaceMethod("colToRowMatCols", "ChIPtsne2_no_rowRanges", ct2_nrr_set_colToR
 
 #### Subsetting by index ####
 
+#based on
+#https://www.bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/Extensions.html
 ct2_nrr_index_accessor = function(x, i, j, drop=FALSE) {
     if(drop == TRUE){
         stop("'drop' must be FALSE when accessing ChIPtsne2 objects.")
@@ -387,6 +389,8 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
 #' colnames(ct2)
 setMethod("cbind", "ChIPtsne2_no_rowRanges", ct2_nrr_cbind)
 
+#based on
+#https://www.bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/Extensions.html
 ct2_nrr_rbind = function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, rownames, "Row")

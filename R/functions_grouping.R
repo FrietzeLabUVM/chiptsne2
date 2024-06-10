@@ -417,6 +417,52 @@ setGeneric("groupRegionsManually",
 #' @rdname ct2-group-regions-manual
 setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManually)
 
+#### group regions by value ####
+.groupRegionsByValues = function(ct2, expr, yes, no, group_VAR = "value_id"){
+    message("groupRegionsByValues ...")
+    args = get_args()
+
+
+    history_item = list(groupRegionsByValues = list(FUN = .groupRegionsByValues, ARG = args))
+    cloneChIPtsne2_fromTidy(
+        ct2 = ct2,
+        new_region_metadata = assignment,
+        new_obj_history = c(ChIPtsne2.history(ct2), history_item)
+    )
+}
+
+#' groupRegionsByValues
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param expr Expression to evaluate on values
+#' @param yes Value to assign to group_VAR where expression is TRUE. Defaults to "yes"
+#' @param no Value to assign to group_VAR where expression is FALSE. Defaults to existing values for group_VAR when group_VAR exists, "no" if not.
+#' @param group_VAR `r doc_group_VAR()`
+#'
+#'
+#' @return `r doc_return_group()`
+#' @rdname ct2-group-regions-manual
+#' @export
+#'
+#' @examples
+setGeneric("groupRegionsByValues",
+           function(ct2, expr, yes, no, group_VAR = "value_id")
+               standardGeneric("groupRegionsByValues"),
+           signature = "ct2")
+
+#' @export
+#' @rdname ct2-group-regions-manual
+setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByValues)
+
+mutateRegionsByValue = function(.data, ...){
+    values = assays(ct2)$max
+    expr = ifelse(MCF1)A
+    ps = substitute(expr)
+    values_filtered = subset(as.data.frame(values), eval(ps))
+    sel_ids = rownames(values_filtered)
+    ct2[sel_ids,]
+}
+
 #### sort regions ####
 
 .sortRegions = function(ct2, group_VAR = NULL){

@@ -78,6 +78,7 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
     carried_VARS = unique(c(group_VAR, new_meta_VAR))
     ct2@colData[[new_meta_VAR]] =  apply(colData(ct2)[, group_VAR, drop = FALSE], 1, paste, collapse = ",")
     ct2.sp = split(ct2, new_meta_VAR)
+    ct2.sp = lapply(ct2.sp, function(x){rowData(x) = NULL; x})
     ct2.parts = list()
     for(name in names(ct2.sp)){
         x = ct2.sp[[name]]
@@ -91,10 +92,12 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
             ct2.new = ct2.new / ncol(x)
         }
         colnames(ct2.new) = name
+
         ct2.new@colData = ct2.new@colData[, carried_VARS, drop = FALSE]
         ct2.parts[[name]] = ct2.new
     }
     ct2.meta = do.call(cbind, ct2.parts)
+    rowData(ct2.meta) = rowData(ct2)
     ct2.meta = swapNameVariable(ct2.meta, new_meta_VAR)
     ct2.meta
 }

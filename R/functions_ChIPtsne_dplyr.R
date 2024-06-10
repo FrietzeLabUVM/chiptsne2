@@ -16,7 +16,7 @@ subsetRegions = function(ct2, expr){
     #https://stackoverflow.com/questions/11880906/pass-subset-argument-through-a-function-to-subset
     # ssubset = deparse(substitute(expr))
     # subset(ct2, eval(parse(text = ssubset)))
-    ps <- substitute(expr)
+    ps = substitute(expr)
     subset(ct2, eval(ps))
 }
 #' subsetSamples
@@ -34,8 +34,41 @@ subsetSamples = function(ct2, expr){
     #https://stackoverflow.com/questions/11880906/pass-subset-argument-through-a-function-to-subset
     # ssubset = deparse(substitute(expr))
     # subset(ct2, TRUE, eval(parse(text = ssubset)))
-    ps <- substitute(expr)
+    ps = substitute(expr)
     subset(ct2, TRUE, eval(ps))
+}
+
+# .ids_from_value_selection(ct2, MCF10A_CTCF > 20 & MCF10AT1_CTCF > 30)
+.ids_from_value_selection = function(ct2, expr){
+    values = assays(ct2)$max
+    ps = substitute(expr)
+    values_filtered = subset(as.data.frame(values), eval(ps))
+    sel_ids = rownames(values_filtered)
+    sel_ids
+}
+
+#' subsetValues
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param expr expression, indicating column values to filter from assay.
+#'
+#' @return A subsetted `r doc_ct2_nrr()`
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' subsetValues(ct2, MCF10A_CTCF > 20 & MCF10AT1_CTCF > 20)
+#' subsetValues(ct2, MCF10A_CTCF > Inf)
+subsetValues = function(ct2, expr){
+    # values = assays(ct2)$max
+    # ps = substitute(expr)
+    # values_filtered = subset(as.data.frame(values), eval(ps))
+    # sel_ids = rownames(values_filtered)
+    # ps = substitute(expr)
+    #browser()
+    sel_ids = eval(substitute(.ids_from_value_selection(ct2, expr)))
+    #.ids_from_value_selection(ct2, expr)
+    ct2[sel_ids,]
 }
 
 #' subsetRow
@@ -79,13 +112,6 @@ subsetCol = function(ct2, expr){
     ps <- substitute(expr)
     subset(ct2, TRUE, eval(ps))
 }
-
-# #' @export
-# filter.ChIPtsne2 = function(.data, ...){
-#     subset(.data, ...)
-# }
-
-#
 
 #' mutateSamples
 #'
@@ -131,6 +157,8 @@ mutateRegions = function(.data, ...){
     .data
 }
 
+
+
 #' separateSamples
 #'
 #' Should work just like [tidyr::separate] but applied to colData/sample metadata of ChIPtsne2 objects.
@@ -157,7 +185,7 @@ mutateRegions = function(.data, ...){
 #' colData(ct2)
 #' getSampleMetaData(ct2)
 separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
-                        convert = FALSE, extra = "warn", fill = "warn", ...){
+                           convert = FALSE, extra = "warn", fill = "warn", ...){
     colData(data) = S4Vectors::DataFrame(tidyr::separate(
         as.data.frame(colData(data)),
         col = col,
@@ -197,7 +225,7 @@ separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
 separateRegions = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
-                        convert = FALSE, extra = "warn", fill = "warn", ...){
+                           convert = FALSE, extra = "warn", fill = "warn", ...){
     rowData(data) = S4Vectors::DataFrame(tidyr::separate(
         as.data.frame(rowData(data)),
         col = col,

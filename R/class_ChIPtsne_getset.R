@@ -139,6 +139,16 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR
     }
     ct2@assays = SummarizedExperiment::Assays(old_assays)
 
+    k = colnames(rowData(ct2)) %in% new_names
+    if(any(k)){
+        existing_reg_cn = colnames(rowData(ct2))
+        old_names = colnames(rowData(ct2))[k]
+        fixed_names = paste0("region_", old_names)
+        warning("Modifying region metadata column names to prevent collision with ChIPtsne2 colnames.\n",
+                paste(paste(old_names, "->", fixed_names), collapse = "\n"))
+        colnames(rowData(ct2))[k] = fixed_names
+    }
+
     rowToRowMat(ct2) = r2rm
     colToRowMatCols(ct2) = c2rmc
     if(!is.null(new_VAR)){
