@@ -20,8 +20,8 @@
     #     dplyr::select(dplyr::all_of(c(group_VAR, ct2@region_VAR))) %>%
     #     unique
     assign_dt = seqsetvis::clusteringKmeansNestedHclust(ct2@rowToRowMat,
-                                             nclust = n_clusters,
-                                             iter.max = iter.max)
+                                                        nclust = n_clusters,
+                                                        iter.max = iter.max)
     data.table::setnames(assign_dt, c(ct2@region_VAR, group_VAR))
 
 
@@ -418,15 +418,51 @@ setGeneric("groupRegionsManually",
 setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManually)
 
 #### group regions by value ####
-.groupRegionsByValues = function(ct2, expr, yes, no, group_VAR = "value_id"){
+.groupRegionsByValues = function(ct2, value_test, yes = NULL, no = NULL, group_VAR = "value_id"){
+    test_expr = substitute(value_test)
+
+    #because we can't store an expression, we need to convert to character for history
+    if(is.call(test_expr)){
+        value_test = deparse(test_expr)
+    }
+    remove("test_expr")
+
     message("groupRegionsByValues ...")
     args = get_args()
 
+    # debug(.ids_from_value_selection)
+    sel_ids = eval(substitute(.ids_from_value_selection(ct2, eval(parse(text = value_test)))))
+
+    #existant group_VAR is handled differently
+    if(group_VAR %in% colnames(rowData(ct2))){
+        meta_dt = getRegionMetaData(ct2, group_VAR)
+        if(is.null(yes)){
+            if(is.logical(meta_dt[[group_VAR]])){
+                yes = TRUE
+            }else{
+                yes = "yes"
+            }
+        }
+        if(!is(yes, class(meta_dt[[group_VAR]]))){
+            warning("The class of 'yes' does not match that of existing group_VAR : ", group_VAR,
+                    "\n", class(yes), " != ", class(group_VAR))
+        }
+        if(!is.null(no)){
+            warning("The value of 'no' is ignored when group_VAR already exists.")
+        }
+    }else{#group_VAR is new
+        meta_dt = getRegionMetaData(ct2, character())
+        if(is.null(yes)) yes = TRUE
+        if(is.null(no)) no = FALSE
+        meta_dt[[group_VAR]] = no
+    }
+    meta_dt[sel_ids, ][[group_VAR]] = yes
+
+    ct2 = setRegionMetaData(ct2, meta_dt, silent = TRUE)
 
     history_item = list(groupRegionsByValues = list(FUN = .groupRegionsByValues, ARG = args))
-    cloneChIPtsne2_fromTidy(
+    cloneChIPtsne2(
         ct2 = ct2,
-        new_region_metadata = assignment,
         new_obj_history = c(ChIPtsne2.history(ct2), history_item)
     )
 }
@@ -434,7 +470,7 @@ setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManu
 #' groupRegionsByValues
 #'
 #' @param ct2 `r doc_ct2_nrr()`
-#' @param expr Expression to evaluate on values
+#' @param value_test Expression to evaluate on values
 #' @param yes Value to assign to group_VAR where expression is TRUE. Defaults to "yes"
 #' @param no Value to assign to group_VAR where expression is FALSE. Defaults to existing values for group_VAR when group_VAR exists, "no" if not.
 #' @param group_VAR `r doc_group_VAR()`
@@ -445,23 +481,34 @@ setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManu
 #' @export
 #'
 #' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' ct2.high_10a = subsetValues(ct2, MCF10A_CTCF > 30)
+#' nrow(ct2.high_10a)
+#'
+#' ct2_exp = groupRegionsByValues(ct2, MCF10A_CTCF > 30)
+#' table(rowData(ct2_exp)$value_id)
+#' #character version of expression is OK for programming purposes
+#' ct2_str = groupRegionsByValues(ct2, "MCF10A_CTCF > 30")
+#' table(rowData(ct2_str)$value_id)
+#'
+#' min_value = 30
+#' ct2_grp = ct2
+#' ct2_grp = groupRegionsByValues(ct2_grp, MCF10A_CTCF > min_value, yes = "high_10a", no = "bg")
+#' # don't include `no` after initializing group variable
+#' ct2_grp = groupRegionsByValues(ct2_grp, MCF10AT1_CTCF > min_value, yes = "high_at1")
+#' ct2_grp = groupRegionsByValues(ct2_grp, MCF10AT1_CTCF > min_value & MCF10A_CTCF > min_value, yes = "high_at1_and_10a")
+#' table(rowData(ct2_grp)$value_id)
+#'
+#' #and since it's a grouping variable, we can use it in plots
+#' plotSignalHeatmap(ct2_grp, group_VARS = "value_id")
 setGeneric("groupRegionsByValues",
-           function(ct2, expr, yes, no, group_VAR = "value_id")
+           function(ct2, value_test, yes = NULL, no = NULL, group_VAR = "value_id")
                standardGeneric("groupRegionsByValues"),
            signature = "ct2")
 
 #' @export
 #' @rdname ct2-group-regions-manual
 setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByValues)
-
-mutateRegionsByValue = function(.data, ...){
-    values = assays(ct2)$max
-    expr = ifelse(MCF1)A
-    ps = substitute(expr)
-    values_filtered = subset(as.data.frame(values), eval(ps))
-    sel_ids = rownames(values_filtered)
-    ct2[sel_ids,]
-}
 
 #### sort regions ####
 

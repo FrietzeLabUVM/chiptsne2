@@ -3,30 +3,52 @@
 \name{groupRegionsManually}
 \alias{groupRegionsManually}
 \alias{groupRegionsManually,ChIPtsne2_no_rowRanges-method}
+\alias{groupRegionsByValues}
+\alias{groupRegionsByValues,ChIPtsne2_no_rowRanges-method}
 \title{groupRegionsManually}
 \usage{
 groupRegionsManually(ct2, assignment, group_VAR = "group_id")
 
 \S4method{groupRegionsManually}{ChIPtsne2_no_rowRanges}(ct2, assignment, group_VAR = "group_id")
+
+groupRegionsByValues(
+  ct2,
+  value_test,
+  yes = NULL,
+  no = NULL,
+  group_VAR = "value_id"
+)
+
+\S4method{groupRegionsByValues}{ChIPtsne2_no_rowRanges}(
+  ct2,
+  value_test,
+  yes = NULL,
+  no = NULL,
+  group_VAR = "value_id"
+)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2_no_rowRanges object.}
 
 \item{assignment}{A data.frame or named character vector. See details.}
 
-\item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.
+\item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
 
-Assignment may be either a data.frame or named character vector.
+\item{value_test}{Expression to evaluate on values}
 
-If data.frame, must have rownames setequal to rownames of \code{ct2} or contain the same region variable as \code{ct2}. Multiple \code{group_VAR} may be specified and all must be present in data.frame.
+\item{yes}{Value to assign to group_VAR where expression is TRUE. Defaults to "yes"}
 
-If a named character vector, names must be setequal to rownames of \code{ct2}. Only a signle \code{group_VAR} is allowed.}
+\item{no}{Value to assign to group_VAR where expression is FALSE. Defaults to existing values for group_VAR when group_VAR exists, "no" if not.}
 }
 \value{
+Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.
+
 Updated ChIPtsne2 object with group assignment added to rowData using specified group_VAR.
 }
 \description{
 groupRegionsManually
+
+groupRegionsByValues
 }
 \examples{
 ct2 = exampleChIPtsne2()
@@ -45,4 +67,7 @@ manual_groups = assign_df$group
 names(manual_groups) = assign_df$id
 ct2.grouped2 = groupRegionsManually(ct2, manual_groups, group_VAR = c("group_by_vector"))
 rowData(ct2.grouped2)
+ct2 = exampleChIPtsne2.with_meta()
+ct2.high_10a = subsetValues(ct2, MCF10A_CTCF > 30)
+groupRegionsByValues(ct2, MCF10A_CTCF > 30)
 }

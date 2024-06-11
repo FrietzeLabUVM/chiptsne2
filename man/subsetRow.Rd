@@ -4,12 +4,12 @@
 \alias{subsetRow}
 \title{subsetRow}
 \usage{
-subsetRow(ct2, expr)
+subsetRow(ct2, value_test)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2_no_rowRanges object.}
 
-\item{expr}{expression, indicating columns to select from region/row metadata.}
+\item{value_test}{expression, indicating columns to select from region/row metadata.}
 }
 \value{
 A subsetted A ChIPtsne2_no_rowRanges object.
