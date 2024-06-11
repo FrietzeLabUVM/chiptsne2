@@ -13,11 +13,24 @@
 #' ct2 = exampleChIPtsne2.with_meta()
 #' subsetRegions(ct2, peak_MCF10AT1_CTCF == TRUE)
 subsetRegions = function(ct2, subset_expression){
+    #because we can't store an expression, we need to convert to character for history
+    test_expr = substitute(subset_expression)
+    if(is.call(test_expr)){
+        subset_expression = deparse(test_expr)
+    }
+    remove("test_expr")
+
+    message("subsetRegions ...")
+    args = get_args()
     #https://stackoverflow.com/questions/11880906/pass-subset-argument-through-a-function-to-subset
-    # ssubset = deparse(substitute(subset_expression))
-    # subset(ct2, eval(parse(text = ssubset)))
-    ps = substitute(subset_expression)
-    subset(ct2, eval(ps))
+    meta_data = getRegionMetaData(ct2)
+    meta_data = eval(substitute(subset(meta_data, eval(parse(text = subset_expression)))))
+    ct2 = ct2[rownames(meta_data),]
+
+    history_item = list(subsetRegions  = list(FUN = subsetRegions , ARG = args))
+    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+
+    ct2
 }
 #' subsetSamples
 #'
@@ -31,11 +44,24 @@ subsetRegions = function(ct2, subset_expression){
 #' ct2 = exampleChIPtsne2.with_meta()
 #' subsetSamples(ct2, cell %in% c("MCF10A", "MCF10AT1"))
 subsetSamples = function(ct2, subset_expression){
+    #because we can't store an expression, we need to convert to character for history
+    test_expr = substitute(subset_expression)
+    if(is.call(test_expr)){
+        subset_expression = deparse(test_expr)
+    }
+    remove("test_expr")
+
+    message("subsetSamples ...")
+    args = get_args()
     #https://stackoverflow.com/questions/11880906/pass-subset-argument-through-a-function-to-subset
-    # ssubset = deparse(substitute(subset_expression))
-    # subset(ct2, TRUE, eval(parse(text = ssubset)))
-    ps = substitute(subset_expression)
-    subset(ct2, TRUE, eval(ps))
+    meta_data = getSampleMetaData(ct2)
+    meta_data = eval(substitute(subset(meta_data, eval(parse(text = subset_expression)))))
+    ct2 = ct2[, rownames(meta_data)]
+
+    history_item = list(subsetSamples  = list(FUN = subsetSamples , ARG = args))
+    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+
+    ct2
 }
 
 # .ids_from_value_selection(ct2, MCF10A_CTCF > 20 & MCF10AT1_CTCF > 30)
@@ -61,17 +87,26 @@ subsetSamples = function(ct2, subset_expression){
 #' subsetValues(ct2, MCF10A_CTCF > Inf)
 #'
 #' min_signal = 20
-#' subsetValues(ct2, MCF10A_CTCF > min_signal & MCF10AT1_CTCF > min_signal)
+#' ct2 = subsetValues(ct2, MCF10A_CTCF > min_signal & MCF10AT1_CTCF > min_signal)
+#' ct2
 subsetValues = function(ct2, value_test){
-    # values = assays(ct2)$max
-    # ps = substitute(value_test)
-    # values_filtered = subset(as.data.frame(values), eval(ps))
-    # sel_ids = rownames(values_filtered)
-    # ps = substitute(value_test)
-    #browser()
-    sel_ids = eval(substitute(.ids_from_value_selection(ct2, value_test)))
-    #.ids_from_value_selection(ct2, value_test)
-    ct2[sel_ids,]
+    #because we can't store an expression, we need to convert to character for history
+    test_expr = substitute(value_test)
+    if(is.call(test_expr)){
+        value_test = deparse(test_expr)
+    }
+    remove("test_expr")
+
+    message("subsetValues ...")
+    args = get_args()
+
+    sel_ids = eval(substitute(.ids_from_value_selection(ct2, eval(parse(text = value_test)))))
+    ct2 = ct2[sel_ids,]
+
+    history_item = list(subsetValues  = list(FUN = subsetValues , ARG = args))
+    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+
+    ct2
 }
 
 #' subsetRow
@@ -88,6 +123,7 @@ subsetValues = function(ct2, value_test){
 #' subsetRegions(ct2, peak_MCF10AT1_CTCF == TRUE)
 subsetRow = function(ct2, value_test){
     .Deprecated("subsetRegions")
+    stop()
     #https://stackoverflow.com/questions/11880906/pass-subset-argument-through-a-function-to-subset
     # ssubset = deparse(substitute(value_test))
     # subset(ct2, eval(parse(text = ssubset)))
@@ -109,6 +145,7 @@ subsetRow = function(ct2, value_test){
 #' subsetSamples(ct2, cell %in% c("MCF10A", "MCF10AT1"))
 subsetCol = function(ct2, subset_expression){
     .Deprecated("subsetSamples")
+    stop()
     #https://stackoverflow.com/questions/11880906/pass-subset-argument-through-a-function-to-subset
     # ssubset = deparse(substitute(subset_expression))
     # subset(ct2, TRUE, eval(parse(text = ssubset)))
@@ -133,8 +170,26 @@ subsetCol = function(ct2, subset_expression){
 #' ct2 = mutateSamples(ct2, cell_mark = paste(cell, mark))
 #' colData(ct2)
 #' getSampleMetaData(ct2)
-mutateSamples = function(.data, ...){
+mutateSamples = function(.data,
+                         ...,
+                         .by = NULL,
+                         .keep = c("all", "used", "unused", "none")[1],
+                         .before = NULL,
+                         .after = NULL){
+    #because we can't store an expression, we need to convert to character for history
+    test_expr = substitute(value_test)
+    if(is.call(test_expr)){
+        value_test = deparse(test_expr)
+    }
+    remove("test_expr")
+
+    message("mutateSamples ...")
+    args = get_args()
     colData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(.data)), ...))
+
+    history_item = list(mutateSamples  = list(FUN = mutateSamples , ARG = args))
+    .data@metadata = c(ChIPtsne2.history(.data), history_item)
+
     .data
 }
 
@@ -156,7 +211,13 @@ mutateSamples = function(.data, ...){
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
 mutateRegions = function(.data, ...){
-    rowData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(rowData(.data)), ...))
+    message("mutateRegions ...")
+    args = get_args()
+    rowData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(getRegionMetaData(.data)), ...))
+
+    history_item = list(mutateRegions  = list(FUN = mutateRegions , ARG = args))
+    .data@metadata = c(ChIPtsne2.history(.data), history_item)
+
     .data
 }
 
@@ -189,8 +250,10 @@ mutateRegions = function(.data, ...){
 #' getSampleMetaData(ct2)
 separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
                            convert = FALSE, extra = "warn", fill = "warn", ...){
-    colData(data) = S4Vectors::DataFrame(tidyr::separate(
-        as.data.frame(colData(data)),
+    message("separateSamples ...")
+    args = get_args()
+    new_meta_data = tidyr::separate(
+        as.data.frame(getSampleMetaData(data)),
         col = col,
         into = into,
         sep = sep,
@@ -198,7 +261,12 @@ separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
         convert = convert,
         extra = extra,
         fill = fill,
-        ...))
+        ...)
+    data = setSampleMetaData(data, new_meta_data, silent = TRUE)
+
+    history_item = list(separateSamples  = list(FUN = separateSamples , ARG = args))
+    data@metadata = c(ChIPtsne2.history(data), history_item)
+
     data
 }
 
@@ -229,8 +297,10 @@ separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
 #' getRegionMetaData(ct2)
 separateRegions = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
                            convert = FALSE, extra = "warn", fill = "warn", ...){
-    rowData(data) = S4Vectors::DataFrame(tidyr::separate(
-        as.data.frame(rowData(data)),
+    message("separateRegions ...")
+    args = get_args()
+    new_meta_data = tidyr::separate(
+        as.data.frame(getRegionMetaData(data)),
         col = col,
         into = into,
         sep = sep,
@@ -238,7 +308,12 @@ separateRegions = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
         convert = convert,
         extra = extra,
         fill = fill,
-        ...))
+        ...)
+    data = setRegionMetaData(data, new_meta = new_meta_data, silent = TRUE)
+
+    history_item = list(separateRegions  = list(FUN = separateRegions , ARG = args))
+    data@metadata = c(ChIPtsne2.history(data), history_item)
+
     data
 }
 

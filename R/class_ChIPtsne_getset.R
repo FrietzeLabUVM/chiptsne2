@@ -266,6 +266,7 @@ getSampleMetaData = function(ct2, select_VARS = NULL){
 #'
 #' @param ct2 A ChIPtsne object
 #' @param new_meta A data.frame with new metadata information. Must include same name_VAR as ct2 or have equivalent rownames. Variables already present in ct2 will result in overiting those variables.
+#' @param silent If TRUE, no messages will be displayed. Default is FALSE.
 #'
 #' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
 #' @export
@@ -282,8 +283,8 @@ getSampleMetaData = function(ct2, select_VARS = NULL){
 #' rownames(new_meta2) = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF")
 #' ct2 = setSampleMetaData(ct2, new_meta2)
 #' getSampleMetaData(ct2)
-setSampleMetaData = function(ct2, new_meta){
-    message("setSampleMetaData ...")
+setSampleMetaData = function(ct2, new_meta, silent = FALSE){
+    if(!silent) message("setSampleMetaData ...")
     args = get_args()
     cd = getSampleMetaData(ct2)
     if(!ct2@name_VAR %in% colnames(new_meta)){
@@ -310,8 +311,10 @@ setSampleMetaData = function(ct2, new_meta){
     new_cd = S4Vectors::DataFrame(new_cd)
 
     ct2@colData = new_cd
-    history_item = list(setSampleMetaData = list(FUN = setSampleMetaData, ARG = args))
-    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+    if(!silent){
+        history_item = list(setSampleMetaData = list(FUN = setSampleMetaData, ARG = args))
+        ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+    }
     ct2
 }
 
@@ -447,9 +450,11 @@ setRegionMetaData = function(ct2, new_meta, silent = FALSE){
     }
     args = get_args()
     ct2 = setRegionMetaData.no_history(ct2, new_meta)
-    history_item = list(setRegionMetaData =
-                            list(FUN = setRegionMetaData, ARG = args))
-    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+    if(!silent){
+        history_item = list(setRegionMetaData =
+                                list(FUN = setRegionMetaData, ARG = args))
+        ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
+    }
     ct2
 }
 

@@ -420,7 +420,6 @@ setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManu
 #### group regions by value ####
 .groupRegionsByValues = function(ct2, value_test, yes = NULL, no = NULL, group_VAR = "value_id"){
     test_expr = substitute(value_test)
-
     #because we can't store an expression, we need to convert to character for history
     if(is.call(test_expr)){
         value_test = deparse(test_expr)

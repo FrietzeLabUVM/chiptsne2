@@ -21,4 +21,7 @@ subsetValues
 ct2 = exampleChIPtsne2.with_meta()
 subsetValues(ct2, MCF10A_CTCF > 20 & MCF10AT1_CTCF > 20)
 subsetValues(ct2, MCF10A_CTCF > Inf)
+
+min_signal = 20
+subsetValues(ct2, MCF10A_CTCF > min_signal & MCF10AT1_CTCF > min_signal)
 }

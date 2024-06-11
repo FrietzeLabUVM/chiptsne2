@@ -69,5 +69,22 @@ ct2.grouped2 = groupRegionsManually(ct2, manual_groups, group_VAR = c("group_by_
 rowData(ct2.grouped2)
 ct2 = exampleChIPtsne2.with_meta()
 ct2.high_10a = subsetValues(ct2, MCF10A_CTCF > 30)
-groupRegionsByValues(ct2, MCF10A_CTCF > 30)
+nrow(ct2.high_10a)
+
+ct2_exp = groupRegionsByValues(ct2, MCF10A_CTCF > 30)
+table(rowData(ct2_exp)$value_id)
+#character version of expression is OK for programming purposes
+ct2_str = groupRegionsByValues(ct2, "MCF10A_CTCF > 30")
+table(rowData(ct2_str)$value_id)
+
+min_value = 30
+ct2_grp = ct2
+ct2_grp = groupRegionsByValues(ct2_grp, MCF10A_CTCF > min_value, yes = "high_10a", no = "bg")
+# don't include `no` after initializing group variable
+ct2_grp = groupRegionsByValues(ct2_grp, MCF10AT1_CTCF > min_value, yes = "high_at1")
+ct2_grp = groupRegionsByValues(ct2_grp, MCF10AT1_CTCF > min_value & MCF10A_CTCF > min_value, yes = "high_at1_and_10a")
+table(rowData(ct2_grp)$value_id)
+
+#and since it's a grouping variable, we can use it in plots
+plotSignalHeatmap(ct2_grp, group_VARS = "value_id")
 }
