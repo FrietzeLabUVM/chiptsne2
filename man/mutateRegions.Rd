@@ -4,24 +4,42 @@
 \alias{mutateRegions}
 \title{mutateRegions}
 \usage{
-mutateRegions(.data, ...)
+mutateRegions(
+  ct2,
+  mutate_name,
+  mutate_expression,
+  .by = NULL,
+  .keep = c("all", "used", "unused", "none")[1],
+  .before = NULL,
+  .after = NULL
+)
 }
 \arguments{
-\item{.data}{See \link[dplyr:mutate]{dplyr::mutate}}
+\item{ct2}{A ChIPtsne2_no_rowRanges object.}
 
-\item{...}{Passed to \link[dplyr:mutate]{dplyr::mutate}}
+\item{mutate_name}{Name of new variable created by \code{mutate_expression}.}
+
+\item{mutate_expression}{Expression to derive new variable values.}
+
+\item{.by}{See \link[dplyr:mutate]{dplyr::mutate}}
+
+\item{.keep}{See \link[dplyr:mutate]{dplyr::mutate}}
+
+\item{.before}{See \link[dplyr:mutate]{dplyr::mutate}}
+
+\item{.after}{See \link[dplyr:mutate]{dplyr::mutate}}
 }
 \value{
 A A ChIPtsne2_no_rowRanges object. with modified rowData/region metadata.
 }
 \description{
-Should work just like \link[dplyr:mutate]{dplyr::mutate} but applied to rowData/region metadata of ChIPtsne2 objects.
+Should work similarly to \link[dplyr:mutate]{dplyr::mutate} but applied to rowData/region metadata of ChIPtsne2 objects.
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 rowData(ct2)
 getRegionMetaData(ct2)
-ct2 = mutateRegions(ct2, new_col = peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
+ct2 = mutateRegions(ct2, "either_10a_or_at1", peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
 rowData(ct2)
 getRegionMetaData(ct2)
 }

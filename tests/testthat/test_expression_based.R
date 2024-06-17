@@ -43,19 +43,19 @@ test_that("subsetSamples - works", {
 })
 
 test_that("subsetValues - works", {
-    ct2_1 = subsetValues(ct2, MCF10A_CTCF > 20)
-    expect_equal(dim(ct2_1), c(73, 3))
+    ct2_1 = subsetValues(ct2, MCF10A_CTCF > 30)
+    expect_equal(dim(ct2_1), c(68, 3))
 
     ct2_history = ChIPtsne2.history(ct2_1)
     expect_equal(names(ct2_history)[[length(ct2_history)]], "subsetValues")
 })
 
 test_that("mutateRegions - works", {
-    ct2_1 = mutateRegions(ct2, either_10a_or_at1 = peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
+    ct2_1 = mutateRegions(ct2, "either_10a_or_at1", peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
     expect_equal(dim(ct2_1), c(100, 3))
     expect_equal(sum(rowData(ct2_1)$either_10a_or_at1), 99)
 
-    ct2_2 = mutateRegions(ct2, silly = paste(id, peak_MCF10A_CTCF))
+    ct2_2 = mutateRegions(ct2, "silly", paste(id, peak_MCF10A_CTCF))
     expect_equal(dim(ct2_1), c(100, 3))
     expect_equal(sum(rowData(ct2_1)$either_10a_or_at1), 99)
 
@@ -65,9 +65,11 @@ test_that("mutateRegions - works", {
 })
 
 test_that("mutateSamples - works", {
-    ct2_1 = mutateSamples(ct2, cell_short = sub("MCF", "", cell))
+    ct2_1 = mutateSamples(ct2, "cell_short", sub("MCF", "", cell))
+    ct2_1 = mutateSamples(ct2_1, "cell_lower", paste0("mcf", "", cell_short))
     expect_equal(dim(ct2_1), c(100, 3))
     expect_equal(colData(ct2_1)$cell_short, c("10A", "10AT1", "10CA1"))
+    expect_equal(colData(ct2_1)$cell_lower, c("mcf10A", "mcf10AT1", "mcf10CA1"))
 
 
     ct2_history = ChIPtsne2.history(ct2_1)
@@ -75,19 +77,22 @@ test_that("mutateSamples - works", {
 })
 
 test_that("separateRegions - works", {
-    ct2_1 = separateRegions(ct2, "sample", sep = "_", into = c("cell2", "mark2"))
+    head(getRegionMetaData(ct2))
+    ct2_1 = mutateRegions(ct2, "silly", paste(id, as.character(peak_MCF10A_CTCF)))
+    rowData(ct2_1)
+    ct2_1 = separateRegions(ct2_1, "silly", sep = " ", into = c("id2", "peak2"))
+    rowData(ct2_1)
     expect_equal(dim(ct2_1), c(100, 3))
-    expect_equal(sum(rowData(ct2_1)$either_10a_or_at1), 99)
-
 
     ct2_history = ChIPtsne2.history(ct2_1)
     expect_equal(names(ct2_history)[[length(ct2_history)]], "separateRegions")
 })
 
 test_that("separateSamples - works", {
-    ct2_1 = separateSamples(ct2, cell_short = sub("MCF", "", cell))
+    ct2_1 = separateSamples(ct2, col = "sample", into = c("cell2", "mark2"))
     expect_equal(dim(ct2_1), c(100, 3))
-    expect_equal(colData(ct2_1)$cell_short, c("10A", "10AT1", "10CA1"))
+    colData(ct2_1)
+    expect_equal(colData(ct2_1)$cell, c("MCF10A", "MCF10AT1", "MCF10CA1"))
 
 
     ct2_history = ChIPtsne2.history(ct2_1)

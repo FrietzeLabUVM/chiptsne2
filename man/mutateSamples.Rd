@@ -4,24 +4,42 @@
 \alias{mutateSamples}
 \title{mutateSamples}
 \usage{
-mutateSamples(.data, ...)
+mutateSamples(
+  ct2,
+  mutate_name,
+  mutate_expression,
+  .by = NULL,
+  .keep = c("all", "used", "unused", "none")[1],
+  .before = NULL,
+  .after = NULL
+)
 }
 \arguments{
-\item{.data}{See \link[dplyr:mutate]{dplyr::mutate}}
+\item{ct2}{A ChIPtsne2_no_rowRanges object.}
 
-\item{...}{Passed to \link[dplyr:mutate]{dplyr::mutate}}
+\item{mutate_name}{Name of new variable created by \code{mutate_expression}.}
+
+\item{mutate_expression}{Expression to derive new variable values.}
+
+\item{.by}{See \link[dplyr:mutate]{dplyr::mutate}}
+
+\item{.keep}{See \link[dplyr:mutate]{dplyr::mutate}}
+
+\item{.before}{See \link[dplyr:mutate]{dplyr::mutate}}
+
+\item{.after}{See \link[dplyr:mutate]{dplyr::mutate}}
 }
 \value{
 A A ChIPtsne2_no_rowRanges object. with modified colData/sample metadata.
 }
 \description{
-Should work just like \link[dplyr:mutate]{dplyr::mutate} but applied to colData/sample metadata of ChIPtsne2 objects.
+Should work similarly to \link[dplyr:mutate]{dplyr::mutate} but applied to colData/sample metadata of ChIPtsne2 objects.
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 colData(ct2)
 getSampleMetaData(ct2)
-ct2 = mutateSamples(ct2, cell_mark = paste(cell, mark))
+ct2 = mutateSamples(ct2, "cell_mark", paste(cell, mark), )
 colData(ct2)
 getSampleMetaData(ct2)
 }

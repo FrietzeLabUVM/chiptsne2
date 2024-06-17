@@ -495,7 +495,11 @@ setMethod("groupRegionsManually", c("ChIPtsne2_no_rowRanges"), .groupRegionsManu
 #' ct2_grp = groupRegionsByValues(ct2_grp, MCF10A_CTCF > min_value, yes = "high_10a", no = "bg")
 #' # don't include `no` after initializing group variable
 #' ct2_grp = groupRegionsByValues(ct2_grp, MCF10AT1_CTCF > min_value, yes = "high_at1")
-#' ct2_grp = groupRegionsByValues(ct2_grp, MCF10AT1_CTCF > min_value & MCF10A_CTCF > min_value, yes = "high_at1_and_10a")
+#' ct2_grp = groupRegionsByValues(
+#'   ct2_grp,
+#'   MCF10AT1_CTCF > min_value & MCF10A_CTCF > min_value,
+#'   yes = "high_at1_and_10a"
+#' )
 #' table(rowData(ct2_grp)$value_id)
 #'
 #' #and since it's a grouping variable, we can use it in plots

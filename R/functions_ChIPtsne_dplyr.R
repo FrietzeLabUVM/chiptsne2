@@ -155,10 +155,15 @@ subsetCol = function(ct2, subset_expression){
 
 #' mutateSamples
 #'
-#' Should work just like [dplyr::mutate] but applied to colData/sample metadata of ChIPtsne2 objects.
+#' Should work similarly to [dplyr::mutate] but applied to colData/sample metadata of ChIPtsne2 objects.
 #'
-#' @param .data See [dplyr::mutate]
-#' @param ... Passed to [dplyr::mutate]
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param mutate_name  Name of new variable created by `mutate_expression`.
+#' @param mutate_expression Expression to derive new variable values.
+#' @param .by See [dplyr::mutate]
+#' @param .keep  See [dplyr::mutate]
+#' @param .before  See [dplyr::mutate]
+#' @param .after  See [dplyr::mutate]
 #'
 #' @return A `r doc_ct2_nrr()` with modified colData/sample metadata.
 #' @export
@@ -167,38 +172,50 @@ subsetCol = function(ct2, subset_expression){
 #' ct2 = exampleChIPtsne2.with_meta()
 #' colData(ct2)
 #' getSampleMetaData(ct2)
-#' ct2 = mutateSamples(ct2, cell_mark = paste(cell, mark))
+#' ct2 = mutateSamples(ct2, "cell_mark", paste(cell, mark), )
 #' colData(ct2)
 #' getSampleMetaData(ct2)
-mutateSamples = function(.data,
-                         ...,
+mutateSamples = function(ct2,
+                         mutate_name,
+                         mutate_expression,
                          .by = NULL,
                          .keep = c("all", "used", "unused", "none")[1],
                          .before = NULL,
                          .after = NULL){
     #because we can't store an expression, we need to convert to character for history
-    test_expr = substitute(value_test)
+    test_expr = substitute(mutate_expression)
     if(is.call(test_expr)){
-        value_test = deparse(test_expr)
+        mutate_expression = deparse(test_expr)
     }
     remove("test_expr")
 
     message("mutateSamples ...")
     args = get_args()
-    colData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(.data)), ...))
+
+    meta_data = getSampleMetaData(ct2)
+    meta_data = eval(substitute(dplyr::mutate(meta_data, eval(parse(text = mutate_expression)), .by = .by, .keep = .keep, .before = .before, .after = .after)))
+    # colData(ct2) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(ct2)), eval(parse(text = mutate_expression)), .by = .by, .keep = .keep, .before = .before, .after = .after))
+    colnames(meta_data)[grepl("eval.parse.text", colnames(meta_data))] = mutate_name
+
+    ct2 = setSampleMetaData(ct2, new_meta = meta_data, silent = TRUE)
 
     history_item = list(mutateSamples  = list(FUN = mutateSamples , ARG = args))
-    .data@metadata = c(ChIPtsne2.history(.data), history_item)
+    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
 
-    .data
+    ct2
 }
 
 #' mutateRegions
 #'
-#' Should work just like [dplyr::mutate] but applied to rowData/region metadata of ChIPtsne2 objects.
+#' Should work similarly to [dplyr::mutate] but applied to rowData/region metadata of ChIPtsne2 objects.
 #'
-#' @param .data See [dplyr::mutate]
-#' @param ... Passed to [dplyr::mutate]
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param mutate_name  Name of new variable created by `mutate_expression`.
+#' @param mutate_expression Expression to derive new variable values.
+#' @param .by See [dplyr::mutate]
+#' @param .keep  See [dplyr::mutate]
+#' @param .before  See [dplyr::mutate]
+#' @param .after  See [dplyr::mutate]
 #'
 #' @return A `r doc_ct2_nrr()` with modified rowData/region metadata.
 #' @export
@@ -207,18 +224,41 @@ mutateSamples = function(.data,
 #' ct2 = exampleChIPtsne2.with_meta()
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
-#' ct2 = mutateRegions(ct2, new_col = peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
+#' ct2 = mutateRegions(ct2, "either_10a_or_at1", peak_MCF10A_CTCF | peak_MCF10AT1_CTCF)
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
-mutateRegions = function(.data, ...){
+mutateRegions = function(
+        ct2,
+        mutate_name,
+        mutate_expression,
+        .by = NULL,
+        .keep = c("all", "used", "unused", "none")[1],
+        .before = NULL,
+        .after = NULL){
+    #because we can't store an expression, we need to convert to character for history
+    test_expr = substitute(mutate_expression)
+    if(is.call(test_expr)){
+        mutate_expression = deparse(test_expr)
+    }
+    remove("test_expr")
+
     message("mutateRegions ...")
     args = get_args()
-    rowData(.data) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(getRegionMetaData(.data)), ...))
+
+    meta_data = getRegionMetaData(ct2)
+    meta_data = eval(substitute(dplyr::mutate(
+        meta_data, eval(parse(text = mutate_expression)),
+        .by = .by, .keep = .keep, .before = .before, .after = .after
+    )))
+    # colData(ct2) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(ct2)), eval(parse(text = mutate_expression)), .by = .by, .keep = .keep, .before = .before, .after = .after))
+    colnames(meta_data)[grepl("eval.parse.text", colnames(meta_data))] = mutate_name
+
+    ct2 = setRegionMetaData(ct2, new_meta = meta_data, silent = TRUE)
 
     history_item = list(mutateRegions  = list(FUN = mutateRegions , ARG = args))
-    .data@metadata = c(ChIPtsne2.history(.data), history_item)
+    ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
 
-    .data
+    ct2
 }
 
 

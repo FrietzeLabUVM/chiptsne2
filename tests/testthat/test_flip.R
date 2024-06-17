@@ -3,7 +3,6 @@ testthat::context("flip")
 library(chiptsne2)
 library(testthat)
 library(ggplot2)
-library(GenomicRanges)
 
 ct2 = exampleChIPtsne2.with_meta()
 ct2 = ct2[, "MCF10A_CTCF"]
@@ -52,12 +51,12 @@ test_that("flipProfilesToMatch changes profile positions", {
 })
 
 test_that("flipProfilesToMatch adds strand orientation", {
-    not_flipped_no_strand = all(strand(rowRanges(ct2)) == "*")
+    not_flipped_no_strand = all(GenomicRanges::strand(rowRanges(ct2)) == "*")
     expect_true(not_flipped_no_strand)
 
-    flipped_has_strand = all(as.character(strand(rowRanges(ct2_left))) %in% c("-", "+"))
+    flipped_has_strand = all(as.character(GenomicRanges::strand(rowRanges(ct2_left))) %in% c("-", "+"))
     expect_true(flipped_has_strand)
 
-    left_and_right_inverted = all(rowRanges(ct2_left) == invertStrand(rowRanges(ct2_right)))
+    left_and_right_inverted = all(rowRanges(ct2_left) == GenomicRanges::invertStrand(rowRanges(ct2_right)))
     expect_true(left_and_right_inverted)
 })
