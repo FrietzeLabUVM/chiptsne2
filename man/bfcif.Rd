@@ -15,7 +15,7 @@ bfcif(
 )
 }
 \arguments{
-\item{FUN}{A function that takes zero arguments.  This function can be a wrapper around other functions; ie. FUN = function(){mean(x)}.}
+\item{FUN}{A function that takes zero arguments.  This function can be a wrapper around other functions; ie. FUN = function()\{mean(x)\}.}
 
 \item{rname}{The unique identifier for the results in the cache. The recommendation is to use either a unique and meaningful description or digest::digest() on a list containing FUN and it's parameters.}
 

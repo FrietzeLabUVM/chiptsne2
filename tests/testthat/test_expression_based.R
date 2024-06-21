@@ -92,6 +92,8 @@ test_that("separateSamples - works", {
     expect_equal(dim(ct2_1), c(100, 3))
     colData(ct2_1)
     expect_equal(colData(ct2_1)$cell, c("MCF10A", "MCF10AT1", "MCF10CA1"))
+    expect_equal(colData(ct2_1)$cell2, c("MCF10A", "MCF10AT1", "MCF10CA1"))
+    expect_equal(colData(ct2_1)$mark2, rep("CTCF", 3))
 
 
     ct2_history = ChIPtsne2.history(ct2_1)
