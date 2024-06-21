@@ -2,7 +2,6 @@ testthat::context("expression")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(ggplot2)
 
 #several chiptsne2 functions allow the use of expression as arguments
 #I figure these will break in similar ways so test them together here

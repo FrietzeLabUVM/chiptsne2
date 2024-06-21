@@ -76,7 +76,7 @@ subsetSamples = function(ct2, subset_expression){
 #' subsetValues
 #'
 #' @param ct2 `r doc_ct2_nrr()`
-#' @param subset_expression expression, indicating column values to filter from assay.
+#' @param value_test expression, indicating column values to filter from assay slot.
 #'
 #' @return A subsetted `r doc_ct2_nrr()`
 #' @export
@@ -331,8 +331,8 @@ separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
 #' ct2 = exampleChIPtsne2.with_meta()
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
-#' ct2 = mutateRegions(ct2, col_ab = paste("a", "b"))
-#' ct2 = separateRegions(ct2, "col_ab", c("a", "b"), sep = " ", remove = FALSE)
+#' ct2 = mutateRegions(ct2, mutate_name = "either_10a_or_at1", mutate_expression = paste(peak_MCF10A_CTCF, id))
+#' ct2 = separateRegions(ct2, "either_10a_or_at1", c("a", "b"), sep = " ")
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
 separateRegions = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,
