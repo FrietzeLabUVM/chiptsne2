@@ -194,8 +194,12 @@ mutateSamples = function(ct2,
 
     meta_data = getSampleMetaData(ct2)
     meta_data = eval(substitute(dplyr::mutate(meta_data, eval(parse(text = mutate_expression)), .by = .by, .keep = .keep, .before = .before, .after = .after)))
-    # colData(ct2) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(ct2)), eval(parse(text = mutate_expression)), .by = .by, .keep = .keep, .before = .before, .after = .after))
-    colnames(meta_data)[grepl("eval.parse.text", colnames(meta_data))] = mutate_name
+
+    k = grepl("eval.parse.text", colnames(meta_data))
+    if(sum(k) != 1){
+        stop("Something has gone wrong evaluating the supplied expression. There may be something screwy with supplied sample metadata. If not, please report this issue.")
+    }
+    colnames(meta_data)[k] = mutate_name
 
     ct2 = setSampleMetaData(ct2, new_meta = meta_data, silent = TRUE)
 
@@ -250,8 +254,11 @@ mutateRegions = function(
         meta_data, eval(parse(text = mutate_expression)),
         .by = .by, .keep = .keep, .before = .before, .after = .after
     )))
-    # colData(ct2) = S4Vectors::DataFrame(dplyr::mutate(as.data.frame(colData(ct2)), eval(parse(text = mutate_expression)), .by = .by, .keep = .keep, .before = .before, .after = .after))
-    colnames(meta_data)[grepl("eval.parse.text", colnames(meta_data))] = mutate_name
+    k = grepl("eval.parse.text", colnames(meta_data))
+    if(sum(k) != 1){
+        stop("Something has gone wrong evaluating the supplied expression. There may be something screwy with supplied region metadata. If not, please report this issue.")
+    }
+    colnames(meta_data)[k] = mutate_name
 
     ct2 = setRegionMetaData(ct2, new_meta = meta_data, silent = TRUE)
 
