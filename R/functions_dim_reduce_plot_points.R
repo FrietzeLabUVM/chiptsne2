@@ -175,7 +175,8 @@
                 }
             }
         }
-        xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = "group")
+        TMP_group_VAR = "TMP___group"
+        xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = TMP_group_VAR)
         xy_df = .enforce_extra_VARS(ct2, xy_df, extra_VARS)
         if(return_data){
             return(xy_df)
@@ -187,7 +188,7 @@
         p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
             geom_point(aes(color = value), size = point_size) +
-            facet_wrap(paste0("~", "group"))
+            facet_wrap(paste0("~", TMP_group_VAR))
     }else if(all(color_VAR %in% colnames(ct2))){
         # color by max signal
         signal_df = SummarizedExperiment::assay(ct2, "max") %>%
