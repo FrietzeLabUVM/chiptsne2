@@ -2,7 +2,6 @@ testthat::context("flip")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(ggplot2)
 
 ct2 = exampleChIPtsne2.with_meta()
 ct2 = ct2[, "MCF10A_CTCF"]

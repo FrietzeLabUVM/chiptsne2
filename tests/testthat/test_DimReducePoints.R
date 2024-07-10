@@ -1,6 +1,6 @@
 testthat::context("plotDimReducePoints details")
 library(testthat)
-library(ggplot2)
+library(chiptsne2)
 ct2 = exampleChIPtsne2.with_meta() %>%
    dimReduceUMAP() %>%
    groupRegionsByDimReduceCluster(group_VAR = "umap_cluster") %>%
@@ -48,8 +48,8 @@ expect_s3_class(class = "ggplot",
                                     label_size = 14,
                                     extra_VARS = "umap_cluster",
                                     background_annotation_color = "gray") +
-                    facet_wrap(~umap_cluster) +
-                    theme(
-                        panel.background = element_rect(fill = "gray50"),
-                        panel.grid = element_blank())
+                    ggplot2::facet_wrap(~umap_cluster) +
+                    ggplot2::theme(
+                        panel.background = ggplot2::element_rect(fill = "gray50"),
+                        panel.grid = ggplot2::element_blank())
 )

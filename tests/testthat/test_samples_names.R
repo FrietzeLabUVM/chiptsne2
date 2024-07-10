@@ -2,7 +2,6 @@ testthat::context("sample_names")
 # address some errors related to changing sample names
 library(chiptsne2)
 library(testthat)
-library(ggplot2)
 
 ct2 = exampleChIPtsne2.with_meta()
 getSampleMetaData(ct2)

@@ -2,7 +2,6 @@ testthat::context("expression")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(ggplot2)
 
 #several chiptsne2 functions allow the use of expression as arguments
 #I figure these will break in similar ways so test them together here
@@ -65,6 +64,7 @@ test_that("mutateRegions - works", {
 })
 
 test_that("mutateSamples - works", {
+    colData(ct2)$cell
     ct2_1 = mutateSamples(ct2, "cell_short", sub("MCF", "", cell))
     ct2_1 = mutateSamples(ct2_1, "cell_lower", paste0("mcf", "", cell_short))
     expect_equal(dim(ct2_1), c(100, 3))

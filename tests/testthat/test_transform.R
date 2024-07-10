@@ -2,7 +2,6 @@ testthat::context("transform")
 # flipping viewGranges
 library(chiptsne2)
 library(testthat)
-library(ggplot2)
 
 ct2 = exampleChIPtsne2.with_meta()
 # plotSignalLinePlot(ct2) + expand_limits(y = 30)
