@@ -302,13 +302,15 @@ setSampleMetaData = function(ct2, new_meta, silent = FALSE){
                    paste(c("Missing entries from new_meta:", setdiff(rownames(cd), new_meta[[ct2@name_VAR]])), collapse = "\n")
         ))
     }
-    retained_cn = setdiff(colnames(cd),
-                          setdiff(colnames(new_meta), ct2@name_VAR)
+    retained_cn = setdiff(
+        colnames(cd),
+        setdiff(colnames(new_meta), ct2@name_VAR)
     )
     new_cd = merge(cd[, retained_cn, drop = FALSE], new_meta, by = ct2@name_VAR)
     rownames(new_cd) = new_cd[[ct2@name_VAR]]
     new_cd[[ct2@name_VAR]] = NULL
     new_cd = S4Vectors::DataFrame(new_cd)
+    new_cd = new_cd[colnames(ct2),]
 
     ct2@colData = new_cd
     if(!silent){
@@ -399,7 +401,8 @@ setRegionMetaData.no_history = function(ct2, new_meta){
             if(overwrite){
                 old_rd = old_rd[, setdiff(colnames(old_rd), conflicting_cn), drop = FALSE]
             }else{
-                stop(paste(c("Conflicting colnames in region_metadata already present in query_gr:", conflicting_cn), collapse = "\n"))
+                stop(paste(c("Conflicting colnames in region_metadata already present in query_gr:", conflicting_cn), collapse = "\n"),
+                     "\nEither use overwrite = TRUE or omit the conflicting names.")
             }
         }
         new_rd = cbind(

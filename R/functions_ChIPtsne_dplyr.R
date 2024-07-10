@@ -76,7 +76,7 @@ subsetSamples = function(ct2, subset_expression){
 #' subsetValues
 #'
 #' @param ct2 `r doc_ct2_nrr()`
-#' @param subset_expression expression, indicating column values to filter from assay.
+#' @param value_test expression, indicating column values to filter from assay slot.
 #'
 #' @return A subsetted `r doc_ct2_nrr()`
 #' @export
@@ -201,7 +201,11 @@ mutateSamples = function(ct2,
                       .before = .before,
                       .after = .after)
     ))
-    colnames(meta_data)[grepl("eval.parse.text", colnames(meta_data))] = mutate_name
+    k = grepl("eval.parse.text", colnames(meta_data))
+    if(sum(k) != 1){
+        stop("Something has gone wrong evaluating the supplied expression. There may be something screwy with supplied sample metadata. If not, please report this issue.")
+    }
+    colnames(meta_data)[k] = mutate_name
 
     ct2 = setSampleMetaData(ct2, new_meta = meta_data, silent = TRUE)
 
@@ -261,7 +265,11 @@ mutateRegions = function(
             .before = .before,
             .after = .after)
     ))
-    colnames(meta_data)[grepl("eval.parse.text", colnames(meta_data))] = mutate_name
+    k = grepl("eval.parse.text", colnames(meta_data))
+    if(sum(k) != 1){
+        stop("Something has gone wrong evaluating the supplied expression. There may be something screwy with supplied region metadata. If not, please report this issue.")
+    }
+    colnames(meta_data)[k] = mutate_name
 
     ct2 = setRegionMetaData(ct2, new_meta = meta_data, silent = TRUE)
 
@@ -341,8 +349,8 @@ separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
 #' ct2 = exampleChIPtsne2.with_meta()
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
-#' ct2 = mutateRegions(ct2, col_ab = paste("a", "b"))
-#' ct2 = separateRegions(ct2, "col_ab", c("a", "b"), sep = " ", remove = FALSE)
+#' ct2 = mutateRegions(ct2, mutate_name = "either_10a_or_at1", mutate_expression = paste(peak_MCF10A_CTCF, id))
+#' ct2 = separateRegions(ct2, "either_10a_or_at1", c("a", "b"), sep = " ")
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
 separateRegions = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE,

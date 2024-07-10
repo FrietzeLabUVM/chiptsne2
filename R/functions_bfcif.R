@@ -2,7 +2,7 @@
 #'
 #' Conditionally runs a function if it's results don't exist in the cache.  Cache is controlled by BiocFileCache.
 #'
-#' @param FUN A function that takes zero arguments.  This function can be a wrapper around other functions; ie. FUN = function(){mean(x)}.
+#' @param FUN A function that takes zero arguments.  This function can be a wrapper around other functions; ie. FUN = function()\{mean(x)\}.
 #' @param rname The unique identifier for the results in the cache. The recommendation is to use either a unique and meaningful description or digest::digest() on a list containing FUN and it's parameters.
 #' @param bfc A BiocFileCache object, typically from BiocFileCache::BiocFileCache().
 #' @param version A version indicator string to further distinguish cache entries.  Typically, you want to iterate this value when code outside of FUN or input parameters have changed and you want to force FUN to reevaluate. Default is SQC_CACHE_VERSION option or v3 if option is not set.

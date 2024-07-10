@@ -9,7 +9,7 @@ subsetValues(ct2, value_test)
 \arguments{
 \item{ct2}{A ChIPtsne2_no_rowRanges object.}
 
-\item{subset_expression}{expression, indicating column values to filter from assay.}
+\item{value_test}{expression, indicating column values to filter from assay slot.}
 }
 \value{
 A subsetted A ChIPtsne2_no_rowRanges object.
