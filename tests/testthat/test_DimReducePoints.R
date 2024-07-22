@@ -32,10 +32,18 @@ expect_error(
                         label_VAR = "groupasdf"),
     "Some VAR are missing from metadata")
 
+
+# debug(chiptsne2:::.plotDimReducePoints)
+# debug(chiptsne2:::`.__T__plotDimReducePoints:chiptsne2`)
 expect_s3_class(class = "ggplot",
-                plotDimReducePoints(ct2, color_VAR = c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), label_VAR = "group", label_size = 14)
+                plotDimReducePoints(ct2, color_VAR = c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), label_VAR = TRUE, label_size = 14)
 )
-# plotDimReducePoints(ct2, color_VAR = c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), label_VAR = "value", label_size = 14)
+
+# ct2 = groupRegionsBySignalCluster(ct2)
+# plotDimReducePoints(ct2, color_VAR = c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), label_VAR = "cluster_id", label_size = 14)
+# plotDimReducePoints(ct2, color_VAR = c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), label_VAR = TRUE, label_size = 14)
+# plotDimReducePoints(ct2, color_VAR = c("cluster_id"), label_VAR = TRUE, label_size = 14)
+# plotDimReducePoints(ct2, color_VAR = c("cluster_id"), label_VAR = "cluster_id", label_size = 14)
 
 expect_s3_class(class = "ggplot",
                 plotDimReducePoints(ct2, label_VAR = "umap_cluster", label_size = 14)

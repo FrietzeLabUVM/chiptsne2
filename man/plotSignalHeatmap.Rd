@@ -25,8 +25,8 @@ plotSignalHeatmap(
   name_FUN = .prep_names,
   color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
   n_legend_rows = 1,
-  relative_heatmap_width = 0.5,
-  relative_heatmap_height = 0.66,
+  relative_heatmap_width = 0.8,
+  relative_heatmap_height = 0.8,
   return_data = FALSE
 )
 
@@ -50,8 +50,8 @@ plotSignalHeatmap(
   name_FUN = .prep_names,
   color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
   n_legend_rows = 1,
-  relative_heatmap_width = 0.5,
-  relative_heatmap_height = 0.66,
+  relative_heatmap_width = 0.8,
+  relative_heatmap_height = 0.8,
   return_data = FALSE
 )
 }
@@ -124,10 +124,10 @@ members of a clustered group must be contiguous. Valid choices are: 1)
 is 1.}
 
 \item{relative_heatmap_width}{Fraction of final plot width dedicated to the
-heatmap.}
+heatmap. If 1 or more, there will be no cluster annotation drawn.}
 
 \item{relative_heatmap_height}{Fraction of final plot height dedicated to the
-heatmap.}
+heatmap. If 1 or more, there will be no color key drawn.}
 
 \item{return_data}{If TRUE, return the data.table instead of creating a plot.}
 }

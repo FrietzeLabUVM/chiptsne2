@@ -1,3 +1,7 @@
+# v 0.1.44
+
+* relative_heatmap_width and relative_heatmap_height can be used to disable cluster annnotation or color key respectively if >= 1
+
 # v 0.1.38
 
 * bugfix in aggregateRegionsByGroup due to DataFrame apply behavior

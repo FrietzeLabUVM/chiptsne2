@@ -134,7 +134,7 @@ subsetRow = function(ct2, value_test){
 #' subsetCol
 #'
 #' @param ct2 `r doc_ct2_nrr()`
-#' @param value_test expression, indicating columns to select from sample/column metadata.
+#' @param subset_expression expression, indicating columns to select from sample/column metadata.
 #'
 #' @return A subsetted `r doc_ct2_nrr()`
 #' @export
@@ -302,7 +302,7 @@ mutateRegions = function(
 #' ct2 = exampleChIPtsne2.with_meta()
 #' colData(ct2)
 #' getSampleMetaData(ct2)
-#' ct2 = mutateSamples(ct2, cell_mark = paste(cell, mark))
+#' ct2 = mutateSamples(ct2, "cell_mark", paste(cell, mark))
 #' ct2 = separateSamples(ct2, "cell_mark", c("v1", "v2"), sep = " ", remove = FALSE)
 #' colData(ct2)
 #' getSampleMetaData(ct2)
@@ -349,7 +349,9 @@ separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
 #' ct2 = exampleChIPtsne2.with_meta()
 #' rowData(ct2)
 #' getRegionMetaData(ct2)
-#' ct2 = mutateRegions(ct2, mutate_name = "either_10a_or_at1", mutate_expression = paste(peak_MCF10A_CTCF, id))
+#' ct2 = mutateRegions(ct2,
+#'   mutate_name = "either_10a_or_at1",
+#'   mutate_expression = paste(peak_MCF10A_CTCF, id))
 #' ct2 = separateRegions(ct2, "either_10a_or_at1", c("a", "b"), sep = " ")
 #' rowData(ct2)
 #' getRegionMetaData(ct2)

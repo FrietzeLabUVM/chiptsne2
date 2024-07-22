@@ -9,7 +9,7 @@ subsetCol(ct2, subset_expression)
 \arguments{
 \item{ct2}{A ChIPtsne2_no_rowRanges object.}
 
-\item{value_test}{expression, indicating columns to select from sample/column metadata.}
+\item{subset_expression}{expression, indicating columns to select from sample/column metadata.}
 }
 \value{
 A subsetted A ChIPtsne2_no_rowRanges object.

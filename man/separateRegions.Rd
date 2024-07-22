@@ -45,7 +45,9 @@ Should work just like \link[tidyr:separate]{tidyr::separate} but applied to rowD
 ct2 = exampleChIPtsne2.with_meta()
 rowData(ct2)
 getRegionMetaData(ct2)
-ct2 = mutateRegions(ct2, mutate_name = "either_10a_or_at1", mutate_expression = paste(peak_MCF10A_CTCF, id))
+ct2 = mutateRegions(ct2,
+  mutate_name = "either_10a_or_at1",
+  mutate_expression = paste(peak_MCF10A_CTCF, id))
 ct2 = separateRegions(ct2, "either_10a_or_at1", c("a", "b"), sep = " ")
 rowData(ct2)
 getRegionMetaData(ct2)

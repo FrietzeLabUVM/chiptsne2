@@ -20,8 +20,8 @@
                               name_FUN = .prep_names,
                               color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
                               n_legend_rows = 1,
-                              relative_heatmap_width = .5,
-                              relative_heatmap_height = .66,
+                              relative_heatmap_width = .8,
+                              relative_heatmap_height = .8,
                               return_data = FALSE
 ){
     if(!is.null(group_VARS) & is.null(sort_VAR)){
@@ -30,8 +30,8 @@
     if(is.null(sort_VAR)){
         sort_VAR = FALSE
     }
-    stopifnot(relative_heatmap_width > 0 & relative_heatmap_width < 1)
-    stopifnot(relative_heatmap_height > 0 & relative_heatmap_height < 1)
+    stopifnot(relative_heatmap_width > 0)
+    stopifnot(relative_heatmap_height > 0)
     stopifnot(n_legend_rows >= 1)
 
     meta_dt = as.data.table(getRegionMetaData(ct2))
@@ -278,7 +278,21 @@
     })
     row2 = cowplot::plot_grid(plotlist = leg_rows, ncol = 1)
     rel_heights = c(relative_heatmap_height, 1 - relative_heatmap_height)
-    cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = rel_heights)
+
+    if(relative_heatmap_height < 1 & relative_heatmap_width < 1){
+        #cluster bars and color key
+        cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = rel_heights)
+    }else if(relative_heatmap_height < 1 & relative_heatmap_width >= 1){
+        #no cluster bars
+        cowplot::plot_grid(p_heat, row2, ncol = 1, rel_heights = rel_heights)
+    }else if(relative_heatmap_height >= 1 & relative_heatmap_width < 1){
+        #no color key
+        row1
+    }else if(relative_heatmap_height >= 1 & relative_heatmap_width >= 1){
+        #no cluster bars or color key
+        p_heat
+    }
+
 }
 
 
@@ -319,9 +333,9 @@
 #' @param n_legend_rows How many rows to split the region legends into. Default
 #'   is 1.
 #' @param relative_heatmap_width Fraction of final plot width dedicated to the
-#'   heatmap.
+#'   heatmap. If 1 or more, there will be no cluster annotation drawn.
 #' @param relative_heatmap_height Fraction of final plot height dedicated to the
-#'   heatmap.
+#'   heatmap. If 1 or more, there will be no color key drawn.
 #' @param return_data If TRUE, return the data.table instead of creating a plot.
 #' @param balance_VAR When set to a categorical region metadata variable,
 #'   heatmap grouping will not evenly select among all regions but instead try
@@ -441,8 +455,8 @@ setGeneric("plotSignalHeatmap", function(
         name_FUN = .prep_names,
         color_key_strategy = c("if_not_sorted", "except_sort_VAR", "all")[2],
         n_legend_rows = 1,
-        relative_heatmap_width = .5,
-        relative_heatmap_height = .66,
+        relative_heatmap_width = .8,
+        relative_heatmap_height = .8,
         return_data = FALSE)
         standardGeneric("plotSignalHeatmap"),
         signature = "ct2")

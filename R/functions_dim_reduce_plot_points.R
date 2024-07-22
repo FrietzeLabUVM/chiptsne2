@@ -2,10 +2,10 @@
 .add_labels = function(p, xy_df, label_VAR, label_FUN, label_size, map_label_colors){
     #visible binding for global variable
     group = value = group_value = tx = ty = NULL
-    if(label_VAR == "group"){
+    if(label_VAR == TMP_group_VAR){
         # label_VAR = c("group_value")
         xy_df = dplyr::mutate(xy_df, group_value = paste(group, value))
-        label_VAR = "value"
+        label_VAR = TMP_value_VAR
         label_ = label_VAR
         label_ = ensym(label_)
         lab_df = xy_df %>% dplyr::group_by(group_value) %>% dplyr::summarise(tx = mean(tx), ty = mean(ty), value = unique(value), group = unique(group))
@@ -92,6 +92,9 @@
     p
 }
 
+TMP_group_VAR = "TMP___group"
+TMP_value_VAR = "TMP___value"
+
 .plotDimReducePoints = function(ct2,
                                 color_VAR = NULL,
                                 label_VAR = NULL,
@@ -122,11 +125,17 @@
     }
     extra_VARS = union(extra_VARS, color_VAR)
     if(!is.null(label_VAR)){
+        if(label_VAR == TRUE){
+            label_VAR = TMP_value_VAR
+        }
+        if(label_VAR == FALSE){
+            label_VAR = NULL
+        }
         extra_VARS = union(extra_VARS, label_VAR)
     }
     map_label_colors = FALSE
     if(!is.null(label_VAR)){
-        if(label_VAR %in% color_VAR){
+        if(label_VAR %in% color_VAR | label_VAR == TMP_value_VAR){
             map_label_colors = TRUE
         }
     }
@@ -157,8 +166,8 @@
                 is.numeric(xy_df[[cv]])
             })
             if(length(unique(color_classes)) != 1){
-                .message_list(split(names(color_classes), color_classes))
-                stop("Classes of all color_VAR items must match.")
+                msg = .message_list(split(names(color_classes), color_classes))
+                stop("Classes of all color_VAR items must match.\n", msg)
             }
             if(!all(color_is_num)){
                 color_values = lapply(color_VAR, function(cv){
@@ -175,19 +184,20 @@
                 }
             }
         }
-        TMP_group_VAR = "TMP___group"
-        xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = TMP_group_VAR)
+        xy_df = tidyr::pivot_longer(xy_df, setdiff(colnames(xy_df), c(ct2@region_VAR, "tx", "ty")), names_to = TMP_group_VAR, values_to = TMP_value_VAR)
         xy_df = .enforce_extra_VARS(ct2, xy_df, extra_VARS)
         if(return_data){
             return(xy_df)
         }
-        point_colors = .prep_color_scale(xy_df$value, color_scale = point_colors)
+
+        point_colors = .prep_color_scale(xy_df[[TMP_value_VAR]], color_scale = point_colors)
         p = ggplot(xy_df, aes(x = tx, y = ty))
         p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
         p = underlayer_FUN(p, xy_df, point_size, background_annotation_color)
         p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
-            geom_point(aes(color = value), size = point_size) +
+            geom_point(aes(color = !!ensym(TMP_value_VAR)), size = point_size) +
+            labs(color = NULL) +
             facet_wrap(paste0("~", TMP_group_VAR))
     }else if(all(color_VAR %in% colnames(ct2))){
         # color by max signal
