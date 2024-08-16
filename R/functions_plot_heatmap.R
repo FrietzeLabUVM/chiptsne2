@@ -281,18 +281,18 @@
 
     if(relative_heatmap_height < 1 & relative_heatmap_width < 1){
         #cluster bars and color key
-        cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = rel_heights)
+        pg = cowplot::plot_grid(row1, row2, ncol = 1, rel_heights = rel_heights)
     }else if(relative_heatmap_height < 1 & relative_heatmap_width >= 1){
         #no cluster bars
-        cowplot::plot_grid(p_heat, row2, ncol = 1, rel_heights = rel_heights)
+        pg = cowplot::plot_grid(p_heat, row2, ncol = 1, rel_heights = rel_heights)
     }else if(relative_heatmap_height >= 1 & relative_heatmap_width < 1){
         #no color key
-        row1
+        pg = row1
     }else if(relative_heatmap_height >= 1 & relative_heatmap_width >= 1){
         #no cluster bars or color key
-        p_heat
+        pg = p_heat
     }
-
+    pg
 }
 
 
