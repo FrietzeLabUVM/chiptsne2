@@ -28,3 +28,101 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+library(data.table)
+library(GenomicRanges)
+url_dt = fread("../inst/extdata/example_data_paths.csv")
+url_dt[, bw_file := paste0(cell, "_", mark, "_FE.bw")]
+url_dt[, narrowPeak_file := paste0(cell, "_", mark, ".narrowPeak")]
+for(i in seq_len(nrow(url_dt))){
+    message(url_dt$cell[i])
+    if(!file.exists(url_dt$bw_file[i])){
+        curl::curl_download(url_dt$bw_url[i], url_dt$bw_file[i])
+    }
+    if(!file.exists(url_dt$narrowPeak_file[i])){
+        curl::curl_download(url_dt$narrowPeak_url[i], url_dt$narrowPeak_file[i])
+    }
+}
+
+```
+
+```{r}
+print(load("/slipstream/home/joeboyd/R/csaw_test/DB_csaw_results.AF.save"))
+diff_10a_to_at1 = GenomicRanges::GRanges(comb_res$CTCF$`from MCF10A to MCF10AT1`)
+diff_at1_to_ca1 = GenomicRanges::GRanges(comb_res$CTCF$`from MCF10AT1 to MCF10CA1`)
+seqsetvis::ssvFeatureUpset(list(diff_10a_to_at1 = diff_10a_to_at1, diff_at1_to_ca1 = diff_at1_to_ca1))
+diff_any = union(diff_10a_to_at1, diff_at1_to_ca1)
+```
+
+```{r}
+np_grs = seqsetvis::easyLoad_narrowPeak(url_dt$narrowPeak_file, url_dt$cell)
+seqsetvis::ssvFeatureUpset(np_grs)
+```
+
+```{r}
+olap_gr = seqsetvis::ssvOverlapIntervalSets(np_grs)
+seqsetvis::ssvFeatureUpset(list(olap_gr = olap_gr, diff_any = diff_any))
+olap_gr.diff = subsetByOverlaps(olap_gr, diff_any)
+olap_gr.ns = subsetByOverlaps(olap_gr, diff_any, invert = TRUE)
+```
+
+```{r}
+length(olap_gr.diff)
+length(olap_gr.ns)
+```
+
+```{r}
+qgr.diff = olap_gr.diff
+set.seed(0)
+qgr.ns = sample(olap_gr.ns, 4*length(qgr.diff))
+qgr = c(qgr.diff, qgr.ns)
+```
+
+```{r}
+library(chiptsne2)
+
+cfg = FetchConfig(url_dt[, .(bw_file, cell, mark)], read_mode = "bigwig")
+ct2 = ChIPtsne2.from_FetchConfig(cfg, qgr)
+ct2 = mutateSamples(ct2, mutate_name = "name2", mutate_expression = paste(cell, mark))
+ct2 = swapNameVariable(ct2, "name2")
+```
+
+```{r}
+colData(ct2)
+```
+
+```{r}
+rowData(ct2)
+```
+```{r}
+diff_10a_to_at1$direction = "mixed"
+diff_10a_to_at1$direction[diff_10a_to_at1$logFC.up == 0] = "down"
+diff_10a_to_at1$direction[diff_10a_to_at1$logFC.down == 0] = "up"
+
+diff_at1_to_ca1$direction = "mixed"
+diff_at1_to_ca1$direction[diff_at1_to_ca1$logFC.up == 0] = "down"
+diff_at1_to_ca1$direction[diff_at1_to_ca1$logFC.down == 0] = "up"
+
+
+rowData(ct2)
+ct2 = groupRegionsByOverlap(ct2, diff_10a_to_at1, group_VAR = "from_MCF10A_to_MCF10AT1_diff")
+ct2 = groupRegionsByOverlap(ct2, diff_at1_to_ca1, group_VAR = "from_MCF10AT1_to_MCF10CA1_diff")
+rowData(ct2)
+```
+
+```{r}
+ct2 = addRegionAnnotation(ct2, diff_10a_to_at1, anno_VAR = "FDR", anno_VAR_renames = "from_MCF10A_to_MCF10AT1_FDR")
+ct2 = addRegionAnnotation(ct2, diff_10a_to_at1, anno_VAR = "direction", anno_VAR_renames = "from_MCF10A_to_MCF10AT1_direction")
+ct2 = addRegionAnnotation(ct2, diff_at1_to_ca1, anno_VAR = "FDR", anno_VAR_renames = "from_MCF10AT1_to_MCF10CA1_FDR")
+ct2 = addRegionAnnotation(ct2, diff_at1_to_ca1, anno_VAR = "direction", anno_VAR_renames = "from_MCF10AT1_to_MCF10CA1_direction")
+
+rowData(ct2)
+```
+
+```{r}
+ct2 = groupRegionsBySignalCluster(ct2, group_VAR = "cluster_id")
+plotSignalHeatmap(ct2, group_VAR = "cluster_id")
+```
+
+

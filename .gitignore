@@ -11,3 +11,5 @@ test.save
 /doc/
 /Meta/
 dev_sort.R
+vignettes/*Peak
+vignettes/*bw
