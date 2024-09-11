@@ -13,6 +13,7 @@
 \alias{setPositionVariable}
 \alias{getPositionVariable}
 \alias{getRegionMetaData}
+\alias{getMaxValueData}
 \alias{setNameVariable,ChIPtsne2List-method}
 \alias{swapNameVariable,ChIPtsne2List-method}
 \alias{getNameVariable,ChIPtsne2List-method}
@@ -60,7 +61,9 @@ setPositionVariable(ct2, new_VAR)
 
 getPositionVariable(ct2)
 
-getRegionMetaData(ct2, select_VARS = NULL)
+getRegionMetaData(ct2, select_VARS = NULL, include_value_max = FALSE)
+
+getMaxValueData(ct2)
 
 \S4method{setNameVariable}{ChIPtsne2List}(ct2, new_VAR)
 

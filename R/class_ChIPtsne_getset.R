@@ -323,8 +323,31 @@ setSampleMetaData = function(ct2, new_meta, silent = FALSE){
 #### RegionMetaData ####
 
 #### Getters ####
+.getMaxValueData = function(ct2){
+    meta_dt = data.table::as.data.table(getSampleMetaData(ct2))
 
-.getRegionMetaData = function(ct2, select_VARS = NULL){
+    vals = ct2@assays@data$max
+    val_dt = data.table::as.data.table(vals, keep.rownames = ct2@region_VAR)
+    val_dt = reshape2::melt(val_dt, id.vars = ct2@region_VAR, variable.name = ct2@name_VAR, value.name = ct2@value_VAR)
+    val_dt = data.table::as.data.table(val_dt)
+    df = merge(meta_dt, val_dt, by = ct2@name_VAR)
+    df
+}
+
+#' getMaxValueData
+#'
+#' @param ct2 A ChIPtsne object
+#'
+#' @return tidy data.frame with full sample meta data and maximum value per region.
+#'
+#' @export
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2()
+#' getMaxValueData(ct2)
+setMethod("getMaxValueData", "ChIPtsne2_no_rowRanges", .getMaxValueData)
+
+.getRegionMetaData = function(ct2, select_VARS = NULL, include_value_max = FALSE){
     if(is(ct2, "ChIPtsne2")){
         gr = rowRanges(ct2)
         df = GenomicRanges::mcols(gr) %>% data.frame(check.names = FALSE)
@@ -348,6 +371,11 @@ setSampleMetaData = function(ct2, new_meta, silent = FALSE){
         }
         df = df[, union(ct2@region_VAR, select_VARS), drop = FALSE]
     }
+    if(include_value_max){
+        vals = ct2@assays@data$max
+        val_dt = data.table::as.data.table(vals, keep.rownames = ct2@region_VAR)
+        df = merge(df, val_dt, by = ct2@region_VAR)
+    }
     df
 }
 
@@ -357,6 +385,7 @@ setSampleMetaData = function(ct2, new_meta, silent = FALSE){
 #' @param select_VARS character vector of variables to select from region
 #'   metadata. Default of NULL will select all available region metadata
 #'   variables.
+#' @param include_value_max If TRUE, values from max assay slot will be inlcuded per region. Default is FALSE.
 #'
 #' @return data.frame with region meta data, similar to rowRanges but suitable
 #'   for tidyverse operations.

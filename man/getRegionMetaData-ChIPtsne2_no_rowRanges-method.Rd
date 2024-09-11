@@ -4,7 +4,7 @@
 \alias{getRegionMetaData,ChIPtsne2_no_rowRanges-method}
 \title{getRegionMetaData}
 \usage{
-\S4method{getRegionMetaData}{ChIPtsne2_no_rowRanges}(ct2, select_VARS = NULL)
+\S4method{getRegionMetaData}{ChIPtsne2_no_rowRanges}(ct2, select_VARS = NULL, include_value_max = FALSE)
 }
 \arguments{
 \item{ct2}{A ChIPtsne object}
@@ -12,6 +12,8 @@
 \item{select_VARS}{character vector of variables to select from region
 metadata. Default of NULL will select all available region metadata
 variables.}
+
+\item{include_value_max}{If TRUE, values from max assay slot will be inlcuded per region. Default is FALSE.}
 }
 \value{
 data.frame with region meta data, similar to rowRanges but suitable

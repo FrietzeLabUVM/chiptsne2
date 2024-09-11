@@ -23,9 +23,9 @@ subsetRegions = function(ct2, subset_expression){
     message("subsetRegions ...")
     args = get_args()
     #https://stackoverflow.com/questions/11880906/pass-subset-argument-through-a-function-to-subset
-    meta_data = getRegionMetaData(ct2)
+    meta_data = getRegionMetaData(ct2, include_value_max = TRUE)
     meta_data = eval(substitute(subset(meta_data, eval(parse(text = subset_expression)))))
-    ct2 = ct2[rownames(meta_data),]
+    ct2 = ct2[meta_data[[ct2@region_VAR]],]
 
     history_item = list(subsetRegions  = list(FUN = subsetRegions , ARG = args))
     ct2@metadata = c(ChIPtsne2.history(ct2), history_item)
@@ -255,7 +255,7 @@ mutateRegions = function(
     message("mutateRegions ...")
     args = get_args()
 
-    meta_data = getRegionMetaData(ct2)
+    meta_data = getRegionMetaData(ct2, include_value_max = TRUE)
     meta_data = eval(substitute(
         dplyr::mutate(
             meta_data,
@@ -271,7 +271,7 @@ mutateRegions = function(
     }
     colnames(meta_data)[k] = mutate_name
 
-    ct2 = setRegionMetaData(ct2, new_meta = meta_data, silent = TRUE)
+    ct2 = setRegionMetaData(ct2, new_meta = meta_data[, c(colnames(getRegionMetaData(ct2)), mutate_name)], silent = TRUE)
 
     history_item = list(mutateRegions  = list(FUN = mutateRegions , ARG = args))
     ct2@metadata = c(ChIPtsne2.history(ct2), history_item)

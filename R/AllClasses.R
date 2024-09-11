@@ -119,4 +119,8 @@ setGeneric("getPositionVariable",
 
 #' @export
 #' @rdname ct2-getset
-setGeneric("getRegionMetaData", function(ct2, select_VARS = NULL) standardGeneric("getRegionMetaData"))
+setGeneric("getRegionMetaData", function(ct2, select_VARS = NULL, include_value_max = FALSE) standardGeneric("getRegionMetaData"))
+
+#' @export
+#' @rdname ct2-getset
+setGeneric("getMaxValueData", function(ct2) standardGeneric("getMaxValueData"))

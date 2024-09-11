@@ -9,25 +9,58 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Introduction
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+*chiptsne2* (working name only) is a new R package that accomplishes 2 things:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+1. It supports the use of tSNE (and UMAP and PCA) in the analysis of enrichment profiles at regions of interest across the genome in ChIPseq experiments.  Though developed for ChIPseq, the same procedures can be applied to ATACseq, BSseq, almost any kind of NGS really.
 
-```{r cars}
-summary(cars)
+2. It provides a user friendly and robust way to use *seqsetvis*.
+
+*seqsetvis* provides a way to work interactively via Rstudio with sequencing data in a tidy formatted way, leveraging the power of parallel processing and the [data.table](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html) package and opening up the world of [ggplot2](https://ggplot2.tidyverse.org/) for visualization of NGS data. 
+
+*seqsetvis* does have issues with using more RAM than necessary and it requires some proficiency with *data.table* to use effectively. *chiptsne2* addresses both of these problems, and makes numerous other improvements to improve its usability.
+
+*chiptsne2* key features:
+
+1. *ChIPtsne2* class implemented as an extension of the bioc *SummarizedExperiment* class. This provides greater usability right of the bat.
+
+2. Since you have to create a *ChIPtsne2* object, we can catch errors early and provide useful feedback to resolve them.
+
+3. All package methods are build for use with the [magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) pipe, %>%. This enables concise and readable workflows.
+
+4. *ChIPtsne2* objects maintain a history of all package methods applied to them. Importantly, the history from one object can be applied to any number of other objects.  This allows for workflows to be developed and reproducibly deployed.
+
+# Setting up
+
+First, load *chiptsne2* and supporting packages.
+
+```{r libs, message=FALSE}
+library(chiptsne2)
+# tidyverse wraps up several R packages that allow working with tidy data 
+# in an intuitive way
+library(tidyverse)
+# GenomicRanges is a primary Bioconductor package for manipulating genomic 
+# intervals, ie. ChIP-seq peaks, TSSes etc.
+library(GenomicRanges)    
+# Setting mc.cores allows chiptsne2 to use multiple threads and speed up many 
+# functions
+options(mc.cores = 20)
 ```
 
-## Including Plots
+# Quick start
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+dir("../inst/extdata", pattern = "bam$")
+dir("../inst/extdata")
+exampleBamFiles()
+exampleQueryGR()
+exampleChIPtsne2()
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Download full dataset
+
 
 ```{r}
 library(data.table)
@@ -35,6 +68,13 @@ library(GenomicRanges)
 url_dt = fread("../inst/extdata/example_data_paths.csv")
 url_dt[, bw_file := paste0(cell, "_", mark, "_FE.bw")]
 url_dt[, narrowPeak_file := paste0(cell, "_", mark, ".narrowPeak")]
+
+dl_dir = "ct2_data_download"
+dir.create(dl_dir, recursive = TRUE, showWarnings = FALSE)
+
+url_dt[, bw_file := file.path(dl_dir, bw_file)]
+url_dt[, narrowPeak_file := file.path(dl_dir, narrowPeak_file)]
+
 for(i in seq_len(nrow(url_dt))){
     message(url_dt$cell[i])
     if(!file.exists(url_dt$bw_file[i])){
@@ -46,6 +86,8 @@ for(i in seq_len(nrow(url_dt))){
 }
 
 ```
+
+# Create ChIPtsne2 object
 
 ```{r}
 print(load("/slipstream/home/joeboyd/R/csaw_test/DB_csaw_results.AF.save"))

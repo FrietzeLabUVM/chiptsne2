@@ -1,3 +1,8 @@
+# v 0.1.45
+
+* added include_value_max to to getRegionMetaData
+* added getMaxValueData function to retrieve tidy form of max assay
+
 # v 0.1.44
 
 * relative_heatmap_width and relative_heatmap_height can be used to disable cluster annnotation or color key respectively if >= 1
