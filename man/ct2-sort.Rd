@@ -5,12 +5,28 @@
 \alias{sortRegions,ChIPtsne2_no_rowRanges-method}
 \title{sortRegions}
 \usage{
-sortRegions(ct2, group_VAR = NULL)
+sortRegions(
+  ct2,
+  sort_strategy = c("hclust", "sort", "left", "right", "none", "reverse")[2],
+  group_VAR = NULL
+)
 
-\S4method{sortRegions}{ChIPtsne2_no_rowRanges}(ct2, group_VAR = NULL)
+\S4method{sortRegions}{ChIPtsne2_no_rowRanges}(
+  ct2,
+  sort_strategy = c("hclust", "sort", "left", "right", "none", "reverse")[2],
+  group_VAR = NULL
+)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2_no_rowRanges object.}
+
+\item{sort_strategy}{Strategy to use for sorting within groups. Valid choices
+are: 1) "sort", which sorts decreasing top to bottom, 2) "hclust" which
+uses hierarchical clustering, 3) "left" which puts most left tiled profiles
+at top, and 4) "right" which puts most right tilted profiles at top. 5)
+"none" does no new sorting and relies on current order set by
+\code{sortRegions}. 6) "reverse" is like "none" but the current rder will be
+reversed. c("hclust", "sort", "left", "right", "none", "reverse")\link{2}}
 
 \item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
 }

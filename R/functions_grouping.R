@@ -515,7 +515,9 @@ setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByVa
 
 #### sort regions ####
 
-.sortRegions = function(ct2, group_VAR = NULL){
+.sortRegions = function(ct2,
+                        sort_strategy =  c("hclust", "sort", "left", "right", "none", "reverse")[2],
+                        group_VAR = NULL){
     message("sortRegions ...")
     args = get_args()
     prof_dt = getTidyProfile(ct2, meta_VARS = group_VAR)
@@ -530,6 +532,7 @@ setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByVa
         fill_ = ct2@value_VAR,
         facet_ = ct2@name_VAR,
         cluster_ = group_VAR,
+        within_order_strategy = sort_strategy,
         dcast_fill = 0)
     region_lev = levels(clust_dt[[ct2@region_VAR]])
     history_item = list(sortRegions  = list(FUN = .sortRegions , ARG = args))
@@ -542,6 +545,13 @@ setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByVa
 #' sortRegions
 #'
 #' @param ct2 `r doc_ct2_nrr()`
+#' @param sort_strategy Strategy to use for sorting within groups. Valid choices
+#'   are: 1) "sort", which sorts decreasing top to bottom, 2) "hclust" which
+#'   uses hierarchical clustering, 3) "left" which puts most left tiled profiles
+#'   at top, and 4) "right" which puts most right tilted profiles at top. 5)
+#'   "none" does no new sorting and relies on current order set by
+#'   `sortRegions`. 6) "reverse" is like "none" but the current rder will be
+#'   reversed. c("hclust", "sort", "left", "right", "none", "reverse")[2]
 #' @param group_VAR `r doc_group_VAR()`
 #'
 #' @return `r doc_ct2_nrr()` with rows sorted by `group_VAR` and within groups by signal decreasing.
@@ -557,7 +567,9 @@ setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByVa
 #' ct2.sorted2 = sortRegions(ct2, group_VAR = c("peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
 #' rowData(ct2.sorted2)
 setGeneric("sortRegions",
-           function(ct2, group_VAR = NULL)
+           function(ct2,
+                    sort_strategy =  c("hclust", "sort", "left", "right", "none", "reverse")[2],
+                    group_VAR = NULL)
                standardGeneric("sortRegions"),
            signature = "ct2")
 

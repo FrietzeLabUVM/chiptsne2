@@ -305,7 +305,10 @@
 #' @param sort_strategy Strategy to use for sorting within groups. Valid choices
 #'   are: 1) "sort", which sorts decreasing top to bottom, 2) "hclust" which
 #'   uses hierarchical clustering, 3) "left" which puts most left tiled profiles
-#'   at top, and 4) "right" which puts most right tilted profiles at top.
+#'   at top, and 4) "right" which puts most right tilted profiles at top. 5)
+#'   "none" does no new sorting and relies on current order set by
+#'   `sortRegions`. 6) "reverse" is like "none" but the current rder will be
+#'   reversed. c("hclust", "sort", "left", "right", "none", "reverse")[2]
 #' @param heatmap_fill_limits Passed to limits of scale_fill_gradientn. Default
 #'   of c(NA, NA) uses natural range of the data.
 #' @param heatmap_colors Either a scale_fill_* or vector of R colors passed to
