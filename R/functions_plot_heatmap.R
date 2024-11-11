@@ -199,6 +199,7 @@
     stopifnot(length(annotation_colors) == length(anno_VARS))
     anno_plots = list()
     legend_plots = list()
+    browser()
     for(i in seq_along(anno_VARS)){
         var = anno_VARS[i]
         anno_rle = rle(as.character(anno_df[[var]]))
