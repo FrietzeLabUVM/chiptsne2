@@ -69,6 +69,8 @@
     meta_dt = dplyr::filter(meta_dt, get(ct2@region_VAR) %in% all_ids)
     if(is.factor(meta_dt[[ct2@region_VAR]])){
         meta_dt[[ct2@region_VAR]] = droplevels(meta_dt[[ct2@region_VAR]])
+    }else{
+        meta_dt[[ct2@region_VAR]] = factor(meta_dt[[ct2@region_VAR]], levels = unique(meta_dt[[ct2@region_VAR]]))
     }
     if(!is.factor(meta_dt[[sort_VAR]])){
         meta_dt[[sort_VAR]] = factor(meta_dt[[sort_VAR]])
@@ -137,13 +139,16 @@
         scale_x_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 3)) +
         heatmap_theme +
         facet_grid(paste0(".~", ct2@name_VAR)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
+        #this is a maybe temporary them fix to allow cowplot to find the legend
+        theme(legend.position = "right")
     p_heat = .apply_scale(p_heat, heatmap_colors, heatmap_fill_limits)
     if(!is.null(heatmap_format_FUN)){
         p_heat = heatmap_format_FUN(p_heat)
     }
     # cowplot::get_legend() now returning warning
     p_heat.leg = cowplot::get_plot_component(p_heat, "guide-box", return_all = TRUE)[[1]]
+    # get_plot_component(plot, 'guide-box-bottom', return_all = TRUE)
     p_heat = p_heat + guides(fill = "none") + labs(y = "")
 
     #### annotation ####
@@ -194,6 +199,7 @@
     stopifnot(length(annotation_colors) == length(anno_VARS))
     anno_plots = list()
     legend_plots = list()
+    browser()
     for(i in seq_along(anno_VARS)){
         var = anno_VARS[i]
         anno_rle = rle(as.character(anno_df[[var]]))

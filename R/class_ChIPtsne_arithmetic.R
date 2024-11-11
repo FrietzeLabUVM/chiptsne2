@@ -34,6 +34,7 @@ apply_ChIPtsne2_operator = function(e1, e2, operator = "-"){
     if(!all(rowRanges(e1) == rowRanges(e2))){
         stop('ChIPtsne2 objects must have identical rowRanges. Check rowRanges() or each.')
     }
+    #prepare new history item
     new_history = list(
         list(
             e1 = e1@metadata,
@@ -47,6 +48,13 @@ apply_ChIPtsne2_operator = function(e1, e2, operator = "-"){
             `*` = {names(new_history) = "multiplication"},
             stop("unrecognized operation for ChIPtsne2: ", operator)
     )
+    #in the special circumstance where colnames are the same but in different order, reorder e2
+    if(!all(colnames(e1) == colnames(e2))){
+        if(setequal(colnames(e1), colnames(e2))){
+            e2 = e2[, colnames(e1)]
+        }
+    }
+
     #locate comparative variables, validate, generate new values
     cd1 = colData(e1)
     cd2 = colData(e2)
