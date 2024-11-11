@@ -525,6 +525,10 @@ setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByVa
         prof_dt$TMP_GROUP__ = apply(prof_dt[, group_VAR, with = FALSE], 1, paste, collapse = "_")
         group_VAR = "TMP_GROUP__"
     }
+    if(is.null(group_VAR)){
+        group_VAR = "FAKE_GROUP__"
+        prof_dt[[group_VAR]] = "fake"
+    }
     clust_dt = seqsetvis::within_clust_sort(
         prof_dt,
         row_ = ct2@region_VAR,
