@@ -11,7 +11,8 @@
             }else{
                 # this does not show up well on light color background
                 # color_scale = c("#000004FF", "#51127CFF", "#B63679FF", "#FB8861FF", "#FCFDBFFF")
-                color_scale = c("gray80", "yellow", "orange", "red")
+                # color_scale = c("gray80", "yellow", "orange", "red")
+                color_scale = c("white", "red")
             }
         }
     }else{
