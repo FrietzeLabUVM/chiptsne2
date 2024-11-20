@@ -155,3 +155,17 @@ exampleBigWig_data.frame = function(){
     bigwig_config_df$file = file.path(pkg_dir, bigwig_config_df$file)
     bigwig_config_df
 }
+
+#' exampleDataPaths
+#'
+#' @return data.frame with URL paths to FE bigwigs and narrowPeak files.
+#' @export
+#'
+#' @examples
+#' exampleDataPaths()
+exampleDataPaths = function(){
+    url_dt = data.table::fread(system.file("extdata/example_data_paths.csv", package = "chiptsne2", mustWork = TRUE))
+    url_dt[, bw_file := paste0(cell, "_", mark, "_FE.bw")]
+    url_dt[, narrowPeak_file := paste0(cell, "_", mark, ".narrowPeak")]
+    url_dt[]
+}
