@@ -7,7 +7,8 @@
                                linewidth = 1.5,
                                moving_average_window = 1,
                                n_splines = 1,
-                               return_data = FALSE){
+                               return_data = FALSE,
+                               ...){
     all_VARS = unique(c(group_VAR, color_VAR, facet_VAR, extra_VARS))
     meta_VARS = setdiff(all_VARS, ct2@name_VAR)
     row_VARS = meta_VARS[meta_VARS %in% colnames(rowData(ct2))]
@@ -48,7 +49,7 @@
     ggplot(agg_dt,
            aes(x = !!x_, y = !!y_, color = !!color_VAR, group = !!group_)) +
         geom_path(linewidth = linewidth) +
-        facet_grid(paste0(group_VAR, "~", facet_VAR), labeller = label_both) +
+        facet_grid(paste0(group_VAR, "~", facet_VAR), ...) +
         labs(subtitle = plot_subtitle)
 }
 
@@ -77,6 +78,7 @@
 #' @param linewidth The pt width of lines plotted. Default is 1.5.
 #' @param moving_average_window The size of windows for moving average applied profiles points. Default is 1 (disabled).
 #' @param n_splines The number of splines to interpolate between profile points. Default is 1 (disabled).
+#' @param ... Additional parameters are passed to facet_grid
 #'
 #' @return ggplot2 of averaged signal profiles, potentially faceted in interesting ways.
 #' @export
@@ -135,7 +137,8 @@ setGeneric("plotSignalLinePlot", function(
         linewidth = 1.5,
         moving_average_window = 1,
         n_splines = 1,
-        return_data = FALSE)
+        return_data = FALSE,
+        ...)
     standardGeneric("plotSignalLinePlot"),
     signature = "ct2")
 

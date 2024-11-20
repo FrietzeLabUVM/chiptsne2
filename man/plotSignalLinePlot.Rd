@@ -14,7 +14,8 @@ plotSignalLinePlot(
   linewidth = 1.5,
   moving_average_window = 1,
   n_splines = 1,
-  return_data = FALSE
+  return_data = FALSE,
+  ...
 )
 
 \S4method{plotSignalLinePlot}{ChIPtsne2_no_rowRanges}(
@@ -26,7 +27,8 @@ plotSignalLinePlot(
   linewidth = 1.5,
   moving_average_window = 1,
   n_splines = 1,
-  return_data = FALSE
+  return_data = FALSE,
+  ...
 )
 }
 \arguments{
@@ -47,6 +49,8 @@ plotSignalLinePlot(
 \item{n_splines}{The number of splines to interpolate between profile points. Default is 1 (disabled).}
 
 \item{return_data}{If TRUE, return the data.table instead of creating a plot.}
+
+\item{...}{Additional parameters are passed to facet_grid}
 }
 \value{
 ggplot2 of averaged signal profiles, potentially faceted in interesting ways.
