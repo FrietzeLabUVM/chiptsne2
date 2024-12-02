@@ -44,13 +44,13 @@ test_that("aggregateByGroup variable names", {
     rowData(ct2)$all = "all"
 
     ct2.1col = aggregateSamplesByGroup(ct2, "mark")
-    expect_equal(getRegionVariable(ct2.1col), "id")
+    expect_equal(getRegionVariable(ct2.1col), "region")
     expect_equal(getNameVariable(ct2.1col), "mark")
 
 
     ct2.1row = aggregateRegionsByGroup(ct2, "all")
     expect_equal(getRegionVariable(ct2.1row), "all")
-    expect_equal(getNameVariable(ct2.1row), "sample")
+    expect_equal(getNameVariable(ct2.1row), "name")
 
     ct2.1x1 = aggregateByGroup(ct2, c("all", "mark"))
     expect_equal(getRegionVariable(ct2.1x1), "all")
@@ -65,7 +65,7 @@ test_that("aggregateByGroup variable names", {
     # plotSignalHeatmap(ct2.1x1)
 
     expect_equal(colnames(getRegionMetaData(ct2.1row)), c("all"))
-    expect_equal(colnames(getRegionMetaData(ct2.1col)), c("id", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF", "all"))
+    expect_equal(colnames(getRegionMetaData(ct2.1col)), c("region", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF", "all"))
     expect_equal(colnames(getRegionMetaData(ct2.1x1)), c("all"))
 
     expect_equal(nrow(getRegionMetaData(ct2.1row)), 1)

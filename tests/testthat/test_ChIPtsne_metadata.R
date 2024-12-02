@@ -5,9 +5,10 @@ library(testthat)
 
 query_gr = exampleQueryGR()
 prof_dt = exampleProfDT()
+prof_dt = translateSSVtoCT2(prof_dt)
 
-meta_dt = prof_dt %>% dplyr::select(sample) %>% unique
-meta_dt = meta_dt %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+meta_dt = prof_dt %>% dplyr::select(name) %>% unique
+meta_dt = meta_dt %>% tidyr::separate(name, c("cell", "mark"), sep = "_", remove = FALSE)
 
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 colData(ct2)
@@ -16,7 +17,7 @@ ct2.no_meta = ChIPtsne2.from_tidy(prof_dt, query_gr)
 colData(ct2.no_meta)
 
 prof_dt2 = data.table::copy(prof_dt)
-prof_dt2 = prof_dt2 %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+prof_dt2 = prof_dt2 %>% tidyr::separate(name, c("cell", "mark"), sep = "_", remove = FALSE)
 prof_dt2$extra = 1
 
 ct2.auto = ChIPtsne2.from_tidy(prof_dt2, query_gr)

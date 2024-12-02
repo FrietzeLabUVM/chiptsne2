@@ -6,13 +6,14 @@ library(testthat)
 query_gr = exampleQueryGR()
 prof_dt = exampleProfDT()
 meta_dt = prof_dt %>%
-    dplyr::select(sample) %>%
+    dplyr::select(name) %>%
     unique %>%
-    tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+    tidyr::separate(name, c("cell", "mark"), sep = "_", remove = FALSE)
+
 meta_dt$cap_value = seq(nrow(meta_dt))*5
 meta_dt$test_cap = seq(nrow(meta_dt))
 cap_values = meta_dt$cap_value
-names(cap_values) = meta_dt$sample
+names(cap_values) = meta_dt$name
 
 ct2.no_mr = ChIPtsne2.from_tidy(prof_dt, query_gr)
 ct2.mr = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)

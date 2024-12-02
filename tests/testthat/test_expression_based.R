@@ -23,7 +23,7 @@ test_that("subsetRegions - works", {
     ct2_1 = subsetRegions(ct2, peak_MCF10AT1_CTCF == TRUE)
     expect_equal(dim(ct2_1), c(74, 3))
 
-    ct2_2 = subsetRegions(ct2, id == "1")
+    ct2_2 = subsetRegions(ct2, region == "1")
     expect_equal(dim(ct2_2), c(1, 3))
 
     ct2_history = ChIPtsne2.history(ct2_1)
@@ -33,7 +33,7 @@ test_that("subsetRegions - works", {
 
 test_that("subsetSamples - works", {
     ct2_1 = subsetSamples(ct2, cell == "MCF10A")
-    ct2_2 = subsetSamples(ct2, sample == "MCF10A_CTCF")
+    ct2_2 = subsetSamples(ct2, name == "MCF10A_CTCF")
     expect_equal(dim(ct2_1), c(100, 1))
     expect_equal(dim(ct2_2), c(100, 1))
 
@@ -54,7 +54,7 @@ test_that("mutateRegions - works", {
     expect_equal(dim(ct2_1), c(100, 3))
     expect_equal(sum(rowData(ct2_1)$either_10a_or_at1), 99)
 
-    ct2_2 = mutateRegions(ct2, "silly", paste(id, peak_MCF10A_CTCF))
+    ct2_2 = mutateRegions(ct2, "silly", paste(region, peak_MCF10A_CTCF))
     expect_equal(dim(ct2_1), c(100, 3))
     expect_equal(sum(rowData(ct2_1)$either_10a_or_at1), 99)
 
@@ -78,7 +78,7 @@ test_that("mutateSamples - works", {
 
 test_that("separateRegions - works", {
     head(getRegionMetaData(ct2))
-    ct2_1 = mutateRegions(ct2, "silly", paste(id, as.character(peak_MCF10A_CTCF)))
+    ct2_1 = mutateRegions(ct2, "silly", paste(region, as.character(peak_MCF10A_CTCF)))
     rowData(ct2_1)
     ct2_1 = separateRegions(ct2_1, "silly", sep = " ", into = c("id2", "peak2"))
     rowData(ct2_1)
@@ -89,7 +89,7 @@ test_that("separateRegions - works", {
 })
 
 test_that("separateSamples - works", {
-    ct2_1 = separateSamples(ct2, col = "sample", into = c("cell2", "mark2"))
+    ct2_1 = separateSamples(ct2, col = "name", into = c("cell2", "mark2"))
     expect_equal(dim(ct2_1), c(100, 3))
     colData(ct2_1)
     expect_equal(colData(ct2_1)$cell, c("MCF10A", "MCF10AT1", "MCF10CA1"))
@@ -100,3 +100,4 @@ test_that("separateSamples - works", {
     ct2_history = ChIPtsne2.history(ct2_1)
     expect_equal(names(ct2_history)[[length(ct2_history)]], "separateSamples")
 })
+

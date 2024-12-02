@@ -6,25 +6,26 @@ library(testthat)
 query_gr = exampleQueryGR()
 prof_dt = exampleProfDT()
 
-metadata = prof_dt %>% dplyr::select(sample) %>% unique
-metadata = metadata %>% tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+metadata = prof_dt %>% dplyr::select(name) %>% unique
+metadata = metadata %>% tidyr::separate(name, c("cell", "mark"), sep = "_", remove = FALSE)
 
-map_dt = prof_dt %>% dplyr::select(sample, x) %>% unique %>%
-    dplyr::mutate(cn = paste(sample, x, sep = "_")) %>%
-    dplyr::mutate(nr = seq_along(x))
-map_list = split(map_dt$n, map_dt$sample)
+map_dt = prof_dt %>% dplyr::select(name, position) %>% unique %>%
+    dplyr::mutate(cn = paste(name, position, sep = "_")) %>%
+    dplyr::mutate(nr = seq_along(position))
 
-tmp_wide = tidyr::pivot_wider(prof_dt, names_from = c("sample", "x"), values_from = "y", id_cols = "id")
+map_list = split(map_dt$nr, map_dt$name)
+
+tmp_wide = tidyr::pivot_wider(prof_dt, names_from = c("name", "position"), values_from = "signal", id_cols = "region")
 prof_mat = as.matrix(tmp_wide[, -1])
-rownames(prof_mat) = tmp_wide$id
+rownames(prof_mat) = tmp_wide$region
 
 
 prof_max = prof_dt %>%
-    dplyr::group_by(id, sample) %>%
-    dplyr::summarise(y = max(y)) %>%
-    tidyr::pivot_wider(names_from = "sample", id_cols = "id", values_from = "y")
+    dplyr::group_by(region, name) %>%
+    dplyr::summarise(signal = max(signal)) %>%
+    tidyr::pivot_wider(names_from = "name", id_cols = "region", values_from = "signal")
 prof_max_mat = as.matrix(prof_max[, -1])
-rownames(prof_max_mat) = prof_max$id
+rownames(prof_max_mat) = prof_max$region
 
 ct = ChIPtsne2(assay = list(max = prof_max_mat[names(query_gr),]),
                rowRanges = query_gr,
@@ -34,14 +35,18 @@ ct = ChIPtsne2(assay = list(max = prof_max_mat[names(query_gr),]),
                metadata = list(time = date()))
 
 
-prof_dt = seqsetvis::ssvSignalClustering(prof_dt, nclust = 4)
-region_metadata = prof_dt %>% dplyr::select(id, cluster_id) %>% unique
+clust_dt = seqsetvis::ssvSignalClustering(prof_dt, nclust = 4, facet_ = "name", row_ = "region", column_ = "position", fill_ = "signal")
+# prof_dt = translateSSVtoCT2(prof_dt)
+# clust_dt = translateSSVtoCT2(clust_dt)
+
+region_metadata = clust_dt %>% dplyr::select(region, cluster_id) %>% unique
+
 
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, region_metadata = region_metadata)
 
 test_that("Constructors - valid", {
     expect_true(validObject(ct2))
-    expect_true(validObject(.ChIPtsne2())) # internal
+    expect_true(validObject(chiptsne2:::.ChIPtsne2())) # internal
     expect_true(validObject(ChIPtsne2())) # exported
 
     se = as(ct2, "SummarizedExperiment")
@@ -56,7 +61,7 @@ test_that("Constructors - invalid", {
 })
 
 test_that("Gettters", {
-    expect_identical(rowToRowMat(ct2), prof_mat[levels(prof_dt$id),])
+    expect_identical(rowToRowMat(ct2), prof_mat[unique(prof_dt$region),])
     expect_identical(rownames(rowToRowMat(ct2)), rownames(ct2))
     expect_identical(names(colToRowMatCols(ct2)), colnames(ct2))
 })
@@ -69,6 +74,7 @@ query_gr = exampleQueryGR()[1:10]
 suppressWarnings({
     ct2.cfg = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 })
+
 test_that("Constructor FetchConfig", {
     expect_setequal(rownames(rowToRowMat(ct2.cfg)), names(query_gr))
     expect_equal(ncol(rowToRowMat(ct2.cfg)), 400)

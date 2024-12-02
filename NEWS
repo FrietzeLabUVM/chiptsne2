@@ -1,3 +1,6 @@
+# v 0.1.49
+* changed all default VAR names
+
 # v 0.1.47
 * depends on bugfix in seqsetvis in 1.25.5
 

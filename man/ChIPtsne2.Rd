@@ -7,10 +7,10 @@
 ChIPtsne2(
   rowToRowMat = matrix(0, 0, 0),
   colToRowMatCols = list(),
-  name_VAR = "sample",
-  position_VAR = "x",
-  value_VAR = "y",
-  region_VAR = "id",
+  name_VAR = "name",
+  position_VAR = "position",
+  value_VAR = "signal",
+  region_VAR = "region",
   fetch_config = FetchConfig.null(),
   ...
 )

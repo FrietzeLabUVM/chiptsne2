@@ -4,8 +4,9 @@ library(testthat)
 
 ct2 = exampleChIPtsne2.with_meta()
 exp_row_cn = c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF",  "peak_MCF10CA1_CTCF")
-exp_col_cn = c("sample", "cell",  "mark")
-exp_min_cn = c("id", "x", "y", "sample")
+exp_col_cn = c("name", "cell",  "mark")
+# exp_min_cn = c("id", "x", "y", "sample")
+exp_min_cn = c("region", "position", "signal", "name")
 test_that("getTidyProfile basic", {
     prof_dt = getTidyProfile(ct2)
     expect_setequal(colnames(prof_dt), exp_min_cn)
@@ -30,3 +31,4 @@ test_that("getTidyProfile bad", {
     }, regexp = "Invalid meta_VARS specified.")
 
 })
+

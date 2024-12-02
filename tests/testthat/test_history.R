@@ -7,9 +7,9 @@ query_gr = exampleQueryGR()
 query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
 prof_dt = exampleProfDT()
 meta_dt = prof_dt %>%
-    dplyr::select(sample) %>%
+    dplyr::select(name) %>%
     unique %>%
-    tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+    tidyr::separate(name, c("cell", "mark"), sep = "_", remove = FALSE)
 
 ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 ct2.dupe = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)

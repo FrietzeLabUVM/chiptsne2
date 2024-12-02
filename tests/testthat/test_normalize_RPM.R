@@ -6,13 +6,13 @@ library(testthat)
 query_gr = exampleQueryGR()
 prof_dt = exampleProfDT()
 meta_dt = prof_dt %>%
-    dplyr::select(sample) %>%
+    dplyr::select(name) %>%
     unique %>%
-    tidyr::separate(sample, c("cell", "mark"), sep = "_", remove = FALSE)
+    tidyr::separate(name, c("cell", "mark"), sep = "_", remove = FALSE)
 meta_dt$mapped_reads = seq(nrow(meta_dt))
 meta_dt$test_mapped_reads = seq(nrow(meta_dt))*1000
 map_read = meta_dt$mapped_reads
-names(map_read) = meta_dt$sample
+names(map_read) = meta_dt$name
 
 ct2.no_mr = ChIPtsne2.from_tidy(prof_dt, query_gr)
 ct2.mr = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
@@ -39,3 +39,4 @@ test_that("normalizeSignalRPM", {
     names(map_read.bad) = NULL
     expect_error(normalizeSignalRPM(ct2.no_mr, mapped_reads_data = map_read.bad), "When mapped_reads_data is supplied, names must be set.")
 })
+

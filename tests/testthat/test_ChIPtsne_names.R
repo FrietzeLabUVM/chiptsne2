@@ -7,9 +7,9 @@ test_that("update_rownames", {
     ct2 = exampleChIPtsne2.with_meta()
     new_rn = paste0("row_", rownames(ct2))
     ct2.new_rn = update_ct2_rownames(ct2, new_names = new_rn)
-    expect_equal(ct2.new_rn@region_VAR, "id")
+    expect_equal(ct2.new_rn@region_VAR, "region")
     expect_equal(rownames(ct2.new_rn), new_rn)
-    expect_setequal(getTidyProfile(ct2.new_rn)$id, new_rn)
+    expect_setequal(getTidyProfile(ct2.new_rn)$region, new_rn)
     expect_equal(rownames(ct2.new_rn@assays@data$max), new_rn)
     expect_equal(rownames(ct2.new_rn@rowToRowMat), new_rn)
     expect_equal(names(rowRanges(ct2.new_rn)), new_rn)
@@ -19,7 +19,7 @@ test_that("update_rownames old_name_VAR and new_VAR", {
     update_ct2_rownames = chiptsne2:::.update_ct2_rownames
     ct2 = exampleChIPtsne2.with_meta()
     rowData(ct2)$new_id = paste0("new_", rownames(ct2))
-    ct2.new_rn = update_ct2_rownames(ct2, old_name_VAR = "id", new_VAR = "new_id")
+    ct2.new_rn = update_ct2_rownames(ct2, old_name_VAR = "region", new_VAR = "new_id")
 
 
     new_rn = paste0("new_", rownames(ct2))
@@ -40,9 +40,9 @@ test_that("update_colnames", {
     new_cn = sub("_CTCF", "", colnames(ct2))
 
     ct2.new_cn = update_ct2_colnames(ct2, new_cn)
-    expect_equal(ct2.new_cn@name_VAR, "sample")
-    expect_setequal(getTidyProfile(ct2.new_cn)$sample, c("MCF10A", "MCF10AT1", "MCF10CA1"))
-    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c("id", "x", "y", "sample"))
+    expect_equal(ct2.new_cn@name_VAR, "name")
+    expect_setequal(getTidyProfile(ct2.new_cn)$name, c("MCF10A", "MCF10AT1", "MCF10CA1"))
+    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c( "region",  "position", "signal", "name"))
 
     expect_equal(rownames(ct2.new_cn@colData), c("MCF10A", "MCF10AT1", "MCF10CA1"))
     expect_equal(rownames(colData(ct2.new_cn)), c("MCF10A", "MCF10AT1", "MCF10CA1"))
@@ -62,10 +62,10 @@ test_that("update_colnames old_name_VAR and new_VAR", {
     update_ct2_colnames = chiptsne2:::.update_ct2_colnames
     ct2 = exampleChIPtsne2.with_meta()
 
-    ct2.new_cn = update_ct2_colnames(ct2, old_name_VAR = "sample", new_VAR = "cell")
+    ct2.new_cn = update_ct2_colnames(ct2, old_name_VAR = "name", new_VAR = "cell")
     expect_equal(ct2.new_cn@name_VAR, "cell")
     expect_setequal(getTidyProfile(ct2.new_cn)$cell, c("MCF10A", "MCF10AT1", "MCF10CA1"))
-    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c("id", "x", "y", "cell"))
+    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c( "region",  "position", "signal", "cell"))
 
     expect_equal(rownames(ct2.new_cn@colData), c("MCF10A", "MCF10AT1", "MCF10CA1"))
     expect_equal(rownames(colData(ct2.new_cn)), c("MCF10A", "MCF10AT1", "MCF10CA1"))

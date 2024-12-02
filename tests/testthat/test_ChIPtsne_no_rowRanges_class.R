@@ -18,7 +18,7 @@ test_that("valid ChIPtsne2_no_rowRanges from constructor", {
     expect_equal(rownames(rowData(ct2.nrr))[1:5], c("1", "2", "3", "4", "5"))
     reg_meta = getRegionMetaData(ct2.nrr)
 
-    expect_equal(colnames(reg_meta), c("id", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
+    expect_equal(colnames(reg_meta), c("region", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
     expect_equal(rownames(reg_meta)[1:5], c("1", "2", "3", "4", "5"))
 })
 
@@ -32,7 +32,7 @@ test_that("valid ChIPtsne2_no_rowRanges from nullify rowRanges", {
     expect_equal(rownames(rowData(ct2.nrr))[1:5], c("1", "2", "3", "4", "5"))
     reg_meta = getRegionMetaData(ct2.nrr)
 
-    expect_equal(colnames(reg_meta), c("id", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
+    expect_equal(colnames(reg_meta), c("region", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
     expect_equal(rownames(reg_meta)[1:5], c("1", "2", "3", "4", "5"))
 })
 
@@ -46,7 +46,7 @@ test_that("valid ChIPtsne2_no_rowRanges from tidy", {
     expect_equal(rownames(rowData(ct2.nrr))[1:5], c("1", "2", "3", "4", "5"))
     reg_meta = getRegionMetaData(ct2.nrr)
 
-    expect_equal(colnames(reg_meta), c("id", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
+    expect_equal(colnames(reg_meta), c("region", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
     expect_equal(rownames(reg_meta)[1:5], c("1", "2", "3", "4", "5"))
 })
 
@@ -115,3 +115,4 @@ test_that("ChIPtsne2 []", {
     expect_equal(nrow(colData(ct2.1x1)), 1)
     expect_equal(nrow(colData(ct2.nrr.1x1)), 1)
 })
+

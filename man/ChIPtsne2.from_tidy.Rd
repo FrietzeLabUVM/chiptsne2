@@ -9,10 +9,10 @@ ChIPtsne2.from_tidy(
   query_gr,
   sample_metadata = NULL,
   region_metadata = NULL,
-  name_VAR = "sample",
-  position_VAR = "x",
-  value_VAR = "y",
-  region_VAR = "id",
+  name_VAR = "name",
+  position_VAR = "position",
+  value_VAR = "signal",
+  region_VAR = "region",
   auto_sample_metadata = TRUE,
   obj_history = list(),
   fetch_config = FetchConfig.null(),
@@ -28,13 +28,13 @@ ChIPtsne2.from_tidy(
 
 \item{region_metadata}{Metadata to append to rowRanges, mcols of query_gr will also be used.}
 
-\item{name_VAR}{Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "sample".}
+\item{name_VAR}{Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "name".}
 
-\item{position_VAR}{Variable name that contains positional information in prof_dt. Default is "x".}
+\item{position_VAR}{Variable name that contains positional information in prof_dt. Default is "position".}
 
-\item{value_VAR}{Variable name that contains signal value information in prof_dt. Default is "y".}
+\item{value_VAR}{Variable name that contains signal value information in prof_dt. Default is "signal".}
 
-\item{region_VAR}{Variable name that contains region ID information in prof_dt. Default is "id".}
+\item{region_VAR}{Variable name that contains region ID information in prof_dt. Default is "region".}
 
 \item{auto_sample_metadata}{If true, additional attributes in prof_dt will used for metadata (minus certain region related attributes such as seqnames, start, end, etc.)}
 

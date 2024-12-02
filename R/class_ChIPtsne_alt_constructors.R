@@ -2,10 +2,10 @@
 #'
 #' @param prof_dt Profile data.table, as returned from seqsetvis::ssvFetch* functions
 #' @param query_gr The query GRanges object used to fetch prof_dt.
-#' @param name_VAR Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "sample".
-#' @param position_VAR Variable name that contains positional information in prof_dt. Default is "x".
-#' @param value_VAR Variable name that contains signal value information in prof_dt. Default is "y".
-#' @param region_VAR Variable name that contains region ID information in prof_dt. Default is "id".
+#' @param name_VAR Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "name".
+#' @param position_VAR Variable name that contains positional information in prof_dt. Default is "position".
+#' @param value_VAR Variable name that contains signal value information in prof_dt. Default is "signal".
+#' @param region_VAR Variable name that contains region ID information in prof_dt. Default is "region".
 #' @param sample_metadata Metadata for entries in prof_dt's name_VAR, must include name_VAR
 #' @param region_metadata Metadata to append to rowRanges, mcols of query_gr will also be used.
 #' @param auto_sample_metadata If true, additional attributes in prof_dt will used for metadata (minus certain region related attributes such as seqnames, start, end, etc.)
@@ -30,10 +30,10 @@ ChIPtsne2.from_tidy = function(prof_dt,
                                query_gr,
                                sample_metadata = NULL,
                                region_metadata = NULL,
-                               name_VAR = "sample",
-                               position_VAR = "x",
-                               value_VAR = "y",
-                               region_VAR = "id",
+                               name_VAR = "name",
+                               position_VAR = "position",
+                               value_VAR = "signal",
+                               region_VAR = "region",
                                auto_sample_metadata = TRUE,
                                obj_history = list(),
                                fetch_config = FetchConfig.null(),
@@ -135,12 +135,10 @@ ChIPtsne2.from_tidy = function(prof_dt,
                           "end",
                           "width",
                           "strand",
-                          "id",
-                          "y",
-                          "x",
-                          "cluster_id",
-                          position_VAR,
-                          value_VAR)
+                          region_VAR,
+                          value_VAR,
+                          position_VAR
+                          )
             sample_metadata = prof_dt %>%
                 # dplyr::select(all_of(c(name_VAR))) %>%
                 dplyr::select(!dplyr::any_of(c(drop_vars))) %>%
@@ -253,7 +251,7 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
 
     fetch_res = runFetchAtRegions(fetch_config, query_gr, use_cache = use_cache)
     prof_dt = fetch_res$prof_dt
-
+    prof_dt = translateSSVtoCT2(prof_dt)
     ct2 = ChIPtsne2.from_tidy(prof_dt = prof_dt,
                               name_VAR = name_VAR,
                               query_gr = query_gr,

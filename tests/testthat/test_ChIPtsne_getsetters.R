@@ -5,25 +5,25 @@ library(testthat)
 ct2 = exampleChIPtsne2.with_meta()
 
 test_that("NameVariable", {
-    expect_equal(getNameVariable(ct2), "sample")
+    expect_equal(getNameVariable(ct2), "name")
     ct2.new = setNameVariable(ct2, "Name")
     expect_equal(getNameVariable(ct2.new), "Name")
 })
 
 test_that("RegionVariable", {
-    expect_equal(getRegionVariable(ct2), "id")
+    expect_equal(getRegionVariable(ct2), "region")
     ct2.new = setRegionVariable(ct2, "Region")
     expect_equal(getRegionVariable(ct2.new), "Region")
 })
 
 test_that("PositionVariable", {
-    expect_equal(getPositionVariable(ct2), "x")
+    expect_equal(getPositionVariable(ct2), "position")
     ct2.new = setPositionVariable(ct2, "Position")
     expect_equal(getPositionVariable(ct2.new), "Position")
 })
 
 test_that("ValueVariable", {
-    expect_equal(getValueVariable(ct2), "y")
+    expect_equal(getValueVariable(ct2), "signal")
     ct2.new = setValueVariable(ct2, "Value")
     expect_equal(getValueVariable(ct2.new), "Value")
 })
@@ -79,7 +79,7 @@ test_that("Switch name variable to smaller set", {
     ct2.10a = swapNameVariable(ct2.by_cell$MCF10A, new_VAR = "mark")
     expect_equal(getNameVariable(ct2.10a), "mark")
     expect_equal(getSampleMetaData(ct2.10a)$mark, factor("CTCF"))
-    expect_equal(getSampleMetaData(ct2.10a)$sample, "MCF10A_CTCF")
+    expect_equal(getSampleMetaData(ct2.10a)$name, "MCF10A_CTCF")
     expect_equal(colnames(rowToRowMat(ct2.10a))[1], "CTCF_-325")
 })
 
@@ -89,7 +89,7 @@ test_that("When names match for operator", {
     ct2.diff = ct2.by_cell$MCF10A - ct2.by_cell$MCF10AT1
     expect_equal(colnames(rowToRowMat(ct2.diff))[1], "CTCF_-325")
     ct2.diff1 = swapNameVariable(ct2.diff, new_VAR = "cell")
-    ct2.diff2 = swapNameVariable(ct2.diff, new_VAR = "sample")
+    ct2.diff2 = swapNameVariable(ct2.diff, new_VAR = "name")
     expect_equal(colnames(ct2.diff1), "MCF10A - MCF10AT1")
     expect_equal(colnames(rowToRowMat(ct2.diff1))[1], "MCF10A - MCF10AT1_-325")
     expect_equal(colnames(ct2.diff2), "MCF10A_CTCF - MCF10AT1_CTCF")
@@ -101,7 +101,7 @@ test_that("Switch name variable same set", {
     expect_equal(getNameVariable(ct2.name_cell), "cell")
     expect_equal(getSampleMetaData(ct2.name_cell)$mark, rep("CTCF", 3))
     expect_equal(colnames(rowToRowMat(ct2.name_cell))[1], "MCF10A_-325")
-    expect_equal(getSampleMetaData(ct2.name_cell)$sample, c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"))
+    expect_equal(getSampleMetaData(ct2.name_cell)$name, c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"))
 })
 
 

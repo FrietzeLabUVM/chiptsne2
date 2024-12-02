@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 3, fig.height = 3)
 ```
 
 # Introduction
@@ -23,13 +23,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 *chiptsne2* key features:
 
-1. *ChIPtsne2* class implemented as an extension of the bioc *SummarizedExperiment* class. This provides greater usability right of the bat.
+1. `ChIPtsne2` class implemented as an extension of the bioc `SummarizedExperiment` and, when appropriate, `RangedSummarizedExperiment` classes. This provides greater usability right of the bat.
 
-2. Since you have to create a *ChIPtsne2* object, we can catch errors early and provide useful feedback to resolve them.
+2. Since you have to create a `ChIPtsne2` object, we can catch errors early and provide useful feedback to resolve them.
 
-3. All package methods are build for use with the [magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) pipe, %>%. This enables concise and readable workflows.
+3. All package methods are built for use with the [magrittr](https://cran.r-project.org/web/packages/magrittr/vignettes/magrittr.html) pipe, %>%. This enables concise and readable workflows.
 
-4. *ChIPtsne2* objects maintain a history of all package methods applied to them. Importantly, the history from one object can be applied to any number of other objects.  This allows for workflows to be developed and reproducibly deployed.
+4. `ChIPtsne2` objects maintain a history of all package methods applied to them. Importantly, the history from one object can be applied to any number of other objects.  This allows for workflows to be developed and reproducibly deployed.
 
 # Setting up
 
@@ -43,6 +43,7 @@ library(tidyverse)
 # GenomicRanges is a primary Bioconductor package for manipulating genomic 
 # intervals, ie. ChIP-seq peaks, TSSes etc.
 library(GenomicRanges)    
+# library(data.table)
 # Setting mc.cores allows chiptsne2 to use multiple threads and speed up many 
 # functions
 options(mc.cores = 20)
@@ -50,44 +51,90 @@ options(mc.cores = 20)
 
 # Quick start
 
+*chiptsne2* provides some toy example data (100 regions in 3 samples) that we can quickly use to demonstrate it's primary functions. Most functions require a `ChIPtsne2` object, therefore we need to look at how to create those.
+
+## Creating the object
+
+There are several ways to create a `ChIPtsne2` object. These objects extend `SummarizedExperiment` and, when appropriate, `RangedSummarizedExperiment`. They contain signal profiles at arbitrary resolutions for one or more samples (columns) at potentially 10s of thousands of regions (rows).
+
+*chipstne2* will handle fetching signal profiles if create a `FetchConfig` object to tell it how to do so.
+
+```{r quick create ct2}
+# the simplest way to create a FetchConfig is from a character vector of file paths.
+bam_files = exampleBamFiles()
+cfg_from_files = FetchConfig.from_files(bam_files)
+
+# query regions are stored in a GRanges object.
+query_gr = exampleQueryGR()
+
+# this will take a bit of time to run as it has to retrieve signal profiles for the regions provided.
+ct2_from_files = ChIPtsne2.from_FetchConfig(cfg_from_files, query_gr)
+```
+
+There are more powerful and flexible ways to create the `FetchConfig` and `ChIPtsne2` objects. See the full details [here](#create-chiptsne2-object).
+
+For now, we'll skip to using the example `ChIPtsne2` object from the package.
+
+```{r quick pkg ct2}
+ct2 = exampleChIPtsne2.with_meta()
+```
+
+This is a barebones *chiptsne2* workflow.
+
+```{r quick workflow}
+ct2 = ct2 %>% 
+    dimReduceTSNE(perplexity = 25) %>%
+    groupRegionsBySignalCluster(group_VAR = "cluster_id", n_clusters = 3) %>%
+    groupRegionsByDimReduceCluster(group_VAR = "knn_id", nearest_neighbors = 15) 
+```
+
+```{r quick heatmap}
+plotSignalHeatmap(ct2)
+```
+
 ```{r}
-dir("../inst/extdata", pattern = "bam$")
-dir("../inst/extdata")
-exampleBamFiles()
-exampleQueryGR()
-exampleChIPtsne2()
+plotSignalHeatmap(ct2, group_VARS = "cluster_id")
 ```
 
 
 # Download full dataset
 
 
-```{r}
-library(data.table)
-library(GenomicRanges)
-url_dt = fread("../inst/extdata/example_data_paths.csv")
-url_dt[, bw_file := paste0(cell, "_", mark, "_FE.bw")]
-url_dt[, narrowPeak_file := paste0(cell, "_", mark, ".narrowPeak")]
+```{r example data dl}
+#chiptsne2 has URL paths to example bigwig and and peak files to use
+url_df = exampleDataPaths()
 
+#this is where data files will be downloaded to
 dl_dir = "ct2_data_download"
 dir.create(dl_dir, recursive = TRUE, showWarnings = FALSE)
 
-url_dt[, bw_file := file.path(dl_dir, bw_file)]
-url_dt[, narrowPeak_file := file.path(dl_dir, narrowPeak_file)]
+#create final download paths
+url_df = url_df %>% 
+    mutate(bw_file = file.path(dl_dir, bw_file)) %>%
+    mutate(narrowPeak_file = file.path(dl_dir, narrowPeak_file))
 
-for(i in seq_len(nrow(url_dt))){
-    message(url_dt$cell[i])
-    if(!file.exists(url_dt$bw_file[i])){
-        curl::curl_download(url_dt$bw_url[i], url_dt$bw_file[i])
+#use curl to download the example data
+for(i in seq_len(nrow(url_df))){
+    message(url_df$cell[i])
+    if(!file.exists(url_df$bw_file[i])){
+        curl::curl_download(url_df$bw_url[i], url_df$bw_file[i])
     }
-    if(!file.exists(url_dt$narrowPeak_file[i])){
-        curl::curl_download(url_dt$narrowPeak_url[i], url_dt$narrowPeak_file[i])
+    if(!file.exists(url_df$narrowPeak_file[i])){
+        curl::curl_download(url_df$narrowPeak_url[i], url_df$narrowPeak_file[i])
     }
 }
 
 ```
 
 # Create ChIPtsne2 object
+
+if you supply a data.frame linking these paths to meta data that will be useful later.
+```{r}
+bam_df = exampleBam_data.frame()
+cfg_from_df = FetchConfig(bam_df)
+
+chiptsne2::ChIPtsne2.from_FetchConfig()
+```
 
 ```{r}
 print(load("/slipstream/home/joeboyd/R/csaw_test/DB_csaw_results.AF.save"))
@@ -98,7 +145,7 @@ diff_any = union(diff_10a_to_at1, diff_at1_to_ca1)
 ```
 
 ```{r}
-np_grs = seqsetvis::easyLoad_narrowPeak(url_dt$narrowPeak_file, url_dt$cell)
+np_grs = seqsetvis::easyLoad_narrowPeak(url_df$narrowPeak_file, url_df$cell)
 seqsetvis::ssvFeatureUpset(np_grs)
 ```
 
@@ -122,9 +169,7 @@ qgr = c(qgr.diff, qgr.ns)
 ```
 
 ```{r}
-library(chiptsne2)
-
-cfg = FetchConfig(url_dt[, .(bw_file, cell, mark)], read_mode = "bigwig")
+cfg = FetchConfig(url_df[, .(bw_file, cell, mark)], read_mode = "bigwig")
 ct2 = ChIPtsne2.from_FetchConfig(cfg, qgr)
 ct2 = mutateSamples(ct2, mutate_name = "name2", mutate_expression = paste(cell, mark))
 ct2 = swapNameVariable(ct2, "name2")

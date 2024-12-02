@@ -25,7 +25,7 @@ ct2.agg = aggregateSamplesByGroup(ct2, group_VAR = "cell")
 colData(ct2.agg)
 
 getNameVariable(ct2)
-ct2.sp = split(ct2, "sample")
+ct2.sp = split(ct2, "name")
 
 ct2.10a = (ct2.sp$MCF10A_rep1 + ct2.sp$MCF10A_rep2) / 2
 ct2.at1 = (ct2.sp$MCF10AT1_rep1 + ct2.sp$MCF10AT1_rep2) / 2
@@ -36,3 +36,4 @@ colnames(ct2.avg) = c("MCF10A", "MCF10AT1")
 ct2.avg = swapNameVariable(ct2.avg, "cell")
 
 colData(ct2.avg)
+
