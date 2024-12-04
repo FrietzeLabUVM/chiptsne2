@@ -167,6 +167,8 @@ exampleBigWig_data.frame = function(){
 #' @examples
 #' exampleDataPaths()
 exampleDataPaths = function(){
+    #visible binding NOTE
+    bw_file = cell = `:=` = mark = narrowPeak_file = NULL
     url_dt = data.table::fread(system.file("extdata/example_data_paths.csv", package = "chiptsne2", mustWork = TRUE))
     url_dt[, bw_file := paste0(cell, "_", mark, "_FE.bw")]
     url_dt[, narrowPeak_file := paste0(cell, "_", mark, ".narrowPeak")]

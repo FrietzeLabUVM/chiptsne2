@@ -554,8 +554,8 @@ setMethod("groupRegionsByValues", c("ChIPtsne2_no_rowRanges"), .groupRegionsByVa
 #'   uses hierarchical clustering, 3) "left" which puts most left tiled profiles
 #'   at top, and 4) "right" which puts most right tilted profiles at top. 5)
 #'   "none" does no new sorting and relies on current order set by
-#'   `sortRegions`. 6) "reverse" is like "none" but the current rder will be
-#'   reversed. c("hclust", "sort", "left", "right", "none", "reverse")[2]
+#'   `sortRegions`. 6) "reverse" is like "none" but the current order will be
+#'   reversed.
 #' @param group_VAR `r doc_group_VAR()`
 #'
 #' @return `r doc_ct2_nrr()` with rows sorted by `group_VAR` and within groups by signal decreasing.

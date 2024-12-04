@@ -13,7 +13,7 @@
 metadata. Default of NULL will select all available region metadata
 variables.}
 
-\item{include_value_max}{If TRUE, values from max assay slot will be inlcuded per region. Default is FALSE.}
+\item{include_value_max}{If TRUE, values from max assay slot will be included per region. Default is FALSE.}
 }
 \value{
 data.frame with region meta data, similar to rowRanges but suitable

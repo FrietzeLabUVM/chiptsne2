@@ -24,6 +24,7 @@
 #' query_gr = CTCF_in_10a_overlaps_gr
 #' data(CTCF_in_10a_profiles_dt)
 #' prof_dt = CTCF_in_10a_profiles_dt
+#' prof_dt = translateSSVtoCT2(prof_dt)
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr)
 #' ct2
 ChIPtsne2.from_tidy = function(prof_dt,

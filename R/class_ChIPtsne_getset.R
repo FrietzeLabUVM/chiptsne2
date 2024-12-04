@@ -385,7 +385,7 @@ setMethod("getMaxValueData", "ChIPtsne2_no_rowRanges", .getMaxValueData)
 #' @param select_VARS character vector of variables to select from region
 #'   metadata. Default of NULL will select all available region metadata
 #'   variables.
-#' @param include_value_max If TRUE, values from max assay slot will be inlcuded per region. Default is FALSE.
+#' @param include_value_max If TRUE, values from max assay slot will be included per region. Default is FALSE.
 #'
 #' @return data.frame with region meta data, similar to rowRanges but suitable
 #'   for tidyverse operations.

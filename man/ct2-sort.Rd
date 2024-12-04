@@ -25,8 +25,8 @@ are: 1) "sort", which sorts decreasing top to bottom, 2) "hclust" which
 uses hierarchical clustering, 3) "left" which puts most left tiled profiles
 at top, and 4) "right" which puts most right tilted profiles at top. 5)
 "none" does no new sorting and relies on current order set by
-\code{sortRegions}. 6) "reverse" is like "none" but the current rder will be
-reversed. c("hclust", "sort", "left", "right", "none", "reverse")\link{2}}
+\code{sortRegions}. 6) "reverse" is like "none" but the current order will be
+reversed.}
 
 \item{group_VAR}{Attribute name to add to rowData for storing new row/region grouping assignment. Will be overwritten if it exists.}
 }
