@@ -9,7 +9,7 @@ ChIPtsne2_no_rowRanges(
   colToRowMatCols = list(),
   name_VAR = "name",
   position_VAR = "position",
-  value_VAR = value,
+  value_VAR = "value",
   region_VAR = "region",
   fetch_config = FetchConfig.null(),
   ...
