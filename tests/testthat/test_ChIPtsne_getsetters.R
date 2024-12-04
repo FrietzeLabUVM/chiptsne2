@@ -23,7 +23,7 @@ test_that("PositionVariable", {
 })
 
 test_that("ValueVariable", {
-    expect_equal(getValueVariable(ct2), "signal")
+    expect_equal(getValueVariable(ct2), "value")
     ct2.new = setValueVariable(ct2, "Value")
     expect_equal(getValueVariable(ct2.new), "Value")
 })

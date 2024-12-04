@@ -211,7 +211,7 @@ prep_summary = function (profile_dt,
                        allow.cartesian = TRUE,
                        by = intersect(colnames(profile_dt), c(region_VAR)))
     if (is.null(summary_dt[[color_VAR]]))
-        summary_dt[[color_VAR]] = "signal"
+        summary_dt[[color_VAR]] = "value"
     # think NULL facet_by is fine here
     # if (is.null(facet_by)) {
     #     summary_dt = summary_dt[, list(y_tmp_ = mean(get(value_VAR))), c(unique(c("bx", "by", position_VAR, color_VAR, extra_VARS)))]

@@ -11,7 +11,7 @@ ChIPtsne2.from_tidy(
   region_metadata = NULL,
   name_VAR = "name",
   position_VAR = "position",
-  value_VAR = "signal",
+  value_VAR = value,
   region_VAR = "region",
   auto_sample_metadata = TRUE,
   obj_history = list(),
@@ -32,7 +32,7 @@ ChIPtsne2.from_tidy(
 
 \item{position_VAR}{Variable name that contains positional information in prof_dt. Default is "position".}
 
-\item{value_VAR}{Variable name that contains signal value information in prof_dt. Default is "signal".}
+\item{value_VAR}{Variable name that contains signal value information in prof_dt. Default is value.}
 
 \item{region_VAR}{Variable name that contains region ID information in prof_dt. Default is "region".}
 

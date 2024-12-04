@@ -203,7 +203,7 @@ translateSSVtoCT2 = function(prof_dt){
         data.table::setnames(prof_dt, "sample", "name")
     }
     if("y" %in% colnames(prof_dt)){
-        data.table::setnames(prof_dt, "y", "signal")
+        data.table::setnames(prof_dt, "y", "value")
     }
     prof_dt[]
 }

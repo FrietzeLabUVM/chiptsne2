@@ -15,7 +15,7 @@ map_dt = prof_dt %>% dplyr::select(name, position) %>% unique %>%
 
 map_list = split(map_dt$nr, map_dt$name)
 
-tmp_wide = tidyr::pivot_wider(prof_dt, names_from = c("name", "position"), values_from = "signal", id_cols = "region")
+tmp_wide = tidyr::pivot_wider(prof_dt, names_from = c("name", "position"), values_from = "value", id_cols = "region")
 prof_mat = as.matrix(tmp_wide[, -1])
 rownames(prof_mat) = tmp_wide$region
 
@@ -23,7 +23,7 @@ rownames(prof_mat) = tmp_wide$region
 prof_max = prof_dt %>%
     dplyr::group_by(region, name) %>%
     dplyr::summarise(signal = max(signal)) %>%
-    tidyr::pivot_wider(names_from = "name", id_cols = "region", values_from = "signal")
+    tidyr::pivot_wider(names_from = "name", id_cols = "region", values_from = "value")
 prof_max_mat = as.matrix(prof_max[, -1])
 rownames(prof_max_mat) = prof_max$region
 
@@ -35,7 +35,7 @@ ct = ChIPtsne2(assay = list(max = prof_max_mat[names(query_gr),]),
                metadata = list(time = date()))
 
 
-clust_dt = seqsetvis::ssvSignalClustering(prof_dt, nclust = 4, facet_ = "name", row_ = "region", column_ = "position", fill_ = "signal")
+clust_dt = seqsetvis::ssvSignalClustering(prof_dt, nclust = 4, facet_ = "name", row_ = "region", column_ = "position", fill_ = "value")
 # prof_dt = translateSSVtoCT2(prof_dt)
 # clust_dt = translateSSVtoCT2(clust_dt)
 

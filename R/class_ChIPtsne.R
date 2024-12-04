@@ -50,7 +50,7 @@ ChIPtsne2 = function(
         colToRowMatCols=list(),
         name_VAR = "name",
         position_VAR = "position",
-        value_VAR = "signal",
+        value_VAR = "value",
         region_VAR = "region",
         fetch_config = FetchConfig.null(),
         ...)

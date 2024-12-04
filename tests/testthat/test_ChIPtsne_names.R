@@ -42,7 +42,7 @@ test_that("update_colnames", {
     ct2.new_cn = update_ct2_colnames(ct2, new_cn)
     expect_equal(ct2.new_cn@name_VAR, "name")
     expect_setequal(getTidyProfile(ct2.new_cn)$name, c("MCF10A", "MCF10AT1", "MCF10CA1"))
-    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c( "region",  "position", "signal", "name"))
+    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c( "region",  "position", "value", "name"))
 
     expect_equal(rownames(ct2.new_cn@colData), c("MCF10A", "MCF10AT1", "MCF10CA1"))
     expect_equal(rownames(colData(ct2.new_cn)), c("MCF10A", "MCF10AT1", "MCF10CA1"))
@@ -65,7 +65,7 @@ test_that("update_colnames old_name_VAR and new_VAR", {
     ct2.new_cn = update_ct2_colnames(ct2, old_name_VAR = "name", new_VAR = "cell")
     expect_equal(ct2.new_cn@name_VAR, "cell")
     expect_setequal(getTidyProfile(ct2.new_cn)$cell, c("MCF10A", "MCF10AT1", "MCF10CA1"))
-    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c( "region",  "position", "signal", "cell"))
+    expect_setequal(colnames(getTidyProfile(ct2.new_cn)), c( "region",  "position", "value", "cell"))
 
     expect_equal(rownames(ct2.new_cn@colData), c("MCF10A", "MCF10AT1", "MCF10CA1"))
     expect_equal(rownames(colData(ct2.new_cn)), c("MCF10A", "MCF10AT1", "MCF10CA1"))

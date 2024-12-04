@@ -22,7 +22,7 @@ colData(ct2)
 prof_dt1.true = getTidyProfile(ct2, meta_VARS = TRUE)
 
 test_that("Conversion", {
-    expect_setequal(colnames(prof_dt1), c("region", "position", "signal", "name"))
-    expect_setequal(colnames(prof_dt1.cell), c("region", "position", "signal", "name", "cell"))
-    expect_setequal(colnames(prof_dt1.true), c("region", "position", "signal", "name", "cell", "mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
+    expect_setequal(colnames(prof_dt1), c("region", "position", "value", "name"))
+    expect_setequal(colnames(prof_dt1.cell), c("region", "position", "value", "name", "cell"))
+    expect_setequal(colnames(prof_dt1.true), c("region", "position", "value", "name", "cell", "mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
 })

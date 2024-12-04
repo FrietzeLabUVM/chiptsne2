@@ -4,7 +4,7 @@
 #' @param query_gr The query GRanges object used to fetch prof_dt.
 #' @param name_VAR Variable name that contains sample ids/names. Links prof_dt to meta_dt. Default is "name".
 #' @param position_VAR Variable name that contains positional information in prof_dt. Default is "position".
-#' @param value_VAR Variable name that contains signal value information in prof_dt. Default is "signal".
+#' @param value_VAR Variable name that contains signal value information in prof_dt. Default is "value".
 #' @param region_VAR Variable name that contains region ID information in prof_dt. Default is "region".
 #' @param sample_metadata Metadata for entries in prof_dt's name_VAR, must include name_VAR
 #' @param region_metadata Metadata to append to rowRanges, mcols of query_gr will also be used.
@@ -33,7 +33,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
                                region_metadata = NULL,
                                name_VAR = "name",
                                position_VAR = "position",
-                               value_VAR = "signal",
+                               value_VAR = "value",
                                region_VAR = "region",
                                auto_sample_metadata = TRUE,
                                obj_history = list(),
