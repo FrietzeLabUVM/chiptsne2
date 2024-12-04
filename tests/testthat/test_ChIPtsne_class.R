@@ -22,7 +22,7 @@ rownames(prof_mat) = tmp_wide$region
 
 prof_max = prof_dt %>%
     dplyr::group_by(region, name) %>%
-    dplyr::summarise(signal = max(signal)) %>%
+    dplyr::summarise(value = max(value)) %>%
     tidyr::pivot_wider(names_from = "name", id_cols = "region", values_from = "value")
 prof_max_mat = as.matrix(prof_max[, -1])
 rownames(prof_max_mat) = prof_max$region
