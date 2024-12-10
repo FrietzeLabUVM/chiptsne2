@@ -25,7 +25,7 @@ split-ChIPtsne2_no_rowRanges
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
-split(ct2, "sample")
+split(ct2, "name")
 split(ct2, colnames(ct2))
 split(ct2, "cell")
 split(ct2, "peak_MCF10CA1_CTCF")

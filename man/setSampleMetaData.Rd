@@ -22,12 +22,12 @@ setSampleMetaData
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 getSampleMetaData(ct2)
-new_meta = data.frame(sample = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"), id = seq(3))
+new_meta = data.frame(name = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"), id1 = seq(3))
 ct2 = setSampleMetaData(ct2, new_meta)
 getSampleMetaData(ct2)
 
 #metadata may be overriden
-new_meta2 = data.frame(id = LETTERS[seq(3)], id2 = LETTERS[seq(3)])
+new_meta2 = data.frame(id1 = LETTERS[seq(3)], id2 = LETTERS[seq(3)])
 rownames(new_meta2) = c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF")
 ct2 = setSampleMetaData(ct2, new_meta2)
 getSampleMetaData(ct2)

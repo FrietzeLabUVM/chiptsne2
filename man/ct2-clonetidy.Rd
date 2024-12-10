@@ -73,7 +73,7 @@ plotSignalLinePlot(ct2)
 # one applicatation of cloning would be to extract tidy profiles,
 # modify somehow, and then reinsert.
 prof_dt = getTidyProfile(ct2)
-prof_dt[sample == "MCF10A_CTCF", y := y/4]
+prof_dt[name == "MCF10A_CTCF", value := value/4]
 ct2.clone1 = cloneChIPtsne2_fromTidy(ct2, new_prof_dt = prof_dt)
 plotSignalLinePlot(ct2.clone1)
 }

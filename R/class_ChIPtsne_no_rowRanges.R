@@ -318,7 +318,7 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
 #' @export
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
-#' split(ct2, "sample")
+#' split(ct2, "name")
 #' split(ct2, colnames(ct2))
 #' split(ct2, "cell")
 #' split(ct2, "peak_MCF10CA1_CTCF")

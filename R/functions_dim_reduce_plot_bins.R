@@ -183,13 +183,13 @@ setMethod("plotDimReduceBins", c("ChIPtsne2_no_rowRanges"), .plotDimReduceBins)
 
 aggregate_signals = function(profile_dt,
                              agg_FUN = max,
-                             x_ = "x",
-                             y_ = "y",
-                             id_ = "id",
-                             yout_ = "y",
+                             x_ = "position",
+                             y_ = "value",
+                             id_ = "region",
+                             yout_ = y_,
                              xmin = -Inf,
                              xmax = Inf,
-                             by_ = c("sample")){
+                             by_ = c("name")){
     agg_dt = profile_dt[get(x_) >= xmin & get(x_) <= xmax,
                         list(val_ = agg_FUN(get(y_))),
                         by = c(id_, by_)]

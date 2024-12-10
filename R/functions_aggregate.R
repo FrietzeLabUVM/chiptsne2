@@ -71,7 +71,7 @@ aggregateRegionsByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(
 #' colData(ct2.r2)$rep = "rep2"
 #' colnames(ct2.r2) = paste0(colnames(ct2.r2), "_rep2")
 #' ct2.reps = cbind(ct2.r1, ct2.r2)
-#' aggregateSamplesByGroup(ct2.reps, c("cell", "mark"), "name")
+#' aggregateSamplesByGroup(ct2.reps,  c("cell", "mark"), "group")
 #' aggregateSamplesByGroup(ct2.reps, c("cell", "mark"))
 aggregateSamplesByGroup = function(ct2, group_VAR, new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_name")){
     .validate_allowed_input(group_VAR, colnames(colData(ct2)), "Some values of group_VAR are not present in colData:")

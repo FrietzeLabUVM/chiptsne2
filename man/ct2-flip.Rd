@@ -55,8 +55,8 @@ prof_right = getTidyProfile(ct2_right)
 prof_right$group = "flip_right"
 
 prof_dt = rbind(prof_left, prof_right, prof_original)
-prof_dt = prof_dt[, list(y = mean(y)), .(x, group)]
+prof_dt = prof_dt[, list(value = mean(value)), .(position, group)]
 
 library(ggplot2)
-ggplot(prof_dt, aes(x = x, y = y, color = group)) + geom_path()
+ggplot(prof_dt, aes(x = position, y = value, color = group)) + geom_path()
 }

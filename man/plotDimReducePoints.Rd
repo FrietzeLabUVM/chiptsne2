@@ -117,6 +117,6 @@ base_plot = function(p, xy_df, point_size, background_annotation_color){
 plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
   background_annotation_color = "gray50",
   underlayer_FUN = base_plot) +
-    facet_grid(peak_MCF10CA1_CTCF~sample) +
+    facet_grid(peak_MCF10CA1_CTCF~name) +
     labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
 }

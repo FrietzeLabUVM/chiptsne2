@@ -351,7 +351,7 @@ separateSamples = function(data, col, into, sep = "[^[:alnum:]]+", remove = TRUE
 #' getRegionMetaData(ct2)
 #' ct2 = mutateRegions(ct2,
 #'   mutate_name = "either_10a_or_at1",
-#'   mutate_expression = paste(peak_MCF10A_CTCF, id))
+#'   mutate_expression = paste(peak_MCF10A_CTCF, region))
 #' ct2 = separateRegions(ct2, "either_10a_or_at1", c("a", "b"), sep = " ")
 #' rowData(ct2)
 #' getRegionMetaData(ct2)

@@ -323,7 +323,7 @@ generic_plotDimReducePoints = function(ct2,
 #' plotDimReducePoints(ct2, extra_VARS = "peak_MCF10CA1_CTCF",
 #'   background_annotation_color = "gray50",
 #'   underlayer_FUN = base_plot) +
-#'     facet_grid(peak_MCF10CA1_CTCF~sample) +
+#'     facet_grid(peak_MCF10CA1_CTCF~name) +
 #'     labs(title = "signal per sample facetted by peak_MCF10CA1_CTCF")
 setGeneric("plotDimReducePoints",
            generic_plotDimReducePoints,
