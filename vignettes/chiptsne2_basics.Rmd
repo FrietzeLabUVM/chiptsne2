@@ -5,6 +5,10 @@ date: "2024-06-21"
 output: html_document
 ---
 
+<!--
+%\VignetteEngine{knitr::knitr}
+-->
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width = 3, fig.height = 3)
 ```
