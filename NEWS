@@ -1,3 +1,6 @@
+# v 0.1.50
+* added translateSSVtoCT2 and translateSSVtoCT2 to eas interoperability between ssv and ct2
+
 # v 0.1.49
 * changed all default VAR names
 
