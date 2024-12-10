@@ -57,6 +57,7 @@
 #' @param select_VARS Variables to include in metadata. Set to NULL to include
 #'   all, this is the default. Name variable will always be included for samples
 #'   and region variable will always be included for regions.
+#' @param include_value_max If TRUE, values from max assay slot will be included per region. Default is FALSE.
 #'
 #' @rdname ct2-getset
 NULL

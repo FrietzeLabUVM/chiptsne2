@@ -130,6 +130,8 @@ as the new name variable.}
 metadata. Default of NULL will select all available sample metadata
 variables.}
 
+\item{include_value_max}{If TRUE, values from max assay slot will be included per region. Default is FALSE.}
+
 \item{x}{A ChIPtsne2_no_rowRanges object.}
 
 \item{value}{New value for colToRowMatCols slot. A named list where names equals colnames of x and list values are colnames of rowToRowMat.}
@@ -149,5 +151,5 @@ maps ChIPtsne2 column names to columns in rowToRowMat
 \examples{
 ct2 = exampleChIPtsne2()
 getSampleMetaData(ct2)
-getSampleMetaData(ct2, "sample")
+getSampleMetaData(ct2, "name")
 }
