@@ -5,12 +5,14 @@
 \alias{centerProfilesAndRefetch,ChIPtsne2-method}
 \title{centerSignal}
 \usage{
-centerProfilesAndRefetch(ct2)
+centerProfilesAndRefetch(ct2, view_size)
 
-\S4method{centerProfilesAndRefetch}{ChIPtsne2}(ct2)
+\S4method{centerProfilesAndRefetch}{ChIPtsne2}(ct2, view_size = NULL)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object}
+
+\item{view_size}{bp range to search for max}
 }
 \value{
 A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.

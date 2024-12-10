@@ -1,7 +1,7 @@
 #### centerProfilesAndRefetch ####
 
 
-.centerProfilesAndRefetch = function(ct2){
+.centerProfilesAndRefetch = function(ct2, view_size = NULL){
     message("centerProfilesAndRefetch ...")
     args = get_args()
     if(isFetchConfigNull(ct2@fetch_config)){
@@ -9,13 +9,35 @@
     }
     w = ct2@fetch_config$view_size
     prof_dt = getTidyProfile(ct2)
-    win_size = prof_dt[[ct2@position_VAR]] %>% unique %>% diff %>% unique
+    win_size = prof_dt[[ct2@position_VAR]] %>% unique %>% diff %>% round(., digits = 5) %>% unique
+
     center_gr = rowRanges(ct2) %>% GenomicRanges::resize(1, fix = "center")
     prof_dt$strand = as.character(GenomicRanges::strand(center_gr[prof_dt[[ct2@region_VAR]]]))
     prof_dt$seqnames = as.character(GenomicRanges::seqnames(center_gr[prof_dt[[ct2@region_VAR]]]))
-    prof_dt$start = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] - win_size/2
-    prof_dt$end = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] + win_size/2
-    new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt, rowRanges(ct2), width = w, x_ = ct2@position_VAR, y_ = ct2@value_VAR, by_ = ct2@region_VAR)
+    if(win_size < 1){
+        w_dt = as.data.table(as.data.frame(rowRanges(ct2)), keep.rownames = ct2@region_VAR)
+        w_dt[, original_center := round((start + end) / 2)]
+        w_dt = w_dt[, c(ct2@region_VAR, "width", "original_center"), with = FALSE]
+        prof_dt = merge(prof_dt, w_dt, by = ct2@region_VAR)
+        if(any(strand(rowRanges(ct2)) == "-")){
+            browser()
+        }else{
+            browser()
+            prof_dt[, start := original_center + (width * position) - (win_size / 2 * width)]
+            prof_dt[, end := original_center + (width * position) + (win_size / 2 * width)-1]
+        }
+    }else{
+        browser()
+        prof_dt$start = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] - win_size/2
+        prof_dt$end = GenomicRanges::start(center_gr[prof_dt[[ct2@region_VAR]]]) + prof_dt[[ct2@position_VAR]] + win_size/2
+    }
+    new_query_gr = seqsetvis::centerGRangesAtMax(prof_dt,
+                                                 rowRanges(ct2),
+                                                 width = w,
+                                                 x_ = ct2@position_VAR,
+                                                 y_ = ct2@value_VAR,
+                                                 by_ = ct2@region_VAR,
+                                                 view_size = view_size)
 
     history_item = list(centerProfilesAndRefetch = list(FUN = .centerProfilesAndRefetch, ARG = args))
 
@@ -28,6 +50,7 @@
 #' centerSignal
 #'
 #' @param ct2 A ChIPtsne2 object
+#' @param view_size bp range to search for max
 #'
 #' @return A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.
 #'
@@ -42,7 +65,7 @@
 #' ct2 = ChIPtsne2.from_FetchConfig(fetch_config, query_gr)
 #' ct2.c = centerProfilesAndRefetch(ct2)
 #' ct2.c
-setGeneric("centerProfilesAndRefetch", function(ct2) standardGeneric("centerProfilesAndRefetch"))
+setGeneric("centerProfilesAndRefetch", function(ct2, view_size = NULL) standardGeneric("centerProfilesAndRefetch"))
 
 #' @export
 #' @rdname ct2-center-refetch
@@ -89,9 +112,9 @@ setMethod("centerProfilesAndRefetch", c("ChIPtsne2"), .centerProfilesAndRefetch)
 #' query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = 50)
 #' prof_dt = exampleProfDT()
 #' meta_dt = prof_dt %>%
-#'   dplyr::select(sample) %>%
+#'   dplyr::select(name) %>%
 #'   unique %>%
-#'   tidyr::separate(sample, c("cell", "mark"), remove = FALSE)
+#'   tidyr::separate(name, c("cell", "mark"), remove = FALSE)
 #' ct2 = ChIPtsne2.from_tidy(prof_dt, query_gr, sample_metadata = meta_dt)
 #' ct2.c = centerProfilesAndTrim(ct2, view_size = 500)
 setGeneric("centerProfilesAndTrim", function(ct2, view_size) standardGeneric("centerProfilesAndTrim"))
