@@ -24,7 +24,7 @@ ChIPtsne2.from_FetchConfig(
 
 \item{init}{If TRUE, initialize history with birthday, session_info, and chiptsne2_version}
 
-\item{use_cache}{If TRUE, default \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache} will be used. If FALSE no cacheing will be done. You may also supply a user created \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache}.}
+\item{use_cache}{If TRUE, default \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache} will be used. If FALSE, no caching will be done. You may also supply a user created \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache}.}
 }
 \value{
 A ChIPtsne2 created using profiles fetched used provided FetchConfig

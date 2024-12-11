@@ -5,14 +5,16 @@
 \alias{centerProfilesAndRefetch,ChIPtsne2-method}
 \title{centerSignal}
 \usage{
-centerProfilesAndRefetch(ct2, view_size)
+centerProfilesAndRefetch(ct2, view_size = NULL, use_cache = TRUE)
 
-\S4method{centerProfilesAndRefetch}{ChIPtsne2}(ct2, view_size = NULL)
+\S4method{centerProfilesAndRefetch}{ChIPtsne2}(ct2, view_size = NULL, use_cache = TRUE)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object}
 
 \item{view_size}{bp range to search for max}
+
+\item{use_cache}{If TRUE, default \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache} will be used. If FALSE, no caching will be done. You may also supply a user created \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache}.}
 }
 \value{
 A chiptsne2 object updated to reflect centering procedure. Width will be the same as original but this requires a second fetch.

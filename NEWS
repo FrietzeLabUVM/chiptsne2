@@ -1,3 +1,9 @@
+# v 0.1.51
+* changed behavior of flipProfilesToMatch to favor strongest signal samples which leads to more intuitive results
+* centerProfilesAndRefetch now fully supports summary data and stranded data. Before only unstranded sample data was supported.
+* centerProfilesAndRefetch now includes the fetch option use_cache
+
+
 # v 0.1.50
 * added translateSSVtoCT2 and translateSSVtoCT2 to eas interoperability between ssv and ct2
 

@@ -357,7 +357,7 @@ get_fetch_fun = function(read_mode){
 #'
 #' @param fetch_config A FetchConfig object
 #' @param query_gr A GRanges to fetch data for
-#' @param use_cache If TRUE, default [BiocFileCache::BiocFileCache] will be used. If FALSE no cacheing will be done. You may also supply a user created [BiocFileCache::BiocFileCache].
+#' @param use_cache If TRUE, default [BiocFileCache::BiocFileCache] will be used. If FALSE, no caching will be done. You may also supply a user created [BiocFileCache::BiocFileCache].
 #'
 #' @return A list of 2 items prof_dt and query_gr.  prof_dt is a tidy data.table
 #'   of signal profiles.  query_gr is a GRanges that may have been modified from

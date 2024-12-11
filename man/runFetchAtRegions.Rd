@@ -11,7 +11,7 @@ runFetchAtRegions(fetch_config, query_gr, use_cache = FALSE)
 
 \item{query_gr}{A GRanges to fetch data for}
 
-\item{use_cache}{If TRUE, default \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache} will be used. If FALSE no cacheing will be done. You may also supply a user created \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache}.}
+\item{use_cache}{If TRUE, default \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache} will be used. If FALSE, no caching will be done. You may also supply a user created \link[BiocFileCache:BiocFileCache-class]{BiocFileCache::BiocFileCache}.}
 }
 \value{
 A list of 2 items prof_dt and query_gr.  prof_dt is a tidy data.table

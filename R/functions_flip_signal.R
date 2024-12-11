@@ -11,19 +11,19 @@
     balance_dt = prof_dt[, list(right_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) > 0]),
                                 left_sum = sum(get(ct2@value_VAR)[get(ct2@position_VAR) < 0])),
                          by = c(ct2@region_VAR, ct2@name_VAR)]
-    balance_dt = balance_dt[, list(needs_flip = left_sum > right_sum),
-                            c(ct2@region_VAR, ct2@name_VAR)]
-    most_flipped = balance_dt[,
-                              list(fraction_flipped = sum(needs_flip) / .N),
-                              by = c(ct2@region_VAR)]
-    most_flipped[, needs_flip := fraction_flipped > .5]
+    balance_dt = balance_dt[, list(needs_flip = sum(left_sum) > sum(right_sum)),
+                            c(ct2@region_VAR)]
+    # most_flipped = balance_dt[,
+    #                           list(fraction_flipped = sum(needs_flip) / .N),
+    #                           by = c(ct2@region_VAR)]
+    # most_flipped[, needs_flip := fraction_flipped > .5]
     if(!highest_on_right){
-        most_flipped$needs_flip = !most_flipped$needs_flip
+        balance_dt$needs_flip = !balance_dt$needs_flip
     }
-    most_flipped$fraction_flipped = NULL
+    # most_flipped$fraction_flipped = NULL
     GenomicRanges::strand(new_rowRanges) = "+"
-    GenomicRanges::strand(new_rowRanges)[most_flipped$needs_flip] = "-"
-    prof_dt = merge(prof_dt, most_flipped, by = c(ct2@region_VAR))
+    GenomicRanges::strand(new_rowRanges)[balance_dt$needs_flip] = "-"
+    prof_dt = merge(prof_dt, balance_dt, by = c(ct2@region_VAR))
     prof_dt = prof_dt[order(get(ct2@position_VAR))]
     x_vals = unique(prof_dt[[ct2@position_VAR]])
     remove(balance_dt)
@@ -100,7 +100,7 @@
 #'
 #' library(ggplot2)
 #' ggplot(prof_dt, aes(x = position, y = value, color = group)) + geom_path()
-setGeneric("flipProfilesToMatch", function(ct2, highest_on_right = TRUE) standardGeneric("flipProfilesToMatch"))
+setGeneric("flipProfilesToMatch", function(ct2, highest_on_right = FALSE) standardGeneric("flipProfilesToMatch"))
 
 #' @export
 #' @rdname ct2-flip

@@ -226,7 +226,7 @@ ChIPtsne2.from_tidy = function(prof_dt,
 #' @param region_metadata Metadata to append to rowRanges, mcols of query_gr will also be used.
 #' @param obj_history Existing history for object, may be used to describe origin on prof_dt or query_gr.
 #' @param init If TRUE, initialize history with birthday, session_info, and chiptsne2_version
-#' @param use_cache If TRUE, default [BiocFileCache::BiocFileCache] will be used. If FALSE no cacheing will be done. You may also supply a user created [BiocFileCache::BiocFileCache].
+#' @param use_cache If TRUE, default [BiocFileCache::BiocFileCache] will be used. If FALSE, no caching will be done. You may also supply a user created [BiocFileCache::BiocFileCache].
 #'
 #' @return A ChIPtsne2 created using profiles fetched used provided FetchConfig
 #' @export
