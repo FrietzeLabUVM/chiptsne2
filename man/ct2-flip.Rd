@@ -5,7 +5,7 @@
 \alias{flipProfilesToMatch,ChIPtsne2_no_rowRanges-method}
 \title{flipProfilesToMatch}
 \usage{
-flipProfilesToMatch(ct2, highest_on_right = TRUE)
+flipProfilesToMatch(ct2, highest_on_right = FALSE)
 
 \S4method{flipProfilesToMatch}{ChIPtsne2_no_rowRanges}(ct2, highest_on_right = FALSE)
 }

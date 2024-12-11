@@ -38,8 +38,12 @@ p.sample.c = plotSignalHeatmap(ct2.sample.c, heatmap_format_FUN = function(p) p 
 ct2.sample.c2 = centerProfilesAndRefetch(ct2.sample, view_size = 500, use_cache = FALSE)
 p.sample.c2 = plotSignalHeatmap(ct2.sample.c2, heatmap_format_FUN = function(p) p + labs(title = "centered 500") + geom_vline(xintercept = 0), sort_strategy = "left")
 
-all(rowRanges(ct2.sample.c) == rowRanges(ct2.sample))
-all(rowRanges(ct2.sample.c) == rowRanges(ct2.sample.c2))
+#these are dumb tests, the plots are the real key
+#for now, functions running without error and doing something is sufficient
+test_that("centering does something", {
+    expect_true(!all(rowRanges(ct2.sample.c) == rowRanges(ct2.sample)))
+    expect_true(!all(rowRanges(ct2.sample.c) == rowRanges(ct2.sample.c2)))
+})
 
 rowRanges(ct2.summary)
 #flipping profiles adds strand information
@@ -98,3 +102,13 @@ plotSignalHeatmap(
 rowRanges(ct2.sample.flip[1:5,])
 
 flipProfilesToMatch(ct2.sample[1:5,])
+
+#these are dumb tests, the plots are the real key
+#for now, functions running without error and doing something is sufficient
+test_that("centering does something after flip", {
+    expect_true(!all(rowRanges(ct2.sample.flip.c) == rowRanges(ct2.sample.flip)))
+    expect_true(!all(rowRanges(ct2.sample) == rowRanges(ct2.sample.flip)))
+
+    expect_true(!all(rowRanges(ct2.summary.flip.c) == rowRanges(ct2.summary.flip)))
+    expect_true(!all(rowRanges(ct2.summary) == rowRanges(ct2.summary.flip)))
+})
