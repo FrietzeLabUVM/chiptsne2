@@ -1,7 +1,7 @@
 
-calculate_centroid_per_group = function(ct2, group_VARS){
+calculate_centroid_per_group = function(ct2, group_VARS, sep = ","){
     if(length(group_VARS) > 1){
-        tmp_df = data.frame(TMP_GROUP__ = apply(as.data.frame(GenomicRanges::mcols(rowRanges(ct2)))[,group_VARS], 1, paste, collapse = ","))
+        tmp_df = data.frame(TMP_GROUP__ = apply(as.data.frame(GenomicRanges::mcols(rowRanges(ct2)))[,group_VARS], 1, paste, collapse = sep))
         ct2 = chiptsne2::setRegionMetaData(ct2, tmp_df, silent = TRUE)
         group_VARS = "TMP_GROUP__"
     }
@@ -59,9 +59,9 @@ classify_by_centroid_distances = function(distances, centroids,
 #' cents
 #' ct2 = groupRegionsByCentroidDistance(ct2, cents, group_VAR = "peak_overlap_profile")
 #' rowData(ct2)
-calculateGroupCentroid = function(ct2, group_VARS){
+calculateGroupCentroid = function(ct2, group_VARS, sep = ","){
     .validate_allowed_input(group_VARS, colnames(rowData(ct2)), "Some values of group_VARS are not present in rowData:")
-    cent = calculate_centroid_per_group(ct2, group_VARS)
+    cent = calculate_centroid_per_group(ct2, group_VARS, sep)
     cent
 }
 

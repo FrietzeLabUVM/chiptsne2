@@ -7,7 +7,9 @@ COLOR_KEY_STRAT = list(
 .heatmap_theme = theme(
     panel.background = element_blank(),
     panel.grid = element_blank(),
-    legend.direction = "horizontal"
+    legend.direction = "horizontal",
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5),
+    axis.line.y = element_blank()
 )
 .heatmap_theme.no_y = .heatmap_theme +
     theme(axis.text.y = element_blank(),
@@ -16,8 +18,12 @@ COLOR_KEY_STRAT = list(
 .annotation_theme = theme(
     panel.background = element_blank(),
     panel.grid = element_blank(),
-    axis.ticks = element_blank(),
-    axis.text = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.line.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.line.y = element_blank(),
     axis.title = element_blank(),
     plot.margin = unit(c(.01,0,.01,0), "npc")
 )

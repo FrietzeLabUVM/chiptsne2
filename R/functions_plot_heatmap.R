@@ -139,7 +139,6 @@
         scale_x_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 3)) +
         heatmap_theme +
         facet_grid(paste0(".~", ct2@name_VAR)) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
         #this is a maybe temporary them fix to allow cowplot to find the legend
         theme(legend.position = "right")
     p_heat = .apply_scale(p_heat, heatmap_colors, heatmap_fill_limits)
