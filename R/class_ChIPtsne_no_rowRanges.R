@@ -267,8 +267,14 @@ setMethod("[", "ChIPtsne2_no_rowRanges", ct2_nrr_index_accessor)
 
 ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
     extra_args = list(...)
+    allowed_extra_args = "sep"
+    sep = " "
+    if("sep" %in% names(extra_args)){
+        sep = extra_args[["sep"]]
+        extra_args[["sep"]] = NULL
+    }
     if(length(extra_args) > 0){
-        stop("Additional arguments (...) are not allowed for ChIPtsne2_no_rowRanges split.")
+        stop("sep is the only allowed additional argument (...) allowed for ChIPtsne2_no_rowRanges split.")
     }
     mode = "by_column"
     sample_meta_data = getSampleMetaData(x)
@@ -277,14 +283,27 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
         f = colnames(x)
         names(f) = f
     }
-    if(length(f) == 1){
-        if(f %in% colnames(sample_meta_data)){
+    if(all(f %in% colnames(sample_meta_data))){
+        if(length(f) > 1){
+            #groups must first be combined when there is more than one
+            grps = apply(as.data.frame(sample_meta_data[, f]), 1, paste, collapse = sep)
+            names(grps) = NULL
+            f = split(rownames(sample_meta_data), grps, drop = drop)
+        }else{
             f = split(rownames(sample_meta_data), sample_meta_data[[f]], drop = drop)
-        }else if(f %in% colnames(region_meta_data)){
+        }
+    }else if(all(f %in% colnames(region_meta_data))){
+        mode = "by_row"
+        if(length(f) > 1){
+            #need to create temporary combined grouping variable
+            grps = apply(as.data.frame(region_meta_data[, f]), 1, paste, collapse = sep)
+            names(grps) = NULL
+            f = split(rownames(region_meta_data), grps, drop = drop)
+        }else{
             f = split(region_meta_data[[x@region_VAR]], region_meta_data[[f]], drop = drop)
-            mode = "by_row"
         }
     }else{
+        # in this scenario, f must be a grouping variable for either columns or rows
         if(ncol(x) == nrow(x)){
             stop("Cannot unambiguously split ChIPtsne2_no_rowRanges using a vector when ncol == nrow. Try using a row or column attribute name.")
         }
@@ -295,6 +314,26 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
             mode = "by_row"
         }
     }
+    # if(length(f) == 1){
+    #     #this is the simplest to handle case and f must be in sample or region metadata
+    #     if(f %in% colnames(sample_meta_data)){
+    #         f = split(rownames(sample_meta_data), sample_meta_data[[f]], drop = drop)
+    #     }else if(f %in% colnames(region_meta_data)){
+    #         f = split(region_meta_data[[x@region_VAR]], region_meta_data[[f]], drop = drop)
+    #         mode = "by_row"
+    #     }
+    # }else{
+    #     # in this scenario, f must be a grouping variable for either columns or rows
+    #     if(ncol(x) == nrow(x)){
+    #         stop("Cannot unambiguously split ChIPtsne2_no_rowRanges using a vector when ncol == nrow. Try using a row or column attribute name.")
+    #     }
+    #     if(length(f) == ncol(x)){
+    #         f = split(colnames(x), f, drop = drop)
+    #     }else if(length(f) == nrow(x)){
+    #         f = split(rownames(x), f, drop = drop)
+    #         mode = "by_row"
+    #     }
+    # }
 
     if(mode == "by_column"){
         x.split = lapply(f, function(split_val)x[, split_val])
@@ -319,10 +358,13 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
 #' split(ct2, "name")
+#' split(ct2, c("cell", "mark"))
 #' split(ct2, colnames(ct2))
 #' split(ct2, "cell")
 #' split(ct2, "peak_MCF10CA1_CTCF")
+#' split(ct2, c("peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
 #' split(ct2, ct2$cell)
+#' split(ct2, paste(ct2$cell, ct2$mark, sep = "_"))
 #'
 #' sample_meta_data = getSampleMetaData(ct2)
 #' region_meta_data = getRegionMetaData(ct2)

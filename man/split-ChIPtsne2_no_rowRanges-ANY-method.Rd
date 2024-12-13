@@ -26,10 +26,13 @@ split-ChIPtsne2_no_rowRanges
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 split(ct2, "name")
+split(ct2, c("cell", "mark"))
 split(ct2, colnames(ct2))
 split(ct2, "cell")
 split(ct2, "peak_MCF10CA1_CTCF")
+split(ct2, c("peak_MCF10AT1_CTCF", "peak_MCF10CA1_CTCF"))
 split(ct2, ct2$cell)
+split(ct2, paste(ct2$cell, ct2$mark, sep = "_"))
 
 sample_meta_data = getSampleMetaData(ct2)
 region_meta_data = getRegionMetaData(ct2)
