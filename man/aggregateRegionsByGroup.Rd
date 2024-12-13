@@ -7,7 +7,8 @@
 aggregateRegionsByGroup(
   ct2,
   group_VAR,
-  new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_id")
+  new_region_VAR = ifelse(length(group_VAR) == 1, group_VAR, "grouped_regions"),
+  sep = " "
 )
 }
 \arguments{
@@ -15,7 +16,9 @@ aggregateRegionsByGroup(
 
 \item{group_VAR}{Attribute name to aggregate regions to.  There will be 1 meta-region per unique entry in \code{group_VAR}. \code{group_VAR} may specify multiple attributes, in which case there will 1 meta-region per combination of entries in all \code{group_VAR}.}
 
-\item{new_meta_VAR}{The new region variable of the resulting ChIPtsne2 object. Defaults to \code{group_VAR} for single \code{group_VAR} but then defaults to "meta_id" if there are multiple.}
+\item{new_region_VAR}{The new region variable of the resulting ChIPtsne2 object. Defaults to \code{group_VAR} for single \code{group_VAR} but then defaults to "grouped_regions" if there are multiple.}
+
+\item{sep}{Works just like \code{sep} parameter for base::paste. Used to combine multiple group_VAR values.}
 }
 \value{
 A ChIPtsne2_no_rowRanges object with meta-regions for combinations of \code{group_VAR} values.
@@ -26,11 +29,15 @@ aggregateRegionsByGroup
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
 
-aggregateRegionsByGroup(ct2, "peak_MCF10A_CTCF")
+ct2.agg1 = aggregateRegionsByGroup(ct2, "peak_MCF10A_CTCF")
+rowData(ct2.agg1)
+getRegionVariable(ct2.agg1)
 
-aggregateRegionsByGroup(
+ct2.agg2 = aggregateRegionsByGroup(
   ct2,
   c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"),
-  new_meta_VAR = "peak_overlap"
+  new_region_VAR = "peak_overlap"
 )
+rowData(ct2.agg2)
+getRegionVariable(ct2.agg2)
 }

@@ -4,7 +4,7 @@
 \alias{calculateGroupCentroid}
 \title{calculateGroupCentroid}
 \usage{
-calculateGroupCentroid(ct2, group_VARS)
+calculateGroupCentroid(ct2, group_VARS, sep = ",")
 }
 \arguments{
 \item{ct2}{\verb{R doc_ct2()}}

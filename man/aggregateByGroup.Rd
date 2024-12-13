@@ -4,7 +4,7 @@
 \alias{aggregateByGroup}
 \title{aggregateByGroup}
 \usage{
-aggregateByGroup(ct2, group_VAR)
+aggregateByGroup(ct2, group_VAR, group_sep = " ", region_sep = " ", group_)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object.}
@@ -31,5 +31,7 @@ ct2.r2 = exampleChIPtsne2.with_meta()
 colData(ct2.r2)$rep = "rep2"
 colnames(ct2.r2) = paste0(colnames(ct2.r2), "_rep2")
 ct2.reps = cbind(ct2.r1, ct2.r2)
-aggregateByGroup(ct2.reps, c("cell", "mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+ct2.agg3 = aggregateByGroup(ct2.reps, c("cell", "mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+colData(ct2.agg3)
+rowData(ct2.agg3)
 }

@@ -7,7 +7,8 @@
 aggregateSamplesByGroup(
   ct2,
   group_VAR,
-  new_meta_VAR = ifelse(length(group_VAR) == 1, group_VAR, "meta_name")
+  new_name_VAR = ifelse(length(group_VAR) == 1, group_VAR, "group_name"),
+  sep = " "
 )
 }
 \arguments{
@@ -15,7 +16,9 @@ aggregateSamplesByGroup(
 
 \item{group_VAR}{Attribute name to aggregate samples to.  There will be 1 meta-sample per unique entry in \code{group_VAR}. \code{group_VAR} may specify multiple attributes, in which case there will 1 meta-region per combination of entries in all \code{group_VAR}.}
 
-\item{new_meta_VAR}{The new name variable of the resulting ChIPtsne2 object. Defaults to \code{group_VAR} for single \code{group_VAR} but then defaults to "meta_id" if there are multiple.}
+\item{new_name_VAR}{The new name variable of the resulting ChIPtsne2 object. Defaults to \code{group_VAR} for single \code{group_VAR} but then defaults to "grouped_regions" if there are multiple.}
+
+\item{sep}{Works just like \code{sep} parameter for base::paste. Used to combine multiple group_VAR values.}
 }
 \value{
 A ChIPtsne2_no_rowRanges object with meta-regions for combinations of \code{group_VAR} values.
@@ -25,9 +28,13 @@ aggregateSamplesByGroup
 }
 \examples{
 ct2 = exampleChIPtsne2.with_meta()
+colData(ct2)
 
-aggregateSamplesByGroup(ct2, "mark")
+ct2.agg1 = aggregateSamplesByGroup(ct2, "mark")
+colData(ct2.agg1)
+getNameVariable(ct2.agg1)
 
+#pretend that we have reps to aggregate
 ct2.r1 = exampleChIPtsne2.with_meta()
 colData(ct2.r1)$rep = "rep1"
 colnames(ct2.r1) = paste0(colnames(ct2.r1), "_rep1")
@@ -35,6 +42,11 @@ ct2.r2 = exampleChIPtsne2.with_meta()
 colData(ct2.r2)$rep = "rep2"
 colnames(ct2.r2) = paste0(colnames(ct2.r2), "_rep2")
 ct2.reps = cbind(ct2.r1, ct2.r2)
-aggregateSamplesByGroup(ct2.reps,  c("cell", "mark"), "group")
-aggregateSamplesByGroup(ct2.reps, c("cell", "mark"))
+ct2.agg2 = aggregateSamplesByGroup(ct2.reps,  c("cell", "mark"), "group")
+colData(ct2.agg2)
+getNameVariable(ct2.agg2)
+
+ct2.agg3 = aggregateSamplesByGroup(ct2.reps, c("cell", "mark"))
+colData(ct2.agg3)
+getNameVariable(ct2.agg3)
 }

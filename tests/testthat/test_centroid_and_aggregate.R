@@ -11,7 +11,7 @@ test_that("calculateGroupCentroid", {
 })
 
 test_that("valid ChIPtsne2_no_rowRanges by aggregate", {
-    ct2.nrr = aggregateRegionsByGroup(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+    ct2.nrr = aggregateRegionsByGroup(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), sep = ",")
     rowData(ct2.nrr)
     colData(ct2.nrr)
     getRegionMetaData(ct2.nrr)
@@ -20,7 +20,7 @@ test_that("valid ChIPtsne2_no_rowRanges by aggregate", {
     expect_equal(rownames(rowData(ct2.nrr)), c("FALSE,FALSE", "FALSE,TRUE", "TRUE,FALSE", "TRUE,TRUE"))
     reg_meta = getRegionMetaData(ct2.nrr)
 
-    expect_equal(colnames(reg_meta), c("meta_id", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+    expect_equal(colnames(reg_meta), c("grouped_regions", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
     expect_equal(rownames(reg_meta), c("FALSE,FALSE", "FALSE,TRUE", "TRUE,FALSE", "TRUE,TRUE"))
 })
 
@@ -72,3 +72,4 @@ test_that("aggregateByGroup variable names", {
     expect_equal(nrow(getRegionMetaData(ct2.1col)), 100)
     expect_equal(nrow(getRegionMetaData(ct2.1x1)), 1)
 })
+

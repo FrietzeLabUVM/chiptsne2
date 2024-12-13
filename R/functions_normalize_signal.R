@@ -209,11 +209,11 @@ setMethod("normalizeSignalCapValue", c("ChIPtsne2_no_rowRanges"), .normalizeSign
     args = get_args()
     prof_dt = getTidyProfile(ct2)
     cap_dt = seqsetvis::calc_norm_factors(prof_dt,
-                                 value_ = ct2@value_VAR,
-                                 cap_value_ = signal_cap_VAR,
-                                 by1 = ct2@region_VAR,
-                                 by2 = ct2@name_VAR,
-                                 aggFUN2 = function(x)stats::quantile(x, cap_quantile))
+                                          value_ = ct2@value_VAR,
+                                          cap_value_ = signal_cap_VAR,
+                                          by1 = ct2@region_VAR,
+                                          by2 = ct2@name_VAR,
+                                          aggFUN2 = function(x)stats::quantile(x, cap_quantile))
 
     # remove signal_cap_VAR if present to overwrite
     old_meta_dt = getSampleMetaData(ct2)
@@ -255,3 +255,59 @@ setGeneric("calculateSignalCapValue",
 #' @export
 #' @rdname ct2-calccap
 setMethod("calculateSignalCapValue", c("ChIPtsne2_no_rowRanges"), .calculateSignalCapValue)
+
+#### norm per region ####
+.norm_per_region = function(ct2){
+    mat = ct2@rowToRowMat
+    rmax = apply(mat, 1, max)
+    # pheatmap::pheatmap(mat/rmax, cluster_cols = FALSE, cluster_rows = FALSE)
+    rowToRowMat(ct2) = mat/rmax
+    ct2
+}
+
+.normalizeSignalPerRegion = function(ct2, group_VARS = NULL){
+    if(!is.null(group_VARS)){
+        ct2.by_group = split(ct2, group_VARS)
+        ct2_norm.by_group = lapply(ct2.by_group, .norm_per_region)
+        ct2_norm = cbind(ct2_norm.by_group)
+    }else{
+        ct2_norm = .norm_per_region(ct2)
+    }
+    ct2_norm
+}
+
+#' normalizeSignalPerRegion
+#'
+#' Applies a normalization where the maximum value at each region is scaled to
+#' 1. By default this is applied across all samples but you may supply one or
+#' more variables from column/sample metadata to group them by.
+#'
+#' @param ct2 `r doc_ct2_nrr()`
+#' @param group_VARS Attributes in colData that define groups to apply the
+#'   normalization to.
+#'
+#' @export
+#' @return `r doc_ct2_nrr()` where values have been scaled per region where max
+#'   equals 1.
+#'
+#' @examples
+#' ct2 = exampleChIPtsne2.with_meta()
+#' # plotting raw values, it can be hard to assess differences between cells at
+#' # regions with varying average enrichment.
+#' plotSignalHeatmap(ct2)
+#'
+#' # with region normalizatoin, it's much clearer that MCF10CA1 has lower
+#' # enrichment
+#' plotSignalHeatmap(normalizeSignalPerRegion(ct2))
+#'
+#' # this data isn't complicated enough to warrant it, but normalization can be
+#' # applied with sample groups
+#' plotSignalHeatmap(normalizeSignalPerRegion(ct2, group_VARS = "cell"))
+setGeneric("normalizeSignalPerRegion",
+           function(ct2, group_VARS = NULL)
+               standardGeneric("normalizeSignalPerRegion"),
+           signature = "ct2")
+
+#' @export
+#' @rdname ct2-calccap
+setMethod("normalizeSignalPerRegion", c("ChIPtsne2_no_rowRanges"), .normalizeSignalPerRegion)
