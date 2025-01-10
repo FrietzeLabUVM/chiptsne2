@@ -53,6 +53,15 @@ COLOR_KEY_STRAT = list(
     ids
 }
 
+.apply_name_FUN = function(x, .name_FUN){
+    if(is.factor(x)){
+        levels(x) = .name_FUN(levels(x))
+    }else{
+        x = .name_FUN(x)
+    }
+    x
+}
+
 
 #' @importFrom RColorBrewer brewer.pal
 add_group_annotation = function(anno_ids,
@@ -124,7 +133,7 @@ add_group_annotation = function(anno_ids,
         stop("invalid text_colors, check names match group ids")
     }
 
-    df_rects[[cluster_]] = name_FUN(cluster_)
+    df_rects[[cluster_]] = .apply_name_FUN(cluster_, name_FUN)
     facet_str = paste0(".~`", cluster_, "`")
     p = ggplot(df_rects) +
         coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
@@ -205,7 +214,7 @@ add_cluster_annotation.numeric = function(anno_ids,
                           grp = cluster_,
                           row.names = NULL)
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
-    df_rects[[cluster_]] = name_FUN(cluster_)
+    df_rects[[cluster_]] = .apply_name_FUN(cluster_, name_FUN)
     df_rects[["grp"]] = anno_rle$values
     p = ggplot(df_rects) +
         coord_cartesian(xlim = c(xleft, xright), ylim = c(0, length(anno_ids))+.5, expand = FALSE) +
@@ -281,7 +290,7 @@ add_cluster_annotation = function(anno_ids,
 
     df_rects = df_rects[rev(seq_len(nrow(df_rects))),]
     cluster_labels = levels(anno_ids)
-    df_rects[[cluster_]] = name_FUN(cluster_)
+    df_rects[[cluster_]] = .apply_name_FUN(cluster_, name_FUN)
     df_rects[["grp"]] = rownames(df_rects)
 
     p = ggplot(df_rects) +

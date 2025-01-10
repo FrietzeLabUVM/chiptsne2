@@ -137,7 +137,7 @@ if you supply a data.frame linking these paths to meta data that will be useful 
 bam_df = exampleBam_data.frame()
 cfg_from_df = FetchConfig(bam_df)
 
-chiptsne2::ChIPtsne2.from_FetchConfig()
+ct2 = chiptsne2::ChIPtsne2.from_FetchConfig(cfg_from_df, query_gr)
 ```
 
 ```{r}

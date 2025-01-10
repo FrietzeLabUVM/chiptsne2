@@ -31,7 +31,7 @@
     xy_df = as.data.frame(tsne_res$Y)
     colnames(xy_df) =  c("tx", "ty")
     rownames(xy_df) = rownames(prof_mat)
-    ggplot(xy_df, aes(x = tx, y = ty)) + geom_point()
+    # ggplot(xy_df, aes(x = tx, y = ty)) + geom_point()
     .post_dim_reduce(xy_df, prof_mat)
 }
 

@@ -14,14 +14,15 @@ calculate_centroid_per_group = function(ct2, group_VARS, sep = ","){
     centroids
 }
 
-calculate_distance_to_centroids = function(ct2, centroids, name_FUN = function(x){rownames(x)}){
+calculate_distance_to_centroids = function(ct2, centroids, name_FUN = function(x){x}){
     r2rm = rowToRowMat(ct2)
     euclidean_distance <- function(p,q){
         sqrt(sum((p - q)^2))
     }
     dist_mat = as.matrix(pdist::pdist(r2rm, centroids))
     rownames(dist_mat) = rownames(r2rm)
-    colnames(dist_mat) = name_FUN(centroids)
+    # colnames(dist_mat) = name_FUN(rownames(centroids))
+    colnames(dist_mat) = .apply_name_FUN(rownames(centroids), name_FUN)
     dist_mat
 }
 

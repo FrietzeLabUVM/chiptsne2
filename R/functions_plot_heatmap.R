@@ -116,7 +116,8 @@
         unique
 
     clust_dt[[ct2@region_VAR]] = factor(clust_dt[[ct2@region_VAR]], levels = rev(levels(clust_dt[[ct2@region_VAR]])))
-    clust_dt[[ct2@name_VAR]] = name_FUN(clust_dt[[ct2@name_VAR]])
+    # clust_dt[[ct2@name_VAR]] = name_FUN(clust_dt[[ct2@name_VAR]])
+    clust_dt[[ct2@name_VAR]] = .apply_name_FUN(clust_dt[[ct2@name_VAR]], name_FUN)
     # apply limits
     if(!is.na(heatmap_fill_limits[1])){
         #TODO

@@ -101,6 +101,7 @@ TMP_value_VAR = "TMP___value"
                                 label_FUN = geom_label,
                                 label_size = 10,
                                 point_size = NULL,
+                                point_stroke = 0,
                                 point_color_limits = c(NA, NA),
                                 has_symmetrical_limits = NULL,
                                 point_colors = NULL,
@@ -150,7 +151,7 @@ TMP_value_VAR = "TMP___value"
         p = underlayer_FUN(p, xy_df, point_size, background_annotation_color)
         p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
-            geom_point(size = point_size)
+            geom_point(size = point_size, stroke = point_stroke)
 
     }else if(all(color_VAR %in% colnames(getRegionMetaData(ct2)))){
         # color with region variable
@@ -196,7 +197,7 @@ TMP_value_VAR = "TMP___value"
         p = underlayer_FUN(p, xy_df, point_size, background_annotation_color)
         p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
-            geom_point(aes(color = !!ensym(TMP_value_VAR)), size = point_size) +
+            geom_point(aes(color = !!ensym(TMP_value_VAR)), size = point_size, stroke = point_stroke) +
             labs(color = NULL) +
             facet_wrap(paste0("~", TMP_group_VAR))
     }else if(all(color_VAR %in% colnames(ct2))){
@@ -219,7 +220,7 @@ TMP_value_VAR = "TMP___value"
         p = underlayer_FUN(p, xy_df, point_size, background_annotation_color)
         p = .background_FUN(p, xy_df, point_size, background_annotation_color)
         p = p +
-            geom_point(aes(color = max), size = point_size) +
+            geom_point(aes(color = max), size = point_size, stroke = point_stroke) +
             facet_wrap(paste0("~", ct2@name_VAR)) +
             labs(color = paste("max", ct2@value_VAR, "\nper", ct2@region_VAR))
         p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
@@ -245,6 +246,7 @@ generic_plotDimReducePoints = function(ct2,
                                        label_FUN = geom_label,
                                        label_size = 10,
                                        point_size = NULL,
+                                       point_stroke = 0,
                                        point_color_limits = c(NA, NA),
                                        has_symmetrical_limits = NULL,
                                        point_colors = NULL,
@@ -267,6 +269,7 @@ generic_plotDimReducePoints = function(ct2,
 #' @param label_FUN Function to add labels to plot. Only used when `label_VAR` is specified. Should be equivalent to geom_label: geom_text, ggrepel::geom_text_repel, or ggrepel::geom_label_repel. Must accept parameters, data, mapping, and show.legend.
 #' @param label_size Font size of label.
 #' @param point_size Size of points in plot.
+#' @param point_stroke Stroke width of points in plot.
 #' @param point_color_limits color scale limits for continuous color_VAR.
 #' @param has_symmetrical_limits If TRUE color scale limits will extend to equal
 #'   magnitude in positive and negative direction. Default is TRUE when negative
