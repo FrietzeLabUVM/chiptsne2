@@ -219,7 +219,8 @@ TMP_value_VAR = "TMP___value"
             labs(color = paste("max", ct2@value_VAR, "\nper", ct2@region_VAR))
         p = .apply_scale(p, point_colors, point_color_limits, fill = FALSE)
     }else{
-        stop("color_VAR: \"", color_VAR, "\" was not recognized. Check vs colnames of ct2 object or colnames of rowData(ct2).")
+        .validate_allowed_input(input = color_VAR, allowed = c(colnames(ct2), colnames(getRegionMetaData(ct2))), msg_prefix = "color_VAR must be in colnames of ct2 or colnames of rowData(ct2).")
+        # stop("color_VAR: \"", color_VAR, "\" was not recognized. Check vs colnames of ct2 object or colnames of rowData(ct2).")
     }
     if(!is.null(label_VAR)){
         p = .add_labels(

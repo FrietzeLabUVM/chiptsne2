@@ -105,8 +105,14 @@ add_group_annotation = function(anno_ids,
         text_colors = text_colors[seq(n_grps)]
         names(text_colors) = unique(anno_ids)
     }
-    stopifnot(all(anno_ids %in% names(rect_colors)))
-    stopifnot(all(anno_ids %in% names(text_colors)))
+    # stopifnot(all(anno_ids %in% names(rect_colors)))
+    if(!all(anno_ids %in% names(rect_colors))){
+        .validate_allowed_input(anno_ids, allowed = names(rect_colors), msg_prefix = paste(cluster_, ": rect_colors is missing values."))
+    }
+    # stopifnot(all(anno_ids %in% names(text_colors)))
+    if(!all(anno_ids %in% names(text_colors))){
+        .validate_allowed_input(anno_ids, allowed = names(text_colors), msg_prefix = paste(cluster_, ": text_colors is missing values."))
+    }
 
     anno_ids = rev(anno_ids)
 
