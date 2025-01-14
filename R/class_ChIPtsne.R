@@ -122,7 +122,7 @@ S4Vectors::setValidity2("ChIPtsne2", ct2_validity)
 #' @param anno_gr A GenomicRanges object to annotate ct2 based on overlap with rowRanges of ct2.
 #' @param anno_VAR Attribute in mcols of anno_gr to pull values from.
 #' @param anno_VAR_renames Matched vector to anno_VAR specifying final names in rowRanges of ct2. Essentially renames anno_VAR.
-#' @param no_overlap_value Value for when there is no overlap with anno_gr. Default is "no_hit".
+#' @param no_overlap_value Value for when there is no overlap with anno_gr. Default is "no_hit". Must be of length 1 or the same length as anno_VAR. Supply as a list if anno_VAR are of mixed data types.
 #' @param overlap_value Value for when there is an overlap, only relevant if anno_VAR is not in mcols of anno_gr. I.e. adding a single "hit" "no hit" annotation.
 #'
 #' @return A modified ChIPtsne2 object with added/overwritten sample metadata.
@@ -164,6 +164,9 @@ addRegionAnnotation = function(ct2,
     if(length(no_overlap_value) == 1){
         no_overlap_value = rep(no_overlap_value, length(anno_VAR))
     }
+    if(!is.list(no_overlap_value)){
+        no_overlap_value = as.list(no_overlap_value)
+    }
 
     olaps = GenomicRanges::findOverlaps(query = ct2, subject = anno_gr)
     new_gr = rowRanges(ct2)
@@ -171,7 +174,16 @@ addRegionAnnotation = function(ct2,
         av = anno_VAR[i]
         av_new = anno_VAR_renames[i]
         anno_vals = GenomicRanges::mcols(anno_gr)[[av]][S4Vectors::subjectHits(olaps)]
-        GenomicRanges::mcols(new_gr)[[av_new]] = no_overlap_value[i]
+        if(is.factor(anno_vals)){
+            if(is.factor(no_overlap_value[[i]])){
+                levels(anno_vals) = c(levels(anno_vals), as.character(no_overlap_value[[i]]))
+            }else{
+                levels(anno_vals) = c(levels(anno_vals), no_overlap_value[[i]])
+            }
+            no_overlap_value[[i]] = factor(no_overlap_value[[i]], levels = levels(anno_vals))
+
+        }
+        GenomicRanges::mcols(new_gr)[[av_new]] = no_overlap_value[[i]]
         GenomicRanges::mcols(new_gr)[[av_new]][S4Vectors::queryHits(olaps)] = anno_vals
     }
 

@@ -1,3 +1,6 @@
+# v 0.1.54
+* addRegionAnnotation no handles factors appropriately
+
 # v 0.1.53
 * added point_stroke paramter to plotDimReducePoints
 * name_FUN now run by .apply_name_FUN to preserve any factor ordering if present
