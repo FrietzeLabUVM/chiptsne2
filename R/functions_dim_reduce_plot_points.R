@@ -100,7 +100,7 @@ TMP_value_VAR = "TMP___value"
                                 label_VAR = NULL,
                                 label_FUN = geom_label,
                                 label_size = 10,
-                                point_size = NULL,
+                                point_size = 1,
                                 point_stroke = 0,
                                 point_color_limits = c(NA, NA),
                                 has_symmetrical_limits = NULL,
@@ -115,12 +115,6 @@ TMP_value_VAR = "TMP___value"
         stop("No dimensional reduction data present in this ChIPtsne2 object. Run dimReduceTSNE/PCA/UMAP first then try again.")
     }
     xy_df = getRegionMetaData(ct2, select_VARS = c("tx", "ty"))
-    if(is.null(point_size)){
-        nr = nrow(xy_df)
-        point_size = 1/nr*100
-        if(point_size < .05) point_size = .05
-        if(point_size > 1) point_size = 1
-    }
     if(is.null(color_VAR)){
         color_VAR = colnames(ct2)
     }
