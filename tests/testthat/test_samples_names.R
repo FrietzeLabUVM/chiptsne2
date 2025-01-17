@@ -22,6 +22,7 @@ ct2 = cbind(ct2_r1, ct2_r2)
 colData(ct2)
 
 ct2.agg = aggregateSamplesByGroup(ct2, group_VAR = "cell")
+
 colData(ct2.agg)
 
 getNameVariable(ct2)

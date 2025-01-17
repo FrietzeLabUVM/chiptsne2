@@ -58,13 +58,13 @@ ChIPtsne2_no_rowRanges = function(
 {
     se <- SummarizedExperiment::SummarizedExperiment(...)
     .ChIPtsne2_no_rowRanges(se,
-               rowToRowMat = rowToRowMat,
-               colToRowMatCols = colToRowMatCols,
-               name_VAR = name_VAR,
-               position_VAR = position_VAR,
-               value_VAR = value_VAR,
-               region_VAR = region_VAR,
-               fetch_config = fetch_config
+                            rowToRowMat = rowToRowMat,
+                            colToRowMatCols = colToRowMatCols,
+                            name_VAR = name_VAR,
+                            position_VAR = position_VAR,
+                            value_VAR = value_VAR,
+                            region_VAR = region_VAR,
+                            fetch_config = fetch_config
     )
 }
 
@@ -334,7 +334,6 @@ ct2_nrr_split = function(x, f = NULL, drop=FALSE, ...){
     #         mode = "by_row"
     #     }
     # }
-
     if(mode == "by_column"){
         x.split = lapply(f, function(split_val)x[, split_val])
     }else{
@@ -381,9 +380,14 @@ setMethod("split", "ChIPtsne2_no_rowRanges", ct2_nrr_split)
 ct2_nrr_cbind = function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, colnames, "Column")
-    .validate_names_match(args, rownames, "Row")
-
-
+    .validate_names_compatible(args, rownames, "Row")
+    #enforce consistent ordering
+    if(length(args) > 1){
+        ref_arg = args[[1]]
+        for(i in seq(2, length(args))){
+            args[[i]]  = args[[i]][rownames(ref_arg), ]
+        }
+    }
     all.rrm <- lapply(args, rowToRowMat)
     all.c2rrm <- lapply(args, colToRowMatCols)
 
@@ -391,21 +395,18 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
     names(all.c2rrm) = NULL
     all.c2rrm <- do.call(c, all.c2rrm)
 
-    # Checks for identical column state.
-    ref <- args[[1]]
-    ref.rrm <- rowToRowMat(ref)
-    for (x in args[-1]) {
-        if (!identical(rownames(ref.rrm), rownames(rowToRowMat(x))))
-        {
-            stop("per-row values are not compatible")
-        }
-    }
+    # cbind rowToRowMat
+    all.rrm <- lapply(args, rowToRowMat)
+    all.rrm <- do.call(cbind, all.rrm)
+
+
 
     old.validity <- S4Vectors:::disableValidity()
     S4Vectors:::disableValidity(TRUE)
     on.exit(S4Vectors:::disableValidity(old.validity))
 
-    out <- callNextMethod()
+    out = do.call(callNextMethod, c(args, list(deparse.level = deparse.level)))
+    # out <- callNextMethod(args, deparse.level = deparse.level)
     BiocGenerics:::replaceSlots(
         out,
         rowToRowMat=all.rrm,
@@ -436,23 +437,17 @@ setMethod("cbind", "ChIPtsne2_no_rowRanges", ct2_nrr_cbind)
 ct2_nrr_rbind = function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, rownames, "Row")
-    .validate_names_match(args, colnames, "Column")
-
-    all.rrm <- lapply(args, rowToRowMat)
-
-    ref.rrm <- all.rrm[[1]]
-    for (i in seq_along(all.rrm)[-1]) {
-        x = all.rrm[[i]]
-        if (!identical(colnames(ref.rrm), colnames(x)))
-        {
-            if(setequal(colnames(ref.rrm), colnames(x))){
-                all.rrm[[i]] = all.rrm[[i]][, colnames(ref.rrm)]
-            }else{
-                stop("per-row values are not compatible")
-            }
+    .validate_names_compatible(args, colnames, "Column")
+    #enforce consistent ordering
+    if(length(args) > 1){
+        ref_arg = args[[1]]
+        for(i in seq(2, length(args))){
+            args[[i]]  = args[[i]][, colnames(ref_arg)]
         }
     }
 
+
+    all.rrm <- lapply(args, rowToRowMat)
     all.rrm <- do.call(rbind, all.rrm)
 
     # Checks for identical column state.
@@ -462,7 +457,7 @@ ct2_nrr_rbind = function(..., deparse.level=1) {
     S4Vectors:::disableValidity(TRUE)
     on.exit(S4Vectors:::disableValidity(old.validity))
 
-    out <- callNextMethod()
+    out = do.call(callNextMethod, c(args, list(deparse.level = deparse.level)))
     BiocGenerics:::replaceSlots(
         out,
         rowToRowMat=all.rrm,

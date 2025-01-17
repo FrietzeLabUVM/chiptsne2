@@ -27,10 +27,17 @@ test_that("cbind ChIPtsne2", {
     ct2.cbind = cbind(ct2.by_cell$MCF10A, ct2.by_cell$MCF10AT1, ct2.by_cell$MCF10CA1)
     expect_equal(ncol(ct2.cbind), 3)
     expect_equal(colnames(ct2.cbind), c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"))
+
     ct2.cbind2 = cbind(ct2.by_cell$MCF10AT1, ct2.by_cell$MCF10CA1, ct2.by_cell$MCF10A)
     expect_equal(colnames(ct2.cbind2), c("MCF10AT1_CTCF", "MCF10CA1_CTCF", "MCF10A_CTCF"))
-
     expect_error(cbind(ct2.by_peak$`FALSE`, ct2.by_peak$`TRUE`), regexp = "Duplicated Column names are not allowed")
+
+    #the order of item 1 rowname is used if their orders differ but are still setequal
+    ct2.rev2 = cbind(ct2.by_cell$MCF10AT1, ct2.by_cell$MCF10CA1[100:1,])
+    ct2.not_rev = cbind(ct2.by_cell$MCF10AT1, ct2.by_cell$MCF10CA1)
+    meta.rev2 = getRegionMetaData(ct2.rev2, include_value_max = TRUE)
+    meta.not_rev = getRegionMetaData(ct2.not_rev, include_value_max = TRUE)
+    expect_true(all(meta.rev2 == meta.not_rev))
 })
 
 test_that("rbind ChIPtsne2", {
@@ -40,6 +47,13 @@ test_that("rbind ChIPtsne2", {
     expect_setequal(rownames(ct2.rbind), c(rownames(ct2.by_peak$`FALSE`), rownames(ct2.by_peak$`TRUE`)))
     expect_setequal(rownames(ct2.rbind2), c(rownames(ct2.by_peak$`TRUE`), rownames(ct2.by_peak$`FALSE`)))
     expect_error(rbind(ct2.by_cell$MCF10A, ct2.by_cell$MCF10AT1, ct2.by_cell$MCF10CA1), regexp = "Duplicated Row names are not allowed ")
+
+    #the order of item 1 rowname is used if their orders differ but are still setequal
+    ct2.rev2 = rbind(ct2.by_peak$`FALSE`, ct2.by_peak$`TRUE`[, 3:1])
+    ct2.not_rev = ct2.rbind
+    meta.rev2 = getRegionMetaData(ct2.rev2, include_value_max = TRUE)
+    meta.not_rev = getRegionMetaData(ct2.not_rev, include_value_max = TRUE)
+    expect_true(all(meta.rev2 == meta.not_rev))
 })
 
 test_that("cbind ChIPtsne2List", {
@@ -48,8 +62,9 @@ test_that("cbind ChIPtsne2List", {
     expect_equal(colnames(ct2.cbind), c("MCF10A_CTCF", "MCF10AT1_CTCF", "MCF10CA1_CTCF"))
     ct2.cbind2 = cbind(ct2.by_cell[c(2, 3, 1)])
     expect_equal(colnames(ct2.cbind2), c("MCF10AT1_CTCF", "MCF10CA1_CTCF", "MCF10A_CTCF"))
-
     expect_error(cbind(ct2.by_peak), regexp = "Duplicated Column names are not allowed")
+
+    ct2.cbind3 = cbind(ct2.by_cell$MCF10A, ct2.by_cell$MCF10AT1[c(seq(10, 1), seq(11,100)), ])
 })
 
 test_that("rbind ChIPtsne2List", {

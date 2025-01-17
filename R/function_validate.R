@@ -20,6 +20,21 @@
 }
 
 #' @importFrom utils head
+.validate_names_compatible = function(args, dim_FUN, str){
+    ref = args[[1]]
+    for(test in args[-1]){
+        if(!setequal(dim_FUN(ref), dim_FUN(test))){
+            a = setdiff(dim_FUN(ref), dim_FUN(test))
+            b = setdiff(dim_FUN(test), dim_FUN(ref))
+            stop(paste(c(paste0(str, " name sets must be equivalent for all ChIPtsne2_no_rowRanges objects. Example mismatches: "),
+                         utils::head(paste(a, "in A and not B")),
+                         utils::head(paste(b, "in B and not A"))
+            ), collapse = "\n"))
+        }
+    }
+}
+
+#' @importFrom utils head
 .validate_names_unique = function(args, dim_FUN, str){
     cns = unname(unlist(lapply(args, dim_FUN)))
     cn_dupes = duplicated(cns)
