@@ -440,17 +440,23 @@ ct2_nrr_rbind = function(..., deparse.level=1) {
 
     all.rrm <- lapply(args, rowToRowMat)
 
+    ref.rrm <- all.rrm[[1]]
+    for (i in seq_along(all.rrm)[-1]) {
+        x = all.rrm[[i]]
+        if (!identical(colnames(ref.rrm), colnames(x)))
+        {
+            if(setequal(colnames(ref.rrm), colnames(x))){
+                all.rrm[[i]] = all.rrm[[i]][, colnames(ref.rrm)]
+            }else{
+                stop("per-row values are not compatible")
+            }
+        }
+    }
+
     all.rrm <- do.call(rbind, all.rrm)
 
     # Checks for identical column state.
-    ref <- args[[1]]
-    ref.rrm <- rowToRowMat(ref)
-    for (x in args[-1]) {
-        if (!identical(colnames(ref.rrm), colnames(rowToRowMat(x))))
-        {
-            stop("per-row values are not compatible")
-        }
-    }
+
 
     old.validity <- S4Vectors:::disableValidity()
     S4Vectors:::disableValidity(TRUE)

@@ -48,6 +48,9 @@ ChIPtsne2.from_tidy = function(prof_dt,
     if(is(prof_dt, "GRanges")){
         prof_dt = data.table::as.data.table(prof_dt)
     }
+    if(!is(prof_dt, "data.table")){
+        prof_dt = data.table::as.data.table(prof_dt)
+    }
     #basic VAR checks
     if(!all(c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt))){
         missed = !c(name_VAR, position_VAR, value_VAR, region_VAR) %in% colnames(prof_dt)
@@ -116,6 +119,10 @@ ChIPtsne2.from_tidy = function(prof_dt,
     }
 
     #create wide profile matrix
+    #ensure predictable column ordering
+    prof_dt[[region_VAR]] = factor(prof_dt[[region_VAR]], levels = rn)
+    prof_dt[[name_VAR]] = factor(prof_dt[[name_VAR]], levels = cn)
+    prof_dt = prof_dt[order(get(position_VAR))][order(get(name_VAR))]
     tmp_wide = tidyr::pivot_wider(
         prof_dt,
         names_from = dplyr::all_of(c(name_VAR, position_VAR)),

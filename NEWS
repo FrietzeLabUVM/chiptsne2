@@ -1,5 +1,8 @@
+# v 0.1.55
+* more consistent/predictable internal handling of sample names to allow more robust function behavior - motivated by rbind error
+
 # v 0.1.54
-* addRegionAnnotation no handles factors appropriately
+* addRegionAnnotation now handles factors appropriately
 
 # v 0.1.53
 * added point_stroke paramter to plotDimReducePoints
