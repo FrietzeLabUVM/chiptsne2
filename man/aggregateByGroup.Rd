@@ -4,15 +4,19 @@
 \alias{aggregateByGroup}
 \title{aggregateByGroup}
 \usage{
-aggregateByGroup(ct2, group_VAR, group_sep = " ", region_sep = " ", group_)
+aggregateByGroup(ct2, group_VARS, sample_sep = " ", region_sep = " ")
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object.}
 
-\item{group_VAR}{Attribute name to aggregate samples and/or regions to.  There will be 1 meta-sample per unique sampled entry in \code{group_VAR} and 1 meta-region per unique region entry. \code{group_VAR} may specify multiple attributes, in which case there will 1 meta-region and/or sample per combination of entries in all \code{group_VAR}.}
+\item{group_VARS}{Attribute name to aggregate samples and/or regions to.  There will be 1 meta-sample per unique sampled entry in \code{group_VARS} and 1 meta-region per unique region entry. \code{group_VARS} may specify multiple attributes, in which case there will 1 meta-region and/or sample per combination of entries in all \code{group_VARS}.}
+
+\item{sample_sep}{Separator character to use when pasting multiple sample grouping variables.}
+
+\item{region_sep}{Separator character to use when pasting multiple region grouping variables.}
 }
 \value{
-Either a ChIPtsne2 or ChIPtsne2_no_rowRanges object, with meta-regions for combinations of \code{group_VAR} values if region aggregation occurred.
+Either a ChIPtsne2 or ChIPtsne2_no_rowRanges object, with meta-regions for combinations of \code{group_VARS} values if region aggregation occurred.
 }
 \description{
 aggregateByGroup

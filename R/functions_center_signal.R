@@ -2,6 +2,8 @@
 
 
 .centerProfilesAndRefetch = function(ct2, view_size = NULL, use_cache = TRUE){
+    #visible binding NOTE
+    `.` = `:=` = original_center = start = end = strand_multiplier = strand = NULL
     message("centerProfilesAndRefetch ...")
     args = get_args()
     if(isFetchConfigNull(ct2@fetch_config)){

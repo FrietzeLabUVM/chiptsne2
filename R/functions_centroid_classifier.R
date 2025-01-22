@@ -49,6 +49,7 @@ classify_by_centroid_distances = function(distances, centroids,
 #' @param group_VARS A least 1 categorical attribute in rowData of `ct2`. When
 #'   multiple attributes are specified, centroids will be calculated for all
 #'   combinations of groups.
+#' @param sep Separator character to use when pasting multiple grouping variables.
 #'
 #' @return A matrix of centroid profiles per group. Input to
 #'   [groupRegionsByCentroidDistance].

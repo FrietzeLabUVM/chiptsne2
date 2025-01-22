@@ -172,7 +172,7 @@ setGeneric("rowToRowMat<-", function(x, value)
 
 ct2_nrr_set_rowToRowMat = function(x, value) {
     x@rowToRowMat <- value
-    validObject(x)
+    x = .recalculateMax_ct2(x)
     x
 }
 
@@ -430,6 +430,11 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
 #' ct2 = cbind(ct2.left, ct2.right)
 #' dim(ct2)
 #' colnames(ct2)
+#'
+#' rowData(ct2.left)$tx = seq(100)
+#' rowData(ct2.right)$tx = 1
+#' colData(ct2.left)$tmp = "A"
+#' ct2 = cbind(ct2.left, ct2.right)
 setMethod("cbind", "ChIPtsne2_no_rowRanges", ct2_nrr_cbind)
 
 #based on
@@ -482,6 +487,14 @@ ct2_nrr_rbind = function(..., deparse.level=1) {
 #' rownames(ct2_b) = paste0("b_", rownames(ct2_b))
 #' ct2_rbind = rbind(ct2_a, ct2_b)
 #' rownames(ct2_rbind)
+#'
+#' rowData(ct2_a)$tx = seq(100)
+#' colData(ct2_a)$tmp = "A"
+#' colData(ct2_b)$tmp = "B"
+#' ct2 = rbind(ct2_a, ct2_b)
+#'
+#' rowData(ct2)
+#' colData(ct2)
 setMethod("rbind", "ChIPtsne2_no_rowRanges", ct2_nrr_rbind)
 
 ct2_nrr_set_dimnames =  function(x, value){

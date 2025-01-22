@@ -15,6 +15,7 @@ Suggests:
     curl,
     knitr,
     testthat,
+    tidyverse,
     rmarkdown
 Depends:
     R (>= 4.3.0),

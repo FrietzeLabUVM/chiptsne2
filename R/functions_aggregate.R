@@ -127,9 +127,11 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_name_VAR = ifelse(length(
 #' aggregateByGroup
 #'
 #' @param ct2 `r doc_ct2()`
-#' @param group_VAR Attribute name to aggregate samples and/or regions to.  There will be 1 meta-sample per unique sampled entry in `group_VAR` and 1 meta-region per unique region entry. `group_VAR` may specify multiple attributes, in which case there will 1 meta-region and/or sample per combination of entries in all `group_VAR`.
+#' @param group_VARS Attribute name to aggregate samples and/or regions to.  There will be 1 meta-sample per unique sampled entry in `group_VARS` and 1 meta-region per unique region entry. `group_VARS` may specify multiple attributes, in which case there will 1 meta-region and/or sample per combination of entries in all `group_VARS`.
+#' @param sample_sep Separator character to use when pasting multiple sample grouping variables.
+#' @param region_sep Separator character to use when pasting multiple region grouping variables.
 #'
-#' @return Either a ChIPtsne2 or ChIPtsne2_no_rowRanges object, with meta-regions for combinations of `group_VAR` values if region aggregation occurred.
+#' @return Either a ChIPtsne2 or ChIPtsne2_no_rowRanges object, with meta-regions for combinations of `group_VARS` values if region aggregation occurred.
 #' @export
 #'
 #' @examples
@@ -149,16 +151,16 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_name_VAR = ifelse(length(
 #' ct2.agg3 = aggregateByGroup(ct2.reps, c("cell", "mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
 #' colData(ct2.agg3)
 #' rowData(ct2.agg3)
-aggregateByGroup = function(ct2, group_VAR, group_sep = " ", region_sep = " ", group_){
-    group_VAR.col = group_VAR[group_VAR %in% colnames(colData(ct2))]
-    group_VAR.row = group_VAR[group_VAR %in% colnames(rowData(ct2))]
-    if(length(group_VAR.col) > 0){
-        ct2.meta = aggregateSamplesByGroup(ct2, group_VAR.col, sep = group_sep)
+aggregateByGroup = function(ct2, group_VARS, sample_sep = " ", region_sep = " "){
+    group_VARS.col = group_VARS[group_VARS %in% colnames(colData(ct2))]
+    group_VARS.row = group_VARS[group_VARS %in% colnames(rowData(ct2))]
+    if(length(group_VARS.col) > 0){
+        ct2.meta = aggregateSamplesByGroup(ct2, group_VARS.col, sep = sample_sep)
     }else{
         ct2.meta = ct2
     }
-    if(length(group_VAR.row) > 0){
-        ct2.meta = aggregateRegionsByGroup(ct2.meta, group_VAR.row, sep = region_sep)
+    if(length(group_VARS.row) > 0){
+        ct2.meta = aggregateRegionsByGroup(ct2.meta, group_VARS.row, sep = region_sep)
     }
 
     ct2.meta

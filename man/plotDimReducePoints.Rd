@@ -12,6 +12,7 @@ plotDimReducePoints(
   label_FUN = geom_label,
   label_size = 10,
   point_size = NULL,
+  point_stroke = 0,
   point_color_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
   point_colors = NULL,
@@ -27,7 +28,8 @@ plotDimReducePoints(
   label_VAR = NULL,
   label_FUN = geom_label,
   label_size = 10,
-  point_size = NULL,
+  point_size = 1,
+  point_stroke = 0,
   point_color_limits = c(NA, NA),
   has_symmetrical_limits = NULL,
   point_colors = NULL,
@@ -52,6 +54,8 @@ color mapping.}
 \item{label_size}{Font size of label.}
 
 \item{point_size}{Size of points in plot.}
+
+\item{point_stroke}{Stroke width of points in plot.}
 
 \item{point_color_limits}{color scale limits for continuous color_VAR.}
 

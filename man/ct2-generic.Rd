@@ -35,10 +35,23 @@ colnames(ct2.right) = paste0("right_", colnames(ct2.right))
 ct2 = cbind(ct2.left, ct2.right)
 dim(ct2)
 colnames(ct2)
+
+rowData(ct2.left)$tx = seq(100)
+rowData(ct2.right)$tx = 1
+colData(ct2.left)$tmp = "A"
+ct2 = cbind(ct2.left, ct2.right)
 ct2_a = exampleChIPtsne2()
 ct2_b = exampleChIPtsne2()
 # duplicated rownames are not allowed so we need to modify before rbind
 rownames(ct2_b) = paste0("b_", rownames(ct2_b))
 ct2_rbind = rbind(ct2_a, ct2_b)
 rownames(ct2_rbind)
+
+rowData(ct2_a)$tx = seq(100)
+colData(ct2_a)$tmp = "A"
+colData(ct2_b)$tmp = "B"
+ct2 = rbind(ct2_a, ct2_b)
+
+rowData(ct2)
+colData(ct2)
 }

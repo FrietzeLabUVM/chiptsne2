@@ -12,6 +12,8 @@ calculateGroupCentroid(ct2, group_VARS, sep = ",")
 \item{group_VARS}{A least 1 categorical attribute in rowData of \code{ct2}. When
 multiple attributes are specified, centroids will be calculated for all
 combinations of groups.}
+
+\item{sep}{Separator character to use when pasting multiple grouping variables.}
 }
 \value{
 A matrix of centroid profiles per group. Input to

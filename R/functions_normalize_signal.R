@@ -309,5 +309,4 @@ setGeneric("normalizeSignalPerRegion",
            signature = "ct2")
 
 #' @export
-#' @rdname ct2-calccap
 setMethod("normalizeSignalPerRegion", c("ChIPtsne2_no_rowRanges"), .normalizeSignalPerRegion)

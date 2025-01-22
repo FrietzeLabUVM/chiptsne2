@@ -26,4 +26,5 @@ getRegionMetaData
 ct2 = exampleChIPtsne2()
 getRegionMetaData(ct2)
 getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
+getRegionMetaData(ct2, c("peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"), include_value_max = TRUE)
 }

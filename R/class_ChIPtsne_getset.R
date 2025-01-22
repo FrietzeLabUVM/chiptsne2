@@ -70,8 +70,6 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR
     names(new_rn) = NULL
 
     rownames(r2rm) = new_rn
-    rowToRowMat(ct2) = r2rm
-
     old_assays = ct2@assays@data
     for(i in seq_along(old_assays)){
         rownames(old_assays[[i]]) = new_rn
@@ -88,6 +86,7 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR
     if(!is.null(new_VAR)){
         ct2@region_VAR = new_VAR
     }
+    rowToRowMat(ct2) = r2rm
     ct2
 }
 
@@ -131,13 +130,14 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR
     names(tmp) = NULL
     names(c2rmc) = tmp
 
-    old_assays = ct2@assays@data
-    for(i in seq_along(old_assays)){
-        new_cn = new_names[colnames(old_assays[[i]])]
-        names(new_cn) = NULL
-        colnames(old_assays[[i]]) = new_cn
-    }
-    ct2@assays = SummarizedExperiment::Assays(old_assays)
+    # assay(ct2) = NULL
+    # old_assays = ct2@assays@data
+    # for(i in seq_along(old_assays)){
+    #     new_cn = new_names[colnames(old_assays[[i]])]
+    #     names(new_cn) = NULL
+    #     colnames(old_assays[[i]]) = new_cn
+    # }
+    # ct2@assays = SummarizedExperiment::Assays(old_assays)
 
     k = colnames(rowData(ct2)) %in% new_names
     if(any(k)){
@@ -148,9 +148,8 @@ setMethod("swapNameVariable", c("ChIPtsne2_no_rowRanges"), function(ct2, new_VAR
                 paste(paste(old_names, "->", fixed_names), collapse = "\n"))
         colnames(rowData(ct2))[k] = fixed_names
     }
-
-    rowToRowMat(ct2) = r2rm
     colToRowMatCols(ct2) = c2rmc
+    rowToRowMat(ct2) = r2rm
     if(!is.null(new_VAR)){
         ct2@name_VAR = new_VAR
     }

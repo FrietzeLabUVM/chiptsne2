@@ -3,14 +3,11 @@
 \name{calculateSignalCapValue}
 \alias{calculateSignalCapValue}
 \alias{calculateSignalCapValue,ChIPtsne2_no_rowRanges-method}
-\alias{normalizeSignalPerRegion,ChIPtsne2_no_rowRanges-method}
 \title{calculateSignalCapValue}
 \usage{
 calculateSignalCapValue(ct2, signal_cap_VAR = "cap_value", cap_quantile = 0.95)
 
 \S4method{calculateSignalCapValue}{ChIPtsne2_no_rowRanges}(ct2, signal_cap_VAR = "cap_value", cap_quantile = 0.95)
-
-\S4method{normalizeSignalPerRegion}{ChIPtsne2_no_rowRanges}(ct2, group_VARS = NULL)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2_no_rowRanges object.}
