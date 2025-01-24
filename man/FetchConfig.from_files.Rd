@@ -21,7 +21,7 @@ FetchConfig.from_files(
 
 \item{name_VAR}{Name variable.}
 
-\item{view_size}{view size in bp to apply. Defaults to 3000.}
+\item{view_size}{view size in bp to apply. Defaults to 3000. Set to NULL, NA, or -1 to suppress application of view_size.}
 
 \item{window_size}{The window size used when fetching signal. Lower values
 increase resolution but also RAM usage. Default is 200 bp.}

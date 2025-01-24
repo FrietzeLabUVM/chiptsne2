@@ -1,3 +1,6 @@
+# v 0.1.56
+* FetchConfig now suppresses view_size application when view_size is NA, NULL, or < 1
+
 # v 0.1.55
 * more consistent/predictable internal handling of sample names to allow more robust function behavior - motivated by rbind error
 

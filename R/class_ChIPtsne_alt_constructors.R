@@ -254,9 +254,13 @@ ChIPtsne2.from_FetchConfig = function(fetch_config,
     name_VAR = fetch_config@name_VAR
     sample_metadata = fetch_config@meta_data
     query_gr = seqsetvis::prepare_fetch_GRanges_names(query_gr)
-    query_gr = GenomicRanges::resize(query_gr, width = fetch_config@view_size, fix = "center")
-    query_gr = seqsetvis::prepare_fetch_GRanges_width(query_gr, win_size = fetch_config$window_size)
-
+    if(!fetch_config$view_size < 1){
+        if(fetch_config$view_size %% fetch_config$window_size > 0){
+            fetch_config$view_size = fetch_config$window_size * ceiling(fetch_config$view_size / fetch_config$window_size)
+            message("view_size increased to ", fetch_config$view_size, " to be divisible by window_size.")
+        }
+        query_gr = GenomicRanges::resize(query_gr, width = fetch_config$view_size, fix = "center")
+    }
     fetch_res = runFetchAtRegions(fetch_config, query_gr, use_cache = use_cache)
     prof_dt = fetch_res$prof_dt
     prof_dt = translateSSVtoCT2(prof_dt)
@@ -298,6 +302,7 @@ ChIPtsne2.history = function(ct2){
         new_region_VAR = NULL,
         new_fetch_config = NULL,
         new_rowRanges = NULL,
+        new_rowData = NULL,
         new_colData = NULL,
         new_assays = NULL,
         new_obj_history = NULL
@@ -309,7 +314,13 @@ ChIPtsne2.history = function(ct2){
     if(is.null(new_value_VAR)) new_value_VAR = ct2@value_VAR
     if(is.null(new_region_VAR)) new_region_VAR = ct2@region_VAR
     if(is.null(new_fetch_config)) new_fetch_config = ct2@fetch_config
-    if(is.null(new_rowRanges)) new_rowRanges = rowRanges(ct2)
+    #rowRanges and rowData have a complicated relationship, cannot specify both
+    if(is.null(new_rowRanges) & is.null(new_rowData)){
+        new_rowRanges = rowRanges(ct2)
+    }else if(is.null(new_rowRanges)){
+        new_rowRanges = rowRanges(ct2)
+        GenomicRanges::mcols(new_rowRanges) = new_rowData
+    }
     if(is.null(new_colData)) new_colData = colData(ct2)
     if(is.null(new_assays)) new_assays = as.list(ct2@assays@data)
     if(is.null(new_obj_history)) new_obj_history = ct2@metadata
@@ -328,7 +339,7 @@ ChIPtsne2.history = function(ct2){
               metadata = new_obj_history)
 }
 
-.cloneChIPtsne2_no_rowData = function(
+.cloneChIPtsne2_no_rowRanges = function(
         ct2,
         new_rowToRowMat = NULL,
         new_colToRowMatCols = NULL,
@@ -337,10 +348,15 @@ ChIPtsne2.history = function(ct2){
         new_value_VAR = NULL,
         new_region_VAR = NULL,
         new_fetch_config = NULL,
+        new_rowRanges = NULL,
         new_rowData = NULL,
         new_colData = NULL,
         new_assays = NULL,
         new_obj_history = NULL){
+    if(!is.null(new_rowRanges)){
+        stop("new_rowRanges is not allowed when cloning a ChIPtsne2_no_rowRanges.")
+    }
+
     if(is.null(new_rowToRowMat)) new_rowToRowMat = rowToRowMat(ct2)
     if(is.null(new_colToRowMatCols)) new_colToRowMatCols = colToRowMatCols(ct2)
     if(is.null(new_name_VAR)) new_name_VAR = ct2@name_VAR
@@ -405,6 +421,7 @@ setGeneric("cloneChIPtsne2",
                     new_region_VAR = NULL,
                     new_fetch_config = NULL,
                     new_rowRanges = NULL,
+                    new_rowData = NULL,
                     new_colData = NULL,
                     new_assays = NULL,
                     new_obj_history = NULL){
@@ -414,7 +431,11 @@ setGeneric("cloneChIPtsne2",
 
 #' @export
 #' @rdname ct2-clone
-setMethod("cloneChIPtsne2", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2)
+setMethod("cloneChIPtsne2", c("ChIPtsne2_no_rowRanges"), .cloneChIPtsne2_no_rowRanges)
+
+#' @export
+#' @rdname ct2-clone
+setMethod("cloneChIPtsne2", c("ChIPtsne2"), .cloneChIPtsne2)
 
 .cloneChIPtsne2_fromTidy = function(ct2,
                                     new_prof_dt = NULL,

@@ -30,8 +30,7 @@ specified by \code{name_VAR}. and color_by.}
 
 \item{read_mode}{Read mode of signal data, one of bam_SE, bam_PE, or bigwig.}
 
-\item{view_size}{Consistent size to use when viewing assessment regions. Uses
-3kb as default.}
+\item{view_size}{view size in bp to apply. Defaults to 3000. Set to NULL, NA, or -1 to suppress application of view_size.}
 
 \item{window_size}{The window size used when fetching signal. Lower values
 increase resolution but also RAM usage. Default is 200 bp.}

@@ -12,8 +12,7 @@
 #'   (bam or bigwig) files. Must contain a "file" attribute and the attribute
 #'   specified by `name_VAR`. and color_by.
 #' @param read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
-#' @param view_size Consistent size to use when viewing assessment regions. Uses
-#'   3kb as default.
+#' @param view_size view size in bp to apply. Defaults to 3000. Set to NULL, NA, or -1 to suppress application of view_size.
 #' @param window_size The window size used when fetching signal. Lower values
 #'   increase resolution but also RAM usage. Default is 200 bp.
 #' @param fetch_options Named list of additional arguments to pass to signal
@@ -80,6 +79,13 @@ FetchConfig = function(config_df,
 
     if(!read_mode %in% sqc_read_modes){
         stop('read_mode must be one of: "', paste(sqc_read_modes, collapse = '", "'), '"\nInstead it was: "', read_mode, '"')
+    }
+
+    if(is.null(view_size)){
+        view_size = -1
+    }
+    if(is.na(view_size)){
+        view_size = -1
     }
 
     .FetchConfig(
@@ -191,7 +197,7 @@ FetchConfig.load_config = function(signal_config_file, name_VAR = NULL){
 #' @param file_paths character paths to files
 #' @param group_names vector of group names to assign from according to groups
 #' @param name_VAR Name variable.
-#' @param view_size view size in bp to apply. Defaults to 3000.
+#' @param view_size view size in bp to apply. Defaults to 3000. Set to NULL, NA, or -1 to suppress application of view_size.
 #' @param window_size The window size used when fetching signal. Lower values
 #'   increase resolution but also RAM usage. Default is 200 bp.
 #' @param read_mode Read mode of signal data, one of bam_SE, bam_PE, or bigwig.
@@ -316,6 +322,12 @@ setReplaceMethod("$", "FetchConfig",
                      warn_msg = "This assignment is not supported.  No effect."
                      switch (name,
                              view_size = {
+                                 if(is.null(value)){
+                                     value = -1
+                                 }
+                                 if(is.na(value)){
+                                     value = -1
+                                 }
                                  x@view_size = value
                              },
                              window_size = {
