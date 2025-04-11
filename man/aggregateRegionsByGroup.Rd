@@ -8,7 +8,8 @@ aggregateRegionsByGroup(
   ct2,
   group_VAR,
   new_region_VAR = ifelse(length(group_VAR) == 1, group_VAR, "grouped_regions"),
-  sep = " "
+  sep = " ",
+  summary_FUN = mean
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ aggregateRegionsByGroup(
 \item{new_region_VAR}{The new region variable of the resulting ChIPtsne2 object. Defaults to \code{group_VAR} for single \code{group_VAR} but then defaults to "grouped_regions" if there are multiple.}
 
 \item{sep}{Works just like \code{sep} parameter for base::paste. Used to combine multiple group_VAR values.}
+
+\item{summary_FUN}{function applied to every column to summarize rows. Default is mean.}
 }
 \value{
 A ChIPtsne2_no_rowRanges object with meta-regions for combinations of \code{group_VAR} values.

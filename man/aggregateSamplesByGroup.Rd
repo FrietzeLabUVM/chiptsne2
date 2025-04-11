@@ -8,7 +8,8 @@ aggregateSamplesByGroup(
   ct2,
   group_VAR,
   new_name_VAR = ifelse(length(group_VAR) == 1, group_VAR, "group_name"),
-  sep = " "
+  sep = " ",
+  summary_FUN = mean
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ aggregateSamplesByGroup(
 \item{new_name_VAR}{The new name variable of the resulting ChIPtsne2 object. Defaults to \code{group_VAR} for single \code{group_VAR} but then defaults to "grouped_regions" if there are multiple.}
 
 \item{sep}{Works just like \code{sep} parameter for base::paste. Used to combine multiple group_VAR values.}
+
+\item{summary_FUN}{function applied to every row to summarize columns. Default is mean.}
 }
 \value{
 A ChIPtsne2_no_rowRanges object with meta-regions for combinations of \code{group_VAR} values.

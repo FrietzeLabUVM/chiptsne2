@@ -366,7 +366,7 @@ get_args = function(env = parent.frame(), to_ignore = "ct2", ...){
     ))
     region_metadata[[region_VAR]] = factor(region_metadata[[region_VAR]], levels = names(query_gr))
     region_metadata = region_metadata %>% dplyr::arrange(get(region_VAR))
-    conflicting_cn = intersect(colnames(region_metadata), colnames(mcols(query_gr)))
+    conflicting_cn = intersect(colnames(region_metadata), colnames(GenomicRanges::mcols(query_gr)))
     old_mcols = GenomicRanges::mcols(query_gr)
     if(length(conflicting_cn) > 0){
      if(overwrite){

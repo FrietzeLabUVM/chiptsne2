@@ -17,6 +17,8 @@ colData(ct2_r2)
 colnames(ct2_r1) = paste(ct2_r1$cell, ct2_r1$rep, sep = "_")
 colnames(ct2_r2) = paste(ct2_r2$cell, ct2_r2$rep, sep = "_")
 
+class(ct2_r1)
+class(ct2_r2)
 ct2 = cbind(ct2_r1, ct2_r2)
 
 colData(ct2)

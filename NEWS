@@ -1,3 +1,7 @@
+# v 0.1.57
+* added summary_FUN to all aggregate functions to allow artibrary summarization of groups.
+* added .signed_max() function so that plotDimReduceBins is appropriate for domains including negative values.
+
 # v 0.1.56
 * FetchConfig now suppresses view_size application when view_size is NA, NULL, or < 1
 

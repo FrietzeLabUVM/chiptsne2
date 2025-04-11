@@ -71,5 +71,29 @@ test_that("aggregateByGroup variable names", {
     expect_equal(nrow(getRegionMetaData(ct2.1row)), 1)
     expect_equal(nrow(getRegionMetaData(ct2.1col)), 100)
     expect_equal(nrow(getRegionMetaData(ct2.1x1)), 1)
+
+    expect_equal(mean(ct2@rowToRowMat), mean(ct2.1col@rowToRowMat))
+    expect_equal(mean(ct2@rowToRowMat), mean(ct2.1row@rowToRowMat))
+    expect_equal(mean(ct2@rowToRowMat), mean(ct2.1x1@rowToRowMat))
+})
+
+test_that("summary_FUN", {
+    test_fun = function(x){1}
+    ct2.1col = aggregateSamplesByGroup(ct2, "mark", summary_FUN = test_fun)
+    expect_equal(getRegionVariable(ct2.1col), "region")
+    expect_equal(getNameVariable(ct2.1col), "mark")
+
+
+    ct2.1row = aggregateRegionsByGroup(ct2, "all", summary_FUN = test_fun)
+    expect_equal(getRegionVariable(ct2.1row), "all")
+    expect_equal(getNameVariable(ct2.1row), "name")
+
+    ct2.1x1 = aggregateByGroup(ct2, c("all", "mark"), summary_FUN = test_fun)
+    expect_equal(getRegionVariable(ct2.1x1), "all")
+    expect_equal(getNameVariable(ct2.1x1), "mark")
+
+    expect_equal(1, mean(ct2.1col@rowToRowMat))
+    expect_equal(1, mean(ct2.1row@rowToRowMat))
+    expect_equal(1, mean(ct2.1x1@rowToRowMat))
 })
 

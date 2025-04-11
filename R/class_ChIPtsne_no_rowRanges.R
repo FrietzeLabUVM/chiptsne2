@@ -381,6 +381,7 @@ ct2_nrr_cbind = function(..., deparse.level=1) {
     args <- list(...)
     .validate_names_unique(args, colnames, "Column")
     .validate_names_compatible(args, rownames, "Row")
+    .harmonize_cbind_list(args)
     #enforce consistent ordering
     if(length(args) > 1){
         ref_arg = args[[1]]

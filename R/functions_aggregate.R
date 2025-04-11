@@ -5,6 +5,7 @@
 #' @param group_VAR Attribute name to aggregate regions to.  There will be 1 meta-region per unique entry in `group_VAR`. `group_VAR` may specify multiple attributes, in which case there will 1 meta-region per combination of entries in all `group_VAR`.
 #' @param new_region_VAR The new region variable of the resulting ChIPtsne2 object. Defaults to `group_VAR` for single `group_VAR` but then defaults to "grouped_regions" if there are multiple.
 #' @param sep Works just like `sep` parameter for base::paste. Used to combine multiple group_VAR values.
+#' @param summary_FUN function applied to every column to summarize rows. Default is mean.
 #'
 #' @return A ChIPtsne2_no_rowRanges object with meta-regions for combinations of `group_VAR` values.
 #' @export
@@ -23,8 +24,14 @@
 #' )
 #' rowData(ct2.agg2)
 #' getRegionVariable(ct2.agg2)
-aggregateRegionsByGroup = function(ct2, group_VAR, new_region_VAR = ifelse(length(group_VAR) == 1, group_VAR, "grouped_regions"), sep = " "){
-    centroid = calculateGroupCentroid(ct2, group_VAR, sep = sep)
+aggregateRegionsByGroup = function(
+        ct2,
+        group_VAR,
+        new_region_VAR = ifelse(length(group_VAR) == 1, group_VAR, "grouped_regions"),
+        sep = " ",
+        summary_FUN = mean
+){
+    centroid = calculateGroupCentroid(ct2, group_VAR, sep = sep, summary_FUN = summary_FUN)
 
     df = do.call(rbind,
                  lapply(names(ct2@colToRowMatCols), function(nam){
@@ -61,9 +68,11 @@ aggregateRegionsByGroup = function(ct2, group_VAR, new_region_VAR = ifelse(lengt
 #' @param group_VAR Attribute name to aggregate samples to.  There will be 1 meta-sample per unique entry in `group_VAR`. `group_VAR` may specify multiple attributes, in which case there will 1 meta-region per combination of entries in all `group_VAR`.
 #' @param new_name_VAR The new name variable of the resulting ChIPtsne2 object. Defaults to `group_VAR` for single `group_VAR` but then defaults to "grouped_regions" if there are multiple.
 #' @param sep Works just like `sep` parameter for base::paste. Used to combine multiple group_VAR values.
+#' @param summary_FUN function applied to every row to summarize columns. Default is mean.
 #'
 #' @return A ChIPtsne2_no_rowRanges object with meta-regions for combinations of `group_VAR` values.
 #' @export
+#' @importFrom abind abind
 #'
 #' @examples
 #' ct2 = exampleChIPtsne2.with_meta()
@@ -88,7 +97,7 @@ aggregateRegionsByGroup = function(ct2, group_VAR, new_region_VAR = ifelse(lengt
 #' ct2.agg3 = aggregateSamplesByGroup(ct2.reps, c("cell", "mark"))
 #' colData(ct2.agg3)
 #' getNameVariable(ct2.agg3)
-aggregateSamplesByGroup = function(ct2, group_VAR, new_name_VAR = ifelse(length(group_VAR) == 1, group_VAR, "group_name"), sep = " "){
+aggregateSamplesByGroup = function(ct2, group_VAR, new_name_VAR = ifelse(length(group_VAR) == 1, group_VAR, "group_name"), sep = " ", summary_FUN = mean){
     .validate_allowed_input(group_VAR, colnames(colData(ct2)), "Some values of group_VAR are not present in colData:")
     # carried_VARS = unique(c(group_VAR, new_name_VAR))
     carried_VARS = setdiff(unique(c(group_VAR)), new_name_VAR)
@@ -103,17 +112,20 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_name_VAR = ifelse(length(
     ct2.sp = lapply(ct2.sp, function(x){rowData(x) = NULL; x})
     ct2.parts = list()
     for(name in names(ct2.sp)){
+
         x = ct2.sp[[name]]
-        if(ncol(x) == 1){
-            ct2.new = x
-        }else{
-            ct2.new = x[,1]
-            for(i in seq(2, ncol(x))){
-                ct2.new = ct2.new + x[,i]
-            }
-            ct2.new = ct2.new / ncol(x)
-        }
+
+        mat.l = lapply(x@colToRowMatCols, function(cn){
+          x@rowToRowMat[, cn]
+        })
+        mat = abind::abind(mat.l, along = 3)
+        new_mat = apply(mat, 1:2, summary_FUN)
+
+        ct2.new = x[,1]
         colnames(ct2.new) = name
+        colnames(new_mat) = colnames(ct2.new@rowToRowMat)
+
+        ct2.new@rowToRowMat = new_mat
 
         ct2.new@colData = ct2.new@colData[, carried_VARS, drop = FALSE]
         ct2.parts[[name]] = ct2.new
@@ -130,6 +142,7 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_name_VAR = ifelse(length(
 #' @param group_VARS Attribute name to aggregate samples and/or regions to.  There will be 1 meta-sample per unique sampled entry in `group_VARS` and 1 meta-region per unique region entry. `group_VARS` may specify multiple attributes, in which case there will 1 meta-region and/or sample per combination of entries in all `group_VARS`.
 #' @param sample_sep Separator character to use when pasting multiple sample grouping variables.
 #' @param region_sep Separator character to use when pasting multiple region grouping variables.
+#' @param summary_FUN function applied to every row and column group to summarize. Default is mean.
 #'
 #' @return Either a ChIPtsne2 or ChIPtsne2_no_rowRanges object, with meta-regions for combinations of `group_VARS` values if region aggregation occurred.
 #' @export
@@ -151,17 +164,18 @@ aggregateSamplesByGroup = function(ct2, group_VAR, new_name_VAR = ifelse(length(
 #' ct2.agg3 = aggregateByGroup(ct2.reps, c("cell", "mark", "peak_MCF10A_CTCF", "peak_MCF10AT1_CTCF"))
 #' colData(ct2.agg3)
 #' rowData(ct2.agg3)
-aggregateByGroup = function(ct2, group_VARS, sample_sep = " ", region_sep = " "){
+aggregateByGroup = function(ct2, group_VARS, sample_sep = " ", region_sep = " ", summary_FUN = mean){
     group_VARS.col = group_VARS[group_VARS %in% colnames(colData(ct2))]
     group_VARS.row = group_VARS[group_VARS %in% colnames(rowData(ct2))]
     if(length(group_VARS.col) > 0){
-        ct2.meta = aggregateSamplesByGroup(ct2, group_VARS.col, sep = sample_sep)
+        ct2.meta = aggregateSamplesByGroup(ct2, group_VARS.col, sep = sample_sep, summary_FUN = summary_FUN)
     }else{
         ct2.meta = ct2
     }
     if(length(group_VARS.row) > 0){
-        ct2.meta = aggregateRegionsByGroup(ct2.meta, group_VARS.row, sep = region_sep)
+        ct2.meta = aggregateRegionsByGroup(ct2.meta, group_VARS.row, sep = region_sep, summary_FUN = summary_FUN)
     }
 
     ct2.meta
 }
+

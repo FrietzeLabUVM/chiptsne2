@@ -4,7 +4,13 @@
 \alias{aggregateByGroup}
 \title{aggregateByGroup}
 \usage{
-aggregateByGroup(ct2, group_VARS, sample_sep = " ", region_sep = " ")
+aggregateByGroup(
+  ct2,
+  group_VARS,
+  sample_sep = " ",
+  region_sep = " ",
+  summary_FUN = mean
+)
 }
 \arguments{
 \item{ct2}{A ChIPtsne2 object.}
@@ -14,6 +20,8 @@ aggregateByGroup(ct2, group_VARS, sample_sep = " ", region_sep = " ")
 \item{sample_sep}{Separator character to use when pasting multiple sample grouping variables.}
 
 \item{region_sep}{Separator character to use when pasting multiple region grouping variables.}
+
+\item{summary_FUN}{function applied to every row and column group to summarize. Default is mean.}
 }
 \value{
 Either a ChIPtsne2 or ChIPtsne2_no_rowRanges object, with meta-regions for combinations of \code{group_VARS} values if region aggregation occurred.

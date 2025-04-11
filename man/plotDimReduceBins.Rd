@@ -11,7 +11,8 @@ plotDimReduceBins(
   facet_columns = NULL,
   xmin = -Inf,
   xmax = Inf,
-  agg_FUN = max,
+  agg_FUN = .signed_max,
+  bin_FUN = mean,
   x_bins = 50,
   y_bins = x_bins,
   bg_color = "gray60",
@@ -29,7 +30,8 @@ plotDimReduceBins(
   facet_columns = NULL,
   xmin = -Inf,
   xmax = Inf,
-  agg_FUN = max,
+  agg_FUN = .signed_max,
+  bin_FUN = mean,
   x_bins = NULL,
   y_bins = x_bins,
   bg_color = "gray60",
@@ -53,7 +55,9 @@ plotDimReduceBins(
 \item{xmax}{Maximum value of profile position allowed. Default is Inf.}
 
 \item{agg_FUN}{Function used to summarize each profile to a single value.
-Default is max.}
+Default is .signed_max.}
+
+\item{bin_FUN}{Function used to summarize binned regions of dim reductions.}
 
 \item{x_bins}{Resolution in dim reduced x-axis. Defaults to change with sqrt
 of number of regions.}

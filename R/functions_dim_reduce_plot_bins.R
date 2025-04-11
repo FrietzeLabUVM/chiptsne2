@@ -13,12 +13,20 @@ make_facet_str = function(facet_rows = character(), facet_columns = character())
     paste0(row_str, "~", col_str)
 }
 
+# version of max() intended for situations where strong negative values of interest too
+# behaves just like max() if only positive values are present
+.signed_max = function(x){
+    k = which.max(abs(x))
+    return(x[k])
+}
+
 .plotDimReduceBins = function(ct2,
                               facet_rows = ct2@name_VAR,
                               facet_columns = NULL,
                               xmin = -Inf,
                               xmax = Inf,
-                              agg_FUN = max,
+                              agg_FUN = .signed_max,
+                              bin_FUN = mean,
                               x_bins = NULL,
                               y_bins = x_bins,
                               bg_color = "gray60",
@@ -69,7 +77,8 @@ make_facet_str = function(facet_rows = character(), facet_columns = character())
         val = ct2@value_VAR,
         extra_VARS = extra_VARS[-1],
         facet_ = extra_VARS[1],
-        min_size = min_size
+        min_size = min_size,
+        bin_FUN = bin_FUN
     )
 
     bin_colors = .prep_color_scale(bin_dt[[ct2@value_VAR]], color_scale = bin_colors)
@@ -101,7 +110,8 @@ generic_plotDimReduceBins = function(ct2,
                                      facet_columns = NULL,
                                      xmin = -Inf,
                                      xmax = Inf,
-                                     agg_FUN = max,
+                                     agg_FUN = .signed_max,
+                                     bin_FUN = mean,
                                      x_bins = 50,
                                      y_bins = x_bins,
                                      bg_color = "gray60",
@@ -123,7 +133,8 @@ generic_plotDimReduceBins = function(ct2,
 #' @param xmin Minimum value of profile position allowed. Default is -Inf.
 #' @param xmax Maximum value of profile position allowed. Default is Inf.
 #' @param agg_FUN Function used to summarize each profile to a single value.
-#'   Default is max.
+#'   Default is .signed_max.
+#' @param bin_FUN Function used to summarize binned regions of dim reductions.
 #' @param x_bins Resolution in dim reduced x-axis. Defaults to change with sqrt
 #'   of number of regions.
 #' @param y_bins Resolution in dim reduced y-axis. Defaults to same as `x_bins`.
@@ -197,6 +208,7 @@ aggregate_signals = function(profile_dt,
     agg_dt[, c(yout_, id_, by_), with = FALSE]
 }
 
+#divides dim reduce space into bins and summarizes each with a single value according to bin_FUN
 bin_signals = function(agg_dt,
                        x_bins = 50,
                        y_bins = x_bins,
@@ -207,7 +219,7 @@ bin_signals = function(agg_dt,
                        byval = "ty",
                        facet_ = "wide_var",
                        extra_VARS = character(),
-                       bin_met = mean,
+                       bin_FUN = mean,
                        min_size = 1, return_data = FALSE){
     #visible binding NOTE
     bx = .N = `:=` = tx = ty = NULL
@@ -218,7 +230,7 @@ bin_signals = function(agg_dt,
     agg_dt[, bx := bin_values(get(bxval), n_bins = x_bins, xrng = xrng)]
     agg_dt[, by := bin_values(get(byval), n_bins = y_bins, xrng = yrng)]
 
-    bin_dt = agg_dt[, list(y = bin_met(get(val)), N = .N),
+    bin_dt = agg_dt[, list(y = bin_FUN(get(val)), N = .N),
                     c(unique(c(facet_, extra_VARS, "bx", "by")))]
     data.table::setnames(bin_dt, "y", val)
     bxvc = bin_values_centers(n_bins = x_bins, xrng)

@@ -3,6 +3,7 @@
 \name{cloneChIPtsne2}
 \alias{cloneChIPtsne2}
 \alias{cloneChIPtsne2,ChIPtsne2_no_rowRanges-method}
+\alias{cloneChIPtsne2,ChIPtsne2-method}
 \title{cloneChIPtsne2}
 \usage{
 cloneChIPtsne2(
@@ -15,6 +16,7 @@ cloneChIPtsne2(
   new_region_VAR = NULL,
   new_fetch_config = NULL,
   new_rowRanges = NULL,
+  new_rowData = NULL,
   new_colData = NULL,
   new_assays = NULL,
   new_obj_history = NULL
@@ -30,6 +32,23 @@ cloneChIPtsne2(
   new_region_VAR = NULL,
   new_fetch_config = NULL,
   new_rowRanges = NULL,
+  new_rowData = NULL,
+  new_colData = NULL,
+  new_assays = NULL,
+  new_obj_history = NULL
+)
+
+\S4method{cloneChIPtsne2}{ChIPtsne2}(
+  ct2,
+  new_rowToRowMat = NULL,
+  new_colToRowMatCols = NULL,
+  new_name_VAR = NULL,
+  new_position_VAR = NULL,
+  new_value_VAR = NULL,
+  new_region_VAR = NULL,
+  new_fetch_config = NULL,
+  new_rowRanges = NULL,
+  new_rowData = NULL,
   new_colData = NULL,
   new_assays = NULL,
   new_obj_history = NULL

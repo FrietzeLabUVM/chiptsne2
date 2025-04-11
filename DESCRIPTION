@@ -1,7 +1,7 @@
 Package: chiptsne2
 Type: Package
 Title: ChIPseq analysis using tSNE
-Version: 0.1.56
+Version: 0.1.57
 Authors@R: person("Joseph R", "Boyd", email = "jrboyd@uvm.edu",
                   role = c("aut", "cre"), comment = c(ORCID="0000-0002-8969-9676"))
 Description: chiptsne2 provides support for tSNE and other dimensional 
@@ -21,6 +21,7 @@ Depends:
     R (>= 4.3.0),
     shiny
 Imports: 
+    abind,
     BiocFileCache,
     BiocGenerics, 
     cowplot,
@@ -49,7 +50,7 @@ Imports:
     umap,
     utils
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 NeedsCompilation: no
 Packaged: 2018-01-08 17:54:19 UTC; joeboyd
